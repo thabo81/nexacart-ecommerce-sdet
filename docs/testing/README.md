@@ -53,14 +53,14 @@ For each feature:
 
 ```text
 tests/
-  api/             # REST endpoint tests
-  ui/              # Playwright browser tests
-  integration/     # End-to-end service and persistence behaviour
-  database/        # SQL/persistence assertions where appropriate
-  bdd/              # pytest-bdd feature files and step definitions (if needed)
-`pages/             # Page Objects where they reduce duplication
-`allure-results/    # Generated locally; ignored by git
-`
+  api/          # REST endpoint tests
+  ui/           # Playwright browser tests
+  integration/  # Cross-component workflow tests
+  database/     # SQL/persistence assertions where appropriate
+  bdd/          # pytest-bdd features and step definitions (if needed)
+pages/           # Page Objects where they reduce duplication
+allure-results/  # Generated locally; ignored by git
+```
 
 The exact test structure should be confirmed in the architecture and test strategy before implementation.
 
