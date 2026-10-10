@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+venv/
+.venv/
+ENV/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local databases and database volumes
+*.db
+*.sqlite
+*.sqlite3
+postgres-data/
+pgdata/
+
+# Node / React
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+build/
+*.tsbuildinfo
+.npm/
+
+# Playwright browser/test output
+test-results/
+playwright-report/
+blob-report/
+screenshots/
+videos/
+traces/
+
+# Allure output
+allure-results/
+allure-report/
+
+# IDEs / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
