@@ -3,9 +3,10 @@
 | Field | Value |
 |---|---|
 | Document | `docs/planning/USER_STORIES_AND_FLOWS.md` |
-| Version | 0.1 — draft for owner review |
-| Status | **Not approved.** Awaiting owner review; no other planning document has been started |
-| Date | 2026-10-13 |
+| Version | 0.2 — approved |
+| Status | **Approved by the project owner on 2026-10-15.** This document is approved against PRD v0.6; the PRD remains authoritative if a discrepancy is discovered. The design brief is the next planning deliverable and is being prepared by Claude. |
+| Date created | 2026-10-13 |
+| Approval date | 2026-10-15 |
 | Primary source | `docs/planning/PRD.md` v0.6 (approved baseline) |
 | Context source | `docs/planning/PROJECT_BRIEF.md` |
 | Related | `docs/planning/README.md` (document sequence), `docs/testing/README.md` (SDET workflow), `CLAUDE.md` (engineering rules) |
