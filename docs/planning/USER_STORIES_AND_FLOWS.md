@@ -1443,7 +1443,7 @@ While writing the stories, these points were found where the PRD was silent or l
 | ID | Observation | Stories | Suggested home |
 |---|---|---|---|
 | GAP-01 | **Resolved by PRD v0.7 / CL-17:** after password change, all old tokens are invalidated; UI confirms success and requires login with the new password. | US-008 | Closed — CL-17 |
-| GAP-02 | Owner-approved architecture default: unknown product/variant ID returns 404 `NOT_FOUND`; known inactive/unavailable target returns 409 `PRODUCT_UNAVAILABLE`; rejected add leaves cart/wishlist unchanged, and UI shows the API message. Direct inactive product detail still follows FR-025/AC-020 (404). | US-026, US-032 | Architecture v0.8 draft; final doc review pending |
+| GAP-02 | Owner-approved architecture default: unknown product/variant ID returns 404 `NOT_FOUND`; known inactive/unavailable target returns 409 `PRODUCT_UNAVAILABLE`; rejected add leaves cart/wishlist unchanged, and UI shows the API message. Direct inactive product detail still follows FR-025/AC-020 (404). | US-026, US-032 | Architecture v0.9 owner-approved planning baseline |
 | GAP-03 | Whether guests see a cart or wishlist indicator, and whether the wishlist has a count like the cart (FR-040) | US-028 | Design brief |
 | GAP-04 | Which fields each entry of the order-history list shows | US-050 | Design brief |
 | GAP-05 | The reviewer name shown with a review and the ordering and paging of reviews | US-057 | Design brief |
