@@ -51,7 +51,7 @@ Planning baselines and the remaining approval gate are tracked in [docs/planning
 3. [Design Brief & Wireframes](docs/planning/DESIGN_BRIEF_AND_WIREFRAMES.md) — approved v0.4; real-browser verification remains pending
 4. [Technical Architecture](docs/planning/TECHNICAL_ARCHITECTURE.md) — owner-approved planning baseline v0.9
 5. [Database Schema & ERD](docs/planning/DATABASE_SCHEMA_AND_ERD.md) — owner-approved planning baseline v0.9
-6. [Implementation Plan & Backlog — review draft](https://github.com/thabo81/nexacart-ecommerce-sdet/blob/docs/technical-architecture-draft/docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — v0.1 awaiting owner approval; not yet published to main
+6. [Implementation Plan & Backlog — review draft](https://github.com/thabo81/nexacart-ecommerce-sdet/blob/docs/implementation-plan-backlog-review/docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — v0.1 awaiting owner approval; not yet published to main
 
 Start with [the master project brief](docs/planning/PROJECT_BRIEF.md).
 
