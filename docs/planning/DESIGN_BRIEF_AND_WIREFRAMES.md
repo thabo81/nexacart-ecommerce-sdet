@@ -3,13 +3,13 @@
 | Field | Value |
 |---|---|
 | Document | `docs/planning/DESIGN_BRIEF_AND_WIREFRAMES.md` |
-| Version | 0.3 — owner-approved design baseline, aligned with PRD v0.7 and User Stories v0.3 |
-| Status | **Approved by the owner on 2026-10-20.** Approval covers Gallery (A), the N-and-dot logo concept, and the full design baseline after the v0.3 reconciliation below. DQ-01 – DQ-26 have approved design dispositions; DQ-20 is aligned with PRD clarification CL-20. GAP-02 and GAP-11 remain architecture follow-ups. No application code has been written. The prototype has not been visually verified in a real browser (§1.6). |
+| Version | 0.4 — owner-approved design baseline, aligned with PRD v0.7 and User Stories v0.4 |
+| Status | **Approved by the owner on 2026-10-20.** Approval covers Gallery (A), the N-and-dot logo concept, and the full design baseline. DQ-01 – DQ-26 have approved design dispositions; DQ-20 is aligned with PRD clarification CL-20. GAP-02/GAP-11 are recorded in Technical Architecture v0.9, and the architecture/schema are now owner-approved planning baselines. Implementation remains blocked until the implementation backlog is approved. No application code has been written. The prototype has not been visually verified in a real browser (§1.6). |
 | Date | 2026-10-20 |
-| Primary sources | `docs/planning/PRD.md` v0.7 (approved baseline) and `docs/planning/USER_STORIES_AND_FLOWS.md` v0.3 (approved baseline) |
+| Primary sources | `docs/planning/PRD.md` v0.7 (approved baseline) and `docs/planning/USER_STORIES_AND_FLOWS.md` v0.4 (approved baseline) |
 | Context sources | `docs/planning/PROJECT_BRIEF.md`, `docs/planning/README.md`, `docs/testing/README.md`, `CLAUDE.md`, `README.md` |
 | Visual exploration assets | `docs/planning/design/prototypes/home-direction-picker.html`, `docs/planning/design/brand/nexacart-logo-concepts.svg` |
-| Not yet created | `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.9 and `DATABASE_SCHEMA_AND_ERD.md` v0.9 are owner-approved planning baselines. GAP-02/GAP-11 defaults and catalogue field caps are owner-approved. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` v0.1 is drafted and awaits owner approval. Hosting-provider selection is deferred; application implementation remains blocked until the planning gate is approved. |
 
 ## 1. Purpose, scope and conventions
 
@@ -22,9 +22,9 @@ This brief defines how NexaCart should look, feel and behave on screen, precisel
 - **Authority:** the PRD wins over this brief and over the user stories. Where the two documents disagree the discrepancy is recorded in §14.5 and not silently resolved. This brief never changes a business rule.
 
 ### 1.3 Approved requirements versus design decisions
-Everything that comes from the PRD or the user stories is cited with its identifier. Elements marked **[P]** began as proposals and now reflect approved design defaults; the marker is retained for traceability and is not an indication that owner approval is still pending. A design default does not override a PRD business rule. GAP-01, GAP-06 and GAP-10 are resolved by PRD v0.7 clarifications CL-17 to CL-19. GAP-02 and GAP-11 remain architecture follow-ups; the other observations have approved design dispositions documented in §14.2.
+Everything that comes from the PRD or the user stories is cited with its identifier. Elements marked **[P]** began as proposals and now reflect approved design defaults; the marker is retained for traceability and is not an indication that owner approval is still pending. A design default does not override a PRD business rule. GAP-01, GAP-06 and GAP-10 are resolved by PRD v0.7 clarifications CL-17 to CL-19. GAP-02 and GAP-11 have owner-confirmed API defaults recorded in Technical Architecture v0.9. Architecture and database planning baselines are approved; the implementation backlog and final planning gate remain pending. The other observations have approved design dispositions documented in §14.2.
 
-**Status update (2026-10-20):** the owner confirmed approval of the visual direction (Gallery A), logo concept and complete corrected design baseline. The four cross-document behaviours that were formerly noted in §14.7 are now recorded in PRD v0.7 as CL-17 to CL-20 and reflected in User Stories v0.3. Those clarifications, not the old proposals, are the normative source for architecture and test design.
+**Status update (2026-10-20):** the owner confirmed approval of the visual direction (Gallery A), logo concept and complete corrected design baseline. The four cross-document behaviours that were formerly noted in §14.7 are now recorded in PRD v0.7 as CL-17 to CL-20 and reflected in User Stories v0.4. Those clarifications, not the old proposals, are the normative source for architecture and test design.
 
 ### 1.4 Conventions
 
@@ -1465,7 +1465,7 @@ On mobile the same content stacks in one column with the same behaviour.
 ### SCR-16 — Product reviews (R2)
 **Purpose:** Let shoppers read reviews and let customers who received a product rate it.
 **Release:** R2 (read-only seeded ratings appear in R1 on listings and the product header) · **Stories:** US-057, US-058, US-059 · **PRD:** FR-077 to FR-082, BR-058 to BR-060, DEC-14 · **Mode:** persuade (reading) and operate (writing).
-**Layout rules:** a summary (average and count) then the list, then the form. The form appears only for customers with a delivered order for the product; for everyone else it is absent. Comments are always shown as plain text. Reviewer name and ordering are unresolved (GAP-05, DQ-05). Where an administrator hides a review is also unresolved (US-059, DQ-21).
+**Layout rules:** a summary (average and count) then the list, then the form. The form appears only for customers with a delivered order for the product; for everyone else it is absent. Comments are always shown as plain text. Show the reviewer's first name only, sort newest first, and paginate 10 reviews per page; customers cannot edit reviews after submission (DQ-05). An administrator hides a review using the Hide control on that review in the admin product editor; there is no Hide control on the public page (DQ-21).
 
 **Desktop**
 ```text
@@ -1475,7 +1475,7 @@ On mobile the same content stacks in one column with the same behaviour.
 │ (1) Summary                     │ (2) Review list                                                  │
 │ 4.5 out of 5                    │ 5 / 5   Comment text, shown as plain text.                       │
 │ 12 reviews                      │ 4 / 5   Another comment.                                         │
-│                                 │ (reviewer name and order: GAP-05) [P]                            │
+│                                 │ First name only; newest first; 10 per page [DQ-05]                │
 ├─────────────────────────────────┴──────────────────────────────────────────────────────────────────┤
 │ (3) Write a review (only after a delivered order)                                                  │
 │ Rating *  ( ) 1  ( ) 2  ( ) 3  ( ) 4  ( ) 5                                                        │
@@ -2393,7 +2393,7 @@ Every screen carries a release label. 23 screens: 15 are R1 (some with a named R
 | ID | Question | Approved default | Related | Status |
 |---|---|---|---|---|
 | DQ-01 | After a password change, does the app sign the customer in again, or require login? | Show a confirmation and require login (the PRD ends all earlier sessions) | GAP-01, FR-008, SCR-14 | Approved 2026-10-17; aligned with CL-17 on 2026-10-20 |
-| DQ-02 | What does the interface do for a product that becomes unavailable between viewing and adding? | The product page already shows not found or out of stock; any failed add shows the API's message inline. The API response itself is an architecture matter | GAP-02, SCR-04 | Approved 2026-10-17 |
+| DQ-02 | What does the interface do for a product that becomes unavailable between viewing and adding? | Any failed add shows the API's message inline. The owner-approved architecture default is 404 `NOT_FOUND` for an unknown ID and 409 `PRODUCT_UNAVAILABLE` for a known inactive/unavailable mutation target; direct access to an inactive product still follows FR-025/AC-020 (404). | GAP-02, SCR-04 | Approved 2026-10-17; API default confirmed 2026-10-20 |
 | DQ-03 | What do guests see in the header for wishlist and cart? | Both links are shown and lead to login; no counts for guests; no wishlist count for anyone | GAP-03, FR-040 | Approved 2026-10-17 |
 | DQ-04 | Which columns does the order history show? | Order number, placement date, status, total, a View link | GAP-04, SCR-09 | Approved 2026-10-17 |
 | DQ-05 | How are reviews presented? | First name only, newest first, 10 per page; no review editing | GAP-05, SCR-16 | Approved 2026-10-17 |
@@ -2421,12 +2421,12 @@ Every screen carries a release label. 23 screens: 15 are R1 (some with a named R
 
 ### 14.2 Observation disposition and architecture follow-ups
 
-The observations in User Stories v0.3 have been reconciled as follows. GAP-01, GAP-06 and GAP-10 are resolved in PRD v0.7 by CL-17, CL-18 and CL-19 respectively. DQ-03–DQ-09 supply approved design defaults for the remaining visual questions. GAP-02 and GAP-11 remain architecture follow-ups because the interface decision does not define backend validation/error semantics.
+The observations in User Stories v0.4 have been reconciled as follows. GAP-01, GAP-06 and GAP-10 are resolved in PRD v0.7 by CL-17, CL-18 and CL-19 respectively. DQ-03–DQ-09 supply approved design defaults for the remaining visual questions. The owner-approved GAP-02 and GAP-11 API defaults are recorded in Technical Architecture v0.9; the interface continues to show the API's chosen error and does not duplicate backend validation.
 
 | GAP | Disposition | Design decision or remaining follow-up | Reference |
 |---|---|---|---|
 | GAP-01 | Resolved | Successful password change invalidates previous tokens, redirects to login and shows confirmation there; customer logs in using new password | CL-17, FR-008, US-008 |
-| GAP-02 | Architecture follow-up | UI displays the API's message inline if adding an unavailable item fails. Define the API response for inactive, removed or unknown products/variants in architecture; the UI does not invent the response contract | DQ-02, US-026, US-033 |
+| GAP-02 | API default owner-confirmed; architecture v0.9 approved as planning baseline | Unknown ID → 404 `NOT_FOUND`; known inactive/unavailable item mutation → 409 `PRODUCT_UNAVAILABLE`; no mutation; UI shows API message. Direct detail for an inactive/non-visible product remains 404. | DQ-02, US-026, US-033, Architecture v0.9 |
 | GAP-03 | Design disposition approved | Guests see Wishlist and Cart links leading to login, without counts; no wishlist count for any user | DQ-03 |
 | GAP-04 | Design disposition approved | Order-history columns: order number, placement date, status, total and View | DQ-04 |
 | GAP-05 | Design disposition approved | Reviewer first name only; newest first; 10 reviews per page; no review editing | DQ-05 |
@@ -2435,10 +2435,10 @@ The observations in User Stories v0.3 have been reconciled as follows. GAP-01, G
 | GAP-08 | Design disposition approved | Confirmation for order cancellation, address deletion and cart clearing; no confirmation for cart-line or wishlist-item removal | DQ-08 |
 | GAP-09 | Design disposition approved | Plain English and sentence case; request ID shown only for unexpected failures | DQ-09 |
 | GAP-10 | Resolved | Customer cancellation requires no reason for eligible orders; administrator cancellation still requires a 1–200 character reason | CL-19, FR-072, FR-073, FR-094, US-053, US-054, US-074 |
-| GAP-11 | Architecture follow-up | UI displays the coupon error code/message returned by the API. Architecture must define deterministic validation precedence when multiple coupon errors apply | DQ-11, US-036, US-037 |
+| GAP-11 | API precedence owner-confirmed; architecture v0.9 approved as planning baseline | UI shows the single API error. The API validates lookup → active/time window → customer eligibility → minimum → limits → discount/caps, both at apply and placement. | DQ-11, US-036, US-037, Architecture v0.9 |
 
 ### 14.3 Owner decisions
-All 26 design questions have approved dispositions. The owner approved Gallery (A), the N-and-dot logo concept and the corrected full design baseline on 2026-10-20. DQ-01, DQ-06, DQ-10 and DQ-20 are reconciled with PRD v0.7 clarifications CL-17 to CL-20. GAP-02 and GAP-11 remain architecture follow-ups, not open visual-design approvals.
+All 26 design questions have approved dispositions. The owner approved Gallery (A), the N-and-dot logo concept and the corrected full design baseline on 2026-10-20. DQ-01, DQ-06, DQ-10 and DQ-20 are reconciled with PRD v0.7 clarifications CL-17 to CL-20. GAP-02 and GAP-11 are no longer open product/visual-design decisions: their API defaults are owner-confirmed in Technical Architecture v0.9; architecture and schema approval is recorded, while backlog approval and implementation remain pending.
 
 ### 14.4 Approved payment outcome copy
 Microcopy was proposed and is approved [P, DQ-09]. Every outcome message says what happened, that nothing was charged (it is a simulation) and what the customer can do.
@@ -2455,7 +2455,7 @@ Microcopy was proposed and is approved [P, DQ-09]. Every outcome message says wh
 | In progress | Processing your payment | This can take a few seconds. Please do not close this page. | none |
 
 ### 14.5 Discrepancies between the PRD and the user stories
-The brief was reconciled against PRD v0.7 and User Stories & Flows v0.3 for the four updated behaviours (CL-17 to CL-20), screen references, resolved observations and state coverage. GAP-01, GAP-06 and GAP-10 are closed in the PRD and stories; GAP-02 and GAP-11 are explicitly retained as architecture follow-ups. No additional business-rule discrepancy was identified in this review. The PRD remains authoritative if a discrepancy appears later. The prototype has not been visually inspected in a real browser, and runtime accessibility testing remains a future verification task.
+The brief was reconciled against PRD v0.7 and User Stories & Flows v0.4 for the four updated behaviours (CL-17 to CL-20), screen references, resolved observations and state coverage. GAP-01, GAP-06 and GAP-10 are closed in the PRD and stories; GAP-02 and GAP-11 API defaults are owner-approved in Technical Architecture v0.9. The implementation backlog still requires owner approval. No additional business-rule discrepancy was identified in this review. The PRD remains authoritative if a discrepancy appears later. The prototype has not been visually inspected in a real browser, and runtime accessibility testing remains a future verification task.
 
 ### 14.6 Design critique (manual)
 `impeccable`'s critique references were not available, so this is a manual review against §2 and the generic-template tells listed by `design-taste-frontend`.
@@ -2473,7 +2473,7 @@ The brief was reconciled against PRD v0.7 and User Stories & Flows v0.3 for the 
 
 ### 14.7 PRD clarifications already incorporated
 
-The four decisions previously listed as defaults to record in the PRD were incorporated into PRD v0.7 and User Stories v0.3. They are not outstanding documentation tasks. The PRD clarifications are authoritative for architecture and test design.
+The four decisions previously listed as defaults to record in the PRD were incorporated into PRD v0.7 and User Stories v0.4. They are not outstanding documentation tasks. The PRD clarifications are authoritative for architecture and test design.
 
 | Design question | Approved behaviour | PRD clarification | Story alignment |
 |---|---|---|---|
@@ -2552,4 +2552,5 @@ The four decisions previously listed as defaults to record in the PRD were incor
 |---|---|---|
 | 0.1 | 2026-10-17 | First draft for owner review, based on PRD v0.6 and the user stories draft. No application code and no other planning document was created |
 | 0.2 | 2026-10-17 | Owner approved all design questions DQ-01 – DQ-26 ("approve all"). Status changed to approved baseline; wording describing proposals as pending was updated; §14.3 and a new §14.7 added. No wireframe, token, component or requirement reference changed; the document version is 0.2 |
-| 0.3 | 2026-10-20 | Owner approved Gallery (A), the N-and-dot logo concept and the full design baseline. Reconciled the brief with PRD v0.7 and approved User Stories v0.3; updated CL-17–CL-20 behaviour, closed GAP-01/06/10, retained GAP-02/11 as architecture follow-ups, corrected cart arithmetic and UI-state coverage, and updated traceability/metadata. Real-browser and runtime accessibility verification remain outstanding |
+| 0.3 | 2026-10-20 | Owner approved Gallery (A), the N-and-dot logo concept and the full design baseline. Reconciled the brief with PRD v0.7 and approved User Stories v0.3; updated CL-17–CL-20 behaviour, closed GAP-01/06/10, recorded owner-confirmed API defaults for GAP-02/11, corrected cart arithmetic and UI-state coverage, and updated traceability/metadata. Real-browser and runtime accessibility verification remain outstanding |
+| 0.4 | 2026-10-20 | Updated the DQ-02 row and cross-document references for the owner-approved GAP-02 API semantics; aligned the story baseline to User Stories v0.4 and technical drafts to Architecture v0.5 / ERD v0.4. Visual browser verification remains pending. |
