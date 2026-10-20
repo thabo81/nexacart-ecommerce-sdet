@@ -3,17 +3,17 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/TECHNICAL_ARCHITECTURE.md |
-| Version | 0.6 — architecture draft aligned to Database Schema v0.5 |
+| Version | 0.7 — architecture aligned to Database Schema v0.7 |
 | Status | **Draft under owner review; not yet approved as a complete document.** Owner-confirmed: HttpOnly JWT cookie transport with CSRF protection (AC-004), Argon2id, UUID IDs, PostgreSQL 16 with native `gen_random_uuid()`, explicit CHECK/partial-index names, nightly cleanup of expired sessions and idempotency records, row-level locking for review aggregates, GAP-02/GAP-11 defaults, and local plus public deployment. Hosting provider is deliberately deferred. Catalogue field limits not numerically specified in the PRD are proposed in the ERD and await owner review. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
 | Related documents | PROJECT_BRIEF.md; README.md; docs/testing/README.md |
-| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.5 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
+| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.7 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
 
 ## 1. Purpose and decision status
 
-This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.5 is drafted for review.
+This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.7 is drafted for review.
 
 No application implementation is authorised yet. Owner decisions are being recorded in the architecture baseline; the remaining hosting-provider choice can be decided later. Before feature implementation begins, finish and review the database schema/ERD and implementation backlog and record final architecture sign-off.
 
@@ -701,3 +701,4 @@ Before this document is marked approved, review that:
 | 0.4 | 2026-10-20 | Aligned architecture metadata to Database Schema v0.3, and clarified that 02:00 UTC is a proposed configurable nightly-cleanup default, while the nightly cleanup requirement itself is owner-approved. Hosting provider remains deferred; proposed catalogue field caps await confirmation. |
 | 0.5 | 2026-10-20 | Updated baseline references to owner-approved User Stories v0.4 and Design Brief v0.4, which now reflect the approved GAP-02/GAP-11 defaults. No backend implementation or migrations were created. |
 | 0.6 | 2026-10-20 | Added the proposed reference performance-test profile required to measure NFR-001–004, and aligned architecture metadata to Database Schema v0.5. Hosting provider remains deferred; catalogue string caps and the benchmark profile await owner sign-off. |
+| 0.7 | 2026-10-20 | Aligned schema reference metadata to Database Schema v0.7 after named constraint/index registry and table-description reconciliation. No application code or migration is present. Hosting provider remains deferred; proposed catalogue-field caps and performance reference profile await owner sign-off. |
