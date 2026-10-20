@@ -24,7 +24,7 @@ This brief defines how NexaCart should look, feel and behave on screen, precisel
 ### 1.3 Approved requirements versus design decisions
 Everything that comes from the PRD or the user stories is cited with its identifier. Elements marked **[P]** began as proposals and now reflect approved design defaults; the marker is retained for traceability and is not an indication that owner approval is still pending. A design default does not override a PRD business rule. GAP-01, GAP-06 and GAP-10 are resolved by PRD v0.7 clarifications CL-17 to CL-19. GAP-02 and GAP-11 now have owner-confirmed API defaults recorded in Technical Architecture v0.5; final technical-document review and implementation remain pending. The other observations have approved design dispositions documented in §14.2.
 
-**Status update (2026-10-20):** the owner confirmed approval of the visual direction (Gallery A), logo concept and complete corrected design baseline. The four cross-document behaviours that were formerly noted in §14.7 are now recorded in PRD v0.7 as CL-17 to CL-20 and reflected in User Stories v0.3. Those clarifications, not the old proposals, are the normative source for architecture and test design.
+**Status update (2026-10-20):** the owner confirmed approval of the visual direction (Gallery A), logo concept and complete corrected design baseline. The four cross-document behaviours that were formerly noted in §14.7 are now recorded in PRD v0.7 as CL-17 to CL-20 and reflected in User Stories v0.4. Those clarifications, not the old proposals, are the normative source for architecture and test design.
 
 ### 1.4 Conventions
 
@@ -2421,7 +2421,7 @@ Every screen carries a release label. 23 screens: 15 are R1 (some with a named R
 
 ### 14.2 Observation disposition and architecture follow-ups
 
-The observations in User Stories v0.3 have been reconciled as follows. GAP-01, GAP-06 and GAP-10 are resolved in PRD v0.7 by CL-17, CL-18 and CL-19 respectively. DQ-03–DQ-09 supply approved design defaults for the remaining visual questions. The owner has since approved GAP-02 and GAP-11 API defaults in Technical Architecture v0.5; the interface continues to show the API's chosen error and does not duplicate backend validation.
+The observations in User Stories v0.4 have been reconciled as follows. GAP-01, GAP-06 and GAP-10 are resolved in PRD v0.7 by CL-17, CL-18 and CL-19 respectively. DQ-03–DQ-09 supply approved design defaults for the remaining visual questions. The owner has since approved GAP-02 and GAP-11 API defaults in Technical Architecture v0.5; the interface continues to show the API's chosen error and does not duplicate backend validation.
 
 | GAP | Disposition | Design decision or remaining follow-up | Reference |
 |---|---|---|---|
@@ -2455,7 +2455,7 @@ Microcopy was proposed and is approved [P, DQ-09]. Every outcome message says wh
 | In progress | Processing your payment | This can take a few seconds. Please do not close this page. | none |
 
 ### 14.5 Discrepancies between the PRD and the user stories
-The brief was reconciled against PRD v0.7 and User Stories & Flows v0.3 for the four updated behaviours (CL-17 to CL-20), screen references, resolved observations and state coverage. GAP-01, GAP-06 and GAP-10 are closed in the PRD and stories; GAP-02 and GAP-11 now have owner-confirmed API defaults in Technical Architecture v0.5, pending final technical-document review and implementation. No additional business-rule discrepancy was identified in this review. The PRD remains authoritative if a discrepancy appears later. The prototype has not been visually inspected in a real browser, and runtime accessibility testing remains a future verification task.
+The brief was reconciled against PRD v0.7 and User Stories & Flows v0.4 for the four updated behaviours (CL-17 to CL-20), screen references, resolved observations and state coverage. GAP-01, GAP-06 and GAP-10 are closed in the PRD and stories; GAP-02 and GAP-11 now have owner-confirmed API defaults in Technical Architecture v0.5, pending final technical-document review and implementation. No additional business-rule discrepancy was identified in this review. The PRD remains authoritative if a discrepancy appears later. The prototype has not been visually inspected in a real browser, and runtime accessibility testing remains a future verification task.
 
 ### 14.6 Design critique (manual)
 `impeccable`'s critique references were not available, so this is a manual review against §2 and the generic-template tells listed by `design-taste-frontend`.
@@ -2473,7 +2473,7 @@ The brief was reconciled against PRD v0.7 and User Stories & Flows v0.3 for the 
 
 ### 14.7 PRD clarifications already incorporated
 
-The four decisions previously listed as defaults to record in the PRD were incorporated into PRD v0.7 and User Stories v0.3. They are not outstanding documentation tasks. The PRD clarifications are authoritative for architecture and test design.
+The four decisions previously listed as defaults to record in the PRD were incorporated into PRD v0.7 and User Stories v0.4. They are not outstanding documentation tasks. The PRD clarifications are authoritative for architecture and test design.
 
 | Design question | Approved behaviour | PRD clarification | Story alignment |
 |---|---|---|---|
