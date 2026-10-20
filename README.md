@@ -2,7 +2,7 @@
 
 NexaCart is a multi-category e-commerce application being planned alongside a professional SDET automation framework. The application will support product discovery, shopping carts, checkout with simulated payments, order management and inventory rules. The portfolio focus is the quality engineering around those workflows: UI automation, REST API testing, database validation, BDD and CI/CD.
 
-> **Project status:** Planning. Features and test results will only be marked complete after implementation and verification.
+> **Project status:** Planning approval gate. The PRD, user stories, design, technical architecture v0.9 and database schema/ERD v0.9 are owner-approved planning baselines. The implementation plan/backlog v0.1 is drafted and awaiting review. No application feature code or Alembic migrations are authorised until that backlog is approved.
 
 ## Project goals
 
