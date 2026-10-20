@@ -5,7 +5,7 @@
 | Document | `docs/planning/DESIGN_BRIEF_AND_WIREFRAMES.md` |
 | Version | 0.3 — owner-approved design baseline, aligned with PRD v0.7 and User Stories v0.3 |
 | Status | **Approved by the owner on 2026-10-20.** Approval covers Gallery (A), the N-and-dot logo concept, and the full design baseline after the v0.3 reconciliation below. DQ-01 – DQ-26 have approved design dispositions; DQ-20 is aligned with PRD clarification CL-20. GAP-02 and GAP-11 remain architecture follow-ups. No application code has been written. The prototype has not been visually verified in a real browser (§1.6). |
-| Date | 2026-10-17 |
+| Date | 2026-10-20 |
 | Primary sources | `docs/planning/PRD.md` v0.7 (approved baseline) and `docs/planning/USER_STORIES_AND_FLOWS.md` v0.3 (approved baseline) |
 | Context sources | `docs/planning/PROJECT_BRIEF.md`, `docs/planning/README.md`, `docs/testing/README.md`, `CLAUDE.md`, `README.md` |
 | Visual exploration assets | `docs/planning/design/prototypes/home-direction-picker.html`, `docs/planning/design/brand/nexacart-logo-concepts.svg` |
@@ -680,15 +680,15 @@ Every screen below has a purpose, its release and requirement references, a desk
 │ (1) Shopping cart (2 items)                                                                        │
 ├───────────────────────────────────────────────────────────┬────────────────────────────────────────┤
 │ (2) LINES                                                 │ (4) SUMMARY                            │
-│ {img}  Orbit Buds - Graphite     [ - ] 1 [ + ]   R649.00  │ Subtotal   R1,147.00                     │
+│ {img}  Orbit Buds - Graphite     [ - ] 1 [ + ]   R649.00  │ Subtotal   R1,147.00                 │
 │ Remove                                                    │ (5) Coupon  [ code ] [ Apply ]         │
 │       Price changed: was R599.00, now R649.00 (3)         │ Applied: SAVE100  -R100.00  [ Remove ] │
 │ ----------------------------------------------------      │ (6) Delivery                           │
-│ {img}  Pulse Mouse - Black [ - ] 2 [ + ] Unit R249.00; line R498.00  │ (o) Standard  R0.00  3-5 business days │
-│ Remove                                                    │ ( ) Express  R120.00  1-2 business     │
-│       Only 1 left: reduce the quantity (3)                │ days                                   │
-│                                                           │ First-order offer applied (7)          │
-│ Clear cart (secondary link)                               │ (8) Total  R1,047.00                     │
+│ {img}  Pulse Mouse - Black  [ - ] 2 [ + ]               │ (o) Standard R0.00; 3-5 business days │
+│       Unit R249.00 each; line total R498.00             │ ( ) Express R120.00; 1-2 business days │
+│ Remove                                                  │ First-order offer applied (7)          │
+│       Only 1 left: reduce the quantity (3)              │                                        │
+│ Clear cart (secondary link)                               │ (8) Total  R1,047.00                 │
 │                                                           │ [ Checkout ] (9) disabled: fix the     │
 │                                                           │ flagged line (10)                      │
 └───────────────────────────────────────────────────────────┴────────────────────────────────────────┘
@@ -715,7 +715,7 @@ Every screen below has a purpose, its release and requirement references, a desk
 │ Only 1 left (3)                  │
 ├──────────────────────────────────┤
 │ (4) Summary                      │
-│ Subtotal R1,147.00                 │
+│ Subtotal R1,147.00               │
 │ (5) Coupon [ code ] [Apply]      │
 │ SAVE100 -R100.00 [Remove]        │
 ├──────────────────────────────────┤
@@ -724,7 +724,7 @@ Every screen below has a purpose, its release and requirement references, a desk
 │ ( ) Express R120.00              │
 │ (7) First-order offer            │
 ├──────────────────────────────────┤
-│ (8) Total R1,047.00                │
+│ (8) Total R1,047.00              │
 ├──────────────────────────────────┤
 │     (9) [ Checkout ] sticky,     │
 │    disabled with reason (10)     │
@@ -829,7 +829,7 @@ Every screen below has a purpose, its release and requirement references, a desk
 ### SCR-07 — Checkout review and simulated payment
 **Purpose:** Let the customer confirm address, delivery option, coupon and items, choose a simulated payment outcome and place the order, with the total visible throughout.
 **Release:** R1 · **Stories:** US-040, US-041, US-042, US-044, US-043, US-037, US-038, US-039, US-035 · **PRD:** FR-052 to FR-057, FR-066, FR-110, FR-115, BR-074, BR-068, BR-070, BR-071 · **Mode:** operate (trust and clarity over expression).
-**Layout rules:** a **single page** with five labelled sections on the left and a sticky order summary on the right (DQ-13). The header is reduced to the logo and "Back to cart" to keep attention on the task. There are no card fields; the simulated payment control is explicit that nothing is charged. "Place order" is disabled until an address and a payment outcome are chosen and no blocking condition exists; the reason is shown next to the button. When the customer has a pending order, this page is not reachable and they are taken to it (FR-111).
+**Layout rules:** a **single page** with five labelled sections on the left and a sticky order summary on the right (DQ-13). The header is reduced to the logo and "Back to cart" to keep attention on the task. There are no card fields; the simulated payment control is explicit that nothing is charged. "Place order" is disabled until an address and a payment outcome are chosen and no blocking condition exists; the reason is shown next to the button. At checkout entry, if a pending order already exists, show the pending-order banner with **Pay now** and **Cancel order** and route the customer to that existing order; do not expose a second order-placement flow (FR-111, FR-112, CL-18).
 
 **Desktop**
 ```text
@@ -1037,7 +1037,7 @@ Every screen below has a purpose, its release and requirement references, a desk
 
 | # | Element | Component | Behaviour and content | Source |
 |---|---|---|---|---|
-| 1 | Pending-order banner | CMP-40 | States that items are reserved and the cart is locked | FR-112, FR-059 |
+| 1 | Pending-order banner | CMP-40 | Shows “Reserved until [time]” while active; items are reserved and cart is locked; retries never extend deadline | FR-112, FR-059, CL-18 |
 | 2 | Outcome heading | Heading | Declined, timed out or processing error | FR-059 to FR-061 |
 | 3 | Order summary | CMP-38 | Order number, total, statuses; "Attempt 1 of 3" [P] | FR-062, BR-049 |
 | 4 | Retry controls | CMP-36 | Same four outcomes; a new attempt on submit | FR-062 |
@@ -1045,12 +1045,13 @@ Every screen below has a purpose, its release and requirement references, a desk
 | 6 | Exhausted note | CMP-23 | Retry and outcome choices are removed after attempt three | BR-049 |
 
 #### SCR-08C — Payment in progress
-**Layout rules:** shown for the simulated delay (the timeout outcome waits several seconds). An indeterminate progress indicator, a sentence of explanation, all controls disabled, and the result announced automatically. If the order is cancelled or expires during the wait, the result is the "no longer payable" state, not an error screen (BR-073).
+**Layout rules:** shown for the simulated delay (the timeout outcome waits several seconds). While the reservation is active, keep “Reserved until [time]” visible; retries never extend the original 30-minute deadline. Use an indeterminate progress indicator, a sentence of explanation, all controls disabled, and announce the result automatically. If the order is cancelled or expires during the wait, show the “no longer payable” state, not an error screen (BR-073, CL-18).
 
 ```text
 ┌────────────────────┬─────────────────────────────────────────────────┬─────────────────────────────┐
 │ NEXACART           │           Checkout (simulated payment)          │              < Back to cart │
 ├────────────────────┴─────────────────────────────────────────────────┴─────────────────────────────┤
+│ Reserved until 14 Oct 2026, 11:12 — retry does not extend this deadline                            │
 │                               (1) Processing your simulated payment                                │
 │                                                                                                    │
 │ [ ======>            ]  indeterminate progress                                                     │
@@ -1066,7 +1067,7 @@ On mobile the same content stacks in one column with the same behaviour.
 ### SCR-09 — Order history
 **Purpose:** Let customers find any of their orders and see its state at a glance.
 **Release:** R1 · **Stories:** US-050 · **PRD:** FR-068, BR-016, BR-064 · **Mode:** operate.
-**Layout rules:** newest first, paginated like listings. The columns shown were proposed and are approved [P, DQ-04]: order number, placement date, status, total. A pending order is visibly distinguished and offers a route to payment or cancellation (DQ-06).
+**Layout rules:** newest first, paginated like listings. The approved columns are order number, placement date, status, total and View (DQ-04). A pending order is visibly distinguished; View opens order detail with **Pay now**, while an eligible pending order can be cancelled (CL-18).
 
 **Desktop**
 ```text
@@ -1366,7 +1367,7 @@ On mobile the same content stacks in one column with the same behaviour.
 │                Password │                                                                          │
 │                         │ [ Update password ]                                                      │
 │                         │                                                                          │
-│                         │ (4) On success: redirect to login; show the confirmation there                         │                                   │
+│                         │ (4) On success, redirect to login; confirmation appears on login page                 │
 └─────────────────────────┴──────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1385,7 +1386,7 @@ On mobile the same content stacks in one column with the same behaviour.
 ├──────────────────────────────────┤
 │ [ Update password ]              │
 ├──────────────────────────────────┤
-│ (4) On success: redirect to login │                        │
+│ (4) Redirect to login             │
 └──────────────────────────────────┘
 ```
 
@@ -2389,16 +2390,16 @@ Every screen carries a release label. 23 screens: 15 are R1 (some with a named R
 
 | ID | Question | Approved default | Related | Status |
 |---|---|---|---|---|
-| DQ-01 | After a password change, does the app sign the customer in again, or require login? | Show a confirmation and require login (the PRD ends all earlier sessions) | GAP-01, FR-008, SCR-14 | Approved 2026-10-17 |
+| DQ-01 | After a password change, does the app sign the customer in again, or require login? | Show a confirmation and require login (the PRD ends all earlier sessions) | GAP-01, FR-008, SCR-14 | Approved 2026-10-17; aligned with CL-17 on 2026-10-20 |
 | DQ-02 | What does the interface do for a product that becomes unavailable between viewing and adding? | The product page already shows not found or out of stock; any failed add shows the API's message inline. The API response itself is an architecture matter | GAP-02, SCR-04 | Approved 2026-10-17 |
 | DQ-03 | What do guests see in the header for wishlist and cart? | Both links are shown and lead to login; no counts for guests; no wishlist count for anyone | GAP-03, FR-040 | Approved 2026-10-17 |
 | DQ-04 | Which columns does the order history show? | Order number, placement date, status, total, a View link | GAP-04, SCR-09 | Approved 2026-10-17 |
 | DQ-05 | How are reviews presented? | First name only, newest first, 10 per page; no review editing | GAP-05, SCR-16 | Approved 2026-10-17 |
-| DQ-06 | Is the payment deadline shown, and how does a customer return to a pending order? | Show "Reserved until [time]" on the payment page and order detail; the pending-order banner on the cart and checkout entry; a Pay now link on the pending order's detail | GAP-06, FR-112 | Approved 2026-10-17 |
+| DQ-06 | Is the payment deadline shown, and how does a customer return to a pending order? | Show "Reserved until [time]" on the payment page and order detail; the pending-order banner on the cart and checkout entry; a Pay now link on the pending order's detail; retries never extend the deadline | GAP-06, FR-112 | Approved 2026-10-17; aligned with CL-18 on 2026-10-20 |
 | DQ-07 | How are admin product lists searched and paged? | Search by name or SKU, filter by status and category, 12 per page as in BR-016 | GAP-07, SCR-17 | Approved 2026-10-17 |
 | DQ-08 | Which actions need a confirmation step? | Cancel order (already in WF-08), delete address, clear cart. Not remove line or remove from wishlist | GAP-08 | Approved 2026-10-17 |
 | DQ-09 | What is the microcopy tone, and is the request id shown? | Plain English, sentence case; request id shown in small text only on unexpected failures | GAP-09, §14.4 | Approved 2026-10-17 |
-| DQ-10 | Do customers give a reason when cancelling? | No; none is specified for customers (administrators give one) | GAP-10, FR-094 | Approved 2026-10-17 |
+| DQ-10 | Do customers give a reason when cancelling? | No; none is specified for customers (administrators give one) | GAP-10, FR-094 | Approved 2026-10-17; aligned with CL-19 on 2026-10-20 |
 | DQ-11 | Which coupon error is shown when several apply? | Show the single code the API returns; the interface does not choose | GAP-11 | Approved 2026-10-17 |
 | DQ-12 | Is a payment outcome preselected in checkout? | None selected; "Place order" is disabled until one is chosen, so tests and users choose explicitly | FR-057, SCR-07 | Approved 2026-10-17 |
 | DQ-13 | Is checkout one page or several steps? | One page with five sections and a sticky summary | SCR-07 | Approved 2026-10-17 |
