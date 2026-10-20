@@ -1452,7 +1452,7 @@ While writing the stories, these points were found where the PRD was silent or l
 | GAP-08 | Which actions besides order cancellation (WF-08) need a confirmation step, for example deleting an address or clearing the cart | US-010, US-027 | Design brief |
 | GAP-09 | Wording, tone and localisation of messages, and whether the request id is shown to users (English only, ASM-01) | All UI stories | Design brief |
 | GAP-10 | **Resolved by PRD v0.7 / CL-19:** customers do not provide a cancellation reason; administrator cancellation still requires a 1–200 character reason. | US-053, US-054, US-074 | Closed — CL-19 |
-| GAP-11 | Owner-approved deterministic first-failure order: normalize/lookup → active and time window → customer eligibility → minimum amount → usage limits → discount/caps; same order at apply and placement. | US-035 | Architecture v0.8 draft; final doc review pending |
+| GAP-11 | Owner-approved deterministic first-failure order: normalize/lookup → active and time window → customer eligibility → minimum amount → usage limits → discount/caps; same order at apply and placement. | US-035 | Architecture v0.9 owner-approved planning baseline |
 
 ## Appendix A — Story index
 
