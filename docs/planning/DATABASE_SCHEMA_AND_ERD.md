@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/DATABASE_SCHEMA_AND_ERD.md |
-| Version | 0.5 — updated draft for owner review |
+| Version | 0.6 — named index definitions and owner-spec reconciliation |
 | Status | **Draft under owner review; not implemented.** Records PostgreSQL 16, native UUID generation, explicitly named CHECK constraints and partial indexes, nightly cleanup of expired sessions and idempotency records, and product-row locking for concurrent review aggregate updates. Proposed catalogue-field caps not numerically specified in the PRD remain awaiting owner confirmation. The public hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
 | Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.6 |
-| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.6 draft; public hosting provider deferred |
+| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.7 draft; public hosting provider deferred |
 | Not yet created | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
 
 ## 1. Purpose and design rules
@@ -711,30 +711,33 @@ All PK, FK and full unique constraints are explicitly named in migrations as wel
 | `uq_inventory_operation_key` | Unique inventory-operation idempotency key |
 | `uq_review_customer_product` | Unique `(customer_id, product_id)` |
 | `fk_<table>_<column>_<target>` | Explicit name for every foreign key; add cyclic/cart-order or payment-idempotency references in a later migration step if required by creation order |
-| `ix_auth_sessions_user_id` | Lookup all sessions/revocations for one user |
-| `ix_auth_sessions_expires_at` | Index for expiry lookup and nightly cleanup |
-| `ix_categories_parent_sort_order` | Category tree children ordered deterministically by sort order and id |
-| `ix_products_category_active_created` | Product filtering by leaf category/active status and newest sort |
-| `ix_products_brand_active` | Product filtering by brand and active status |
-| `ix_products_rating_sort` | Product sorting by cached rating average/count and id |
-| `ix_product_variants_product_active_price` | Active-variant price lookup/from-price calculation |
-| `ix_product_variants_product_active_stock` | Active-variant availability/stock checks |
-| `ix_addresses_customer_created` | Address listing and default-promotion ordering |
-| `ix_coupon_usages_coupon_state` | Global coupon-use limit calculation |
-| `ix_coupon_usages_customer_coupon_state` | Per-customer coupon-use limit calculation |
-| `ix_orders_customer_placed_at` | Customer order-history listing by placement date |
-| `ix_orders_status_deadline` | Order expiry scan by status and deadline |
-| `ix_order_status_history_order_time` | Order history retrieval in timestamp order |
-| `ix_refunds_status_created` | Worker scan of refund-pending rows by status and age |
-| `ix_idempotency_records_expires_at` | Index for expiry lookup and nightly cleanup |
-| `ix_inventory_movements_variant_time` | Ledger reconciliation and variant movement history |
-| `ix_inventory_movements_reference` | Trace inventory changes by reference type/id |
-| `ix_audit_events_occurred_at` | Audit filtering and ordering by event time |
-| `ix_audit_events_actor_time` | Audit lookup by actor and time |
-| `ix_audit_events_action_time` | Audit lookup by action and time |
-| `ix_audit_events_entity_time` | Audit lookup by entity and time |
-| `ix_reviews_product_created` | Visible product review pagination newest-first |
-| `ix_notifications_customer_created` | R3 notification listing by customer and creation time |
+| `ix_auth_sessions_user_id` | `ON auth_sessions (user_id)` — lookup all sessions/revocations for a user |
+| `ix_auth_sessions_expires_at` | `ON auth_sessions (expires_at)` — nightly cleanup of expired sessions |
+| `ix_categories_parent_sort_order` | `ON categories (parent_id, sort_order, id)` — deterministic category-tree order |
+| `ix_products_category_active_created` | `ON products (category_id, is_active, created_at DESC, id ASC)` — category/active/newest listing |
+| `ix_products_brand_active` | `ON products (brand, is_active)` — brand filtering |
+| `ix_products_rating_sort` | `ON products ((rating_count = 0), rating_average DESC, rating_count DESC, id ASC)` — rated items sort before unrated items, with deterministic ties |
+| `ix_product_variants_product_active_price` | `ON product_variants (product_id, is_active, unit_price_minor)` — active variant price/from-price |
+| `ix_product_images_product_sort` | `ON product_images (product_id, sort_order, id)` — stable product gallery order |
+| `ix_product_specifications_product_sort` | `ON product_specifications (product_id, sort_order, id)` — stable specification display order |
+| `ix_shipping_options_active_sort` | `ON shipping_options (is_active, sort_order, id)` — configured active shipping choices |
+| `ix_product_variants_product_active_stock` | `ON product_variants (product_id, is_active, stock_quantity)` — availability and stock checks |
+| `ix_addresses_customer_created` | `ON addresses (customer_id, created_at DESC)` — address list and default promotion |
+| `ix_coupon_usages_coupon_state` | `ON coupon_usages (coupon_id, usage_state)` — global usage-limit calculation |
+| `ix_coupon_usages_customer_coupon_state` | `ON coupon_usages (customer_id, coupon_id, usage_state)` — per-customer limit calculation |
+| `ix_orders_customer_placed_at` | `ON orders (customer_id, placed_at DESC)` — customer order history |
+| `ix_orders_status_deadline` | `ON orders (status, reservation_deadline)` — reservation expiry worker |
+| `ix_order_status_history_order_time` | `ON order_status_history (order_id, occurred_at)` — timeline retrieval |
+| `ix_refunds_status_created` | `ON refunds (status, created_at)` — pending-refund worker scan |
+| `ix_idempotency_records_expires_at` | `ON idempotency_records (expires_at)` — nightly cleanup of expired replay rows |
+| `ix_inventory_movements_variant_time` | `ON inventory_movements (variant_id, occurred_at)` — variant movement history |
+| `ix_inventory_movements_reference` | `ON inventory_movements (reference_type, reference_id)` — trace movements by source |
+| `ix_audit_events_occurred_at` | `ON audit_events (occurred_at DESC)` — time-based audit filter/order |
+| `ix_audit_events_actor_time` | `ON audit_events (actor_user_id, occurred_at DESC)` — actor/time audit filter |
+| `ix_audit_events_action_time` | `ON audit_events (action, occurred_at DESC)` — action/time audit filter |
+| `ix_audit_events_entity_time` | `ON audit_events (entity_type, entity_id, occurred_at DESC)` — entity/time audit filter |
+| `ix_reviews_product_created` | `ON reviews (product_id, is_hidden, created_at DESC)` — visible-review pagination by product |
+| `ix_notifications_customer_created` | `ON notifications (customer_id, created_at DESC)` — R3 customer notification list |
 
 For case-insensitive matching, normalize email and coupon code on write and enforce the named CHECK constraints for normalized storage. If functional uniqueness is chosen instead of normalized storage, its unique expression index must also be explicitly named.
 
@@ -857,3 +860,4 @@ PostgreSQL 16, native `gen_random_uuid()`, explicit named CHECK constraints and 
 | 0.3 | 2026-10-20 | Tightened the named CHECK registry (including discount ≤ subtotal, order-number format and phone format), corrected migration-rule numbering, recorded the proposed 02:00 UTC cleanup time in the data-retention policy, and aligned schema draft metadata to Architecture v0.4. The proposed catalogue-field caps remain explicitly flagged for owner review; no migration is implemented. |
 | 0.4 | 2026-10-20 | Aligned the schema draft to owner-approved User Stories v0.4, Design Brief v0.4 and Technical Architecture v0.5. No physical migration was created. |
 | 0.5 | 2026-10-20 | Aligned the schema design with Technical Architecture v0.6 and its proposed reference performance profile; no relational-model change is required by the deferred hosting-provider choice. Document remains a draft pending owner approval of proposed catalogue-field caps and final ERD review; no migration was created. |
+| 0.6 | 2026-10-20 | Completed the explicit supporting-index definition registry and added indexes for product image/specification ordering and shipping-option ordering. Reconciled the draft metadata with the next Architecture v0.7 draft. No migration or application implementation exists. |
