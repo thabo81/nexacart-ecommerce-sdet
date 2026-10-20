@@ -10,7 +10,7 @@
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Author role | Lead application engineer / technical architect |
 | Companion work | SDET strategy, test design and automation are produced separately and must trace to the IDs in this document |
-| Related planning documents | `USER_STORIES_AND_FLOWS.md` v0.2 approved on 2026-10-15; v0.3 is being aligned to this PRD. `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.2 is approved locally; its repository update is pending. |
+| Related planning documents | `USER_STORIES_AND_FLOWS.md` v0.3 is owner-approved and aligned with this PRD. `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.3 is owner-approved and aligned with this PRD. |
 | Not yet created | `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
 
 ## Conventions
