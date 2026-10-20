@@ -4,7 +4,7 @@
 |---|---|
 | Document | docs/planning/DATABASE_SCHEMA_AND_ERD.md |
 | Version | 0.9 — owner-approved schema baseline and catalogue field caps |
-| Status | **Draft under owner review; not implemented.** Records PostgreSQL 16, native UUID generation, explicitly named CHECK constraints and partial indexes, nightly cleanup of expired sessions and idempotency records, and product-row locking for concurrent review aggregate updates. Proposed catalogue-field caps not numerically specified in the PRD remain awaiting owner confirmation. The public hosting provider remains deliberately deferred. |
+| Status | **Owner-approved as the database planning baseline on 2026-10-20; not implemented.** The owner approved the schema/ERD and proposed catalogue-field caps in §3.8. PostgreSQL 16, native UUID generation, explicitly named CHECK constraints and partial indexes, nightly cleanup, and product-row locking remain the approved design. No SQLAlchemy models or Alembic migrations have been created. Implementation remains blocked until the implementation plan/backlog is reviewed and approved. Public hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
 | Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.8 |
 | Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.8 draft; public hosting provider deferred |
