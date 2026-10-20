@@ -3,13 +3,13 @@
 | Field | Value |
 |---|---|
 | Document | `docs/planning/DESIGN_BRIEF_AND_WIREFRAMES.md` |
-| Version | 0.3 — owner-approved design baseline, aligned with PRD v0.7 and User Stories v0.3 |
+| Version | 0.4 — owner-approved design baseline, aligned with PRD v0.7 and User Stories v0.4 |
 | Status | **Approved by the owner on 2026-10-20.** Approval covers Gallery (A), the N-and-dot logo concept, and the full design baseline after the v0.3 reconciliation below. DQ-01 – DQ-26 have approved design dispositions; DQ-20 is aligned with PRD clarification CL-20. GAP-02 and GAP-11 API defaults are owner-confirmed in Technical Architecture v0.3; implementation and final technical-document review remain pending. No application code has been written. The prototype has not been visually verified in a real browser (§1.6). |
 | Date | 2026-10-20 |
-| Primary sources | `docs/planning/PRD.md` v0.7 (approved baseline) and `docs/planning/USER_STORIES_AND_FLOWS.md` v0.3 (approved baseline) |
+| Primary sources | `docs/planning/PRD.md` v0.7 (approved baseline) and `docs/planning/USER_STORIES_AND_FLOWS.md` v0.4 (approved baseline) |
 | Context sources | `docs/planning/PROJECT_BRIEF.md`, `docs/planning/README.md`, `docs/testing/README.md`, `CLAUDE.md`, `README.md` |
 | Visual exploration assets | `docs/planning/design/prototypes/home-direction-picker.html`, `docs/planning/design/brand/nexacart-logo-concepts.svg` |
-| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.3 and `DATABASE_SCHEMA_AND_ERD.md` v0.2 are drafts under owner review; final sign-off is pending. Owner-confirmed GAP-02/GAP-11 API defaults and database mechanics are recorded; proposed catalogue-field caps still await owner confirmation. Hosting provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.5 and `DATABASE_SCHEMA_AND_ERD.md` v0.4 are drafts under owner review; final sign-off is pending. Owner-confirmed GAP-02/GAP-11 API defaults and database mechanics are recorded; proposed catalogue-field caps still await owner confirmation. Hosting provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
 
 ## 1. Purpose, scope and conventions
 
@@ -2553,3 +2553,4 @@ The four decisions previously listed as defaults to record in the PRD were incor
 | 0.1 | 2026-10-17 | First draft for owner review, based on PRD v0.6 and the user stories draft. No application code and no other planning document was created |
 | 0.2 | 2026-10-17 | Owner approved all design questions DQ-01 – DQ-26 ("approve all"). Status changed to approved baseline; wording describing proposals as pending was updated; §14.3 and a new §14.7 added. No wireframe, token, component or requirement reference changed; the document version is 0.2 |
 | 0.3 | 2026-10-20 | Owner approved Gallery (A), the N-and-dot logo concept and the full design baseline. Reconciled the brief with PRD v0.7 and approved User Stories v0.3; updated CL-17–CL-20 behaviour, closed GAP-01/06/10, recorded owner-confirmed API defaults for GAP-02/11, corrected cart arithmetic and UI-state coverage, and updated traceability/metadata. Real-browser and runtime accessibility verification remain outstanding |
+| 0.4 | 2026-10-20 | Updated the DQ-02 row and cross-document references for the owner-approved GAP-02 API semantics; aligned the story baseline to User Stories v0.4 and technical drafts to Architecture v0.5 / ERD v0.4. Visual browser verification remains pending. |
