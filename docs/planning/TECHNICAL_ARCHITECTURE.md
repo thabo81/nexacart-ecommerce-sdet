@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/TECHNICAL_ARCHITECTURE.md |
-| Version | 0.1 — draft for owner review |
-| Status | **Draft, not yet approved.** Product scope inputs listed below are owner-confirmed; technical choices marked Proposed or Needs owner decision remain open until reviewed. |
+| Version | 0.2 — architecture decisions updated after owner review |
+| Status | **Architecture draft under final review.** Owner-approved: HttpOnly JWT cookie transport with CSRF protection (AC-004 remains satisfied), Argon2id password hashing, UUID entity IDs, PostgreSQL-backed worker polling, GAP-02 and GAP-11 defaults, and local plus public deployment scope. The hosting provider is deliberately deferred. Overall document approval and operational limits remain to be recorded. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.3; Design Brief & Wireframes v0.3 |
@@ -15,7 +15,7 @@
 
 This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate downstream documents.
 
-No application implementation is authorised by this draft. Review and approve the architecture, then review and approve the schema/ERD and implementation backlog before feature implementation begins.
+No application implementation is authorised yet. Owner decisions are being recorded in the architecture baseline; the remaining hosting-provider choice can be decided later. Before feature implementation begins, finish and review the database schema/ERD and implementation backlog and record final architecture sign-off.
 
 ### 1.1 Inputs confirmed by the owner
 
@@ -316,19 +316,19 @@ Security controls below trace to SEC-001–020 and BR-001–007. The detailed im
 
 Enforce BR-001 on the server. Never log raw passwords or include a hash in API responses, fixtures, screenshots or reports.
 
-### 7.2 JWT access tokens and browser storage — proposed decision requiring explicit review
+### 7.2 JWT access tokens and browser storage — owner-approved decision
 
 PRD rules require a signed JWT containing sub, iat, exp and jti; a pinned signing algorithm; a 30-minute default lifetime; server-side logout revocation; password-change revocation of prior tokens; role lookup from the database on every request; and no refresh tokens.
 
-**Proposed browser transport:** set the access JWT in a host-only Secure, HttpOnly cookie in the public environment, with SameSite protection and a Path restricted to the application. Use an environment-appropriate cookie name/configuration in local HTTP development. Do not put the raw JWT in localStorage or make it available to frontend JavaScript. Configure cross-origin fetches to include credentials only for the explicit frontend origin. When possible, deploy frontend and API under the same site to keep cookie policy simple.
+**Owner-approved browser transport:** set the access JWT in a host-only Secure, HttpOnly cookie in the public environment, with SameSite protection and a Path restricted to the application. Use an environment-appropriate cookie configuration for local HTTP development. Do not put the raw JWT in localStorage or make it available to frontend JavaScript. Configure cross-origin fetches to include credentials only for the explicit frontend origin. When practical, deploy frontend and API under the same site to keep cookie policy simple.
 
-This choice means the token is returned through Set-Cookie rather than as a JavaScript-readable bearer token in JSON. AC-004 says that login returns a token; before the API contract is frozen, the owner must confirm this interpretation. If the intended requirement is a token in the response body, revise the architecture deliberately and assess the XSS, storage and CSRF trade-offs; do not silently implement both competing patterns.
+This satisfies AC-004: the successful login response delivers the signed access token through the Set-Cookie header rather than a JavaScript-readable token in JSON. API tests can inspect the cookie/JWT claims and verify `exp - iat` is 30 minutes (within the approved tolerance); browser JavaScript cannot read the HttpOnly cookie. A protected endpoint must accept the cookie and return 200. The frontend never receives the raw token through application JavaScript.
 
 For revocation, persist active token sessions or revocation state keyed by jti with expiry. Logout revokes the presented session before clearing its cookie. Password change revokes every earlier session for that customer and then requires a fresh login. Read the user's current role from PostgreSQL for each authenticated request; never trust a role claim from the JWT as authoritative.
 
 ### 7.3 CSRF, CORS and origins
 
-HttpOnly cookies require a CSRF defence. **Proposed:** require a server-validated CSRF token in a custom header for state-changing requests, validate the Origin against the same explicit allowlist used for the browser deployment, and apply SameSite cookie protection as defence in depth. Safe read-only methods do not use state-changing semantics.
+HttpOnly cookies require a CSRF defence. **Owner-approved approach:** require a server-validated CSRF token in a custom header for state-changing requests, validate the Origin against the same explicit allowlist used for the browser deployment, and apply SameSite cookie protection as defence in depth. Safe read-only methods do not use state-changing semantics.
 
 CORS shall allow only configured frontend origins. Never combine wildcard origins with credentialed requests. Configure methods and headers narrowly, including X-Request-ID and the CSRF header where used. Local origins belong only in local configuration; public origins belong in the deployed environment configuration.
 
@@ -589,34 +589,33 @@ The table intentionally distinguishes owner-confirmed requirements from design r
 | ID | Decision | Recommendation/status | Rationale / approval note |
 |---|---|---|---|
 | ARCH-01 | Overall service topology | Proposed: modular monolith, one API codebase, one PostgreSQL database, separate worker process | Small project and cross-domain atomic operations; avoids microservice overhead |
-| ARCH-02 | Password hashing | Proposed: Argon2id | One of the algorithms permitted by SEC-002; strong adaptive password hashing |
-| ARCH-03 | Browser token storage | Proposed: HttpOnly Secure cookie with JWT, explicit CSRF defence, server-side jti session revocation | Reduces JavaScript token exposure but AC-004 wording needs owner confirmation before contract freeze |
-| ARCH-04 | Background execution | Proposed: PostgreSQL-polled worker using row locks/skip-locked claiming and idempotent transitions | Durable and testable; avoids new broker infrastructure |
-| ARCH-05 | Internal identifiers | Proposed: UUID entity IDs; separate PRD-formatted order number | Opaque public references and separate human-facing order number; confirm in ERD review |
+| ARCH-02 | Password hashing | Owner-approved: Argon2id | One of the algorithms permitted by SEC-002; strong adaptive password hashing |
+| ARCH-03 | Browser token storage | Owner-approved: HttpOnly Secure cookie with JWT, explicit CSRF defence, server-side jti session revocation | Keeps the JWT unavailable to frontend JavaScript; AC-004 is verified by inspecting Set-Cookie and testing authenticated requests |
+| ARCH-04 | Background execution | Owner-approved: PostgreSQL-polled worker using row locks/skip-locked claiming and idempotent transitions | Durable and testable; avoids new broker infrastructure |
+| ARCH-05 | Internal identifiers | Owner-approved recommendation: UUID entity IDs; separate PRD-formatted order number | Opaque public references and separate human-facing order number; schema/version details are specified in the ERD |
 | ARCH-06 | Public deployment | Owner-approved scope: public portfolio deployment plus local Compose; hosting provider remains open. Proposed candidate: managed static frontend, API, worker and PostgreSQL; evaluate Render | Keeps runtime shape simple and gives a clear operational review checklist |
 | ARCH-07 | GAP-02 unavailable-item semantics | Owner-approved | 404 for unknown ID; 409 PRODUCT_UNAVAILABLE for known inactive/unavailable mutation target; no mutation |
 | ARCH-08 | GAP-11 coupon precedence | Owner-approved | One first-failure order shared by apply and placement revalidation |
 | ARCH-09 | Test-support boundary | Confirmed by SEC-018: enabled only local/test and disabled/404 in public/prod-like environments | Prevents destructive control-plane actions from being reachable in public deployment |
 | ARCH-10 | Transaction and race policy | Confirmed by PRD BR-068–074 / NFR-005–009; specific row/constraint implementation to be fixed in ERD | Preserve all-or-nothing writes and first-valid-commit race outcomes |
 
-## 15. Items to resolve during architecture approval
+## 15. Remaining architecture review items
 
-The following are the deliberate remaining choices or review checkpoints; they are not unresolved PRD business rules.
+The owner has approved the key technical recommendations and the authentication transport. The remaining deferred decisions are operational rather than product-rule ambiguities:
 
-1. **Auth contract interpretation:** approve the proposed HttpOnly-cookie transport for the JWT, including the interpretation of AC-004. If the token must be returned in JSON, explicitly select and document an alternative before API schema work.
-2. **Hosting provider:** choose the actual service provider and region after confirming current managed PostgreSQL, background worker, TLS, backup, health check, log and cost capabilities. Render is only a candidate in this draft.
-3. **Technical recommendations:** approve or change Argon2id, UUID IDs and PostgreSQL-polling worker; the PRD left these implementation mechanisms for architecture.
-4. **Operational targets:** finalise resource/connection-pool limits, worker polling/batch settings and public smoke-check cadence after choosing the host and reference environment.
+1. **Hosting provider and region:** select later after checking managed PostgreSQL persistence/backups, worker support, TLS, health checks, logging, availability/cold-start behaviour and cost. Render is a candidate, not a commitment.
+2. **Operational targets:** after the provider is chosen, set connection-pool/resource limits, worker polling/batch settings, public smoke-check cadence and log retention to fit the deployment environment.
+3. **Schema-specific details:** the ERD must name concrete primary/foreign keys, constraints, UUID version, indexes and migration strategy; it must preserve the architecture and PRD invariants.
 
-The coupon precedence, unavailable-item response defaults, and two-environment deployment scope are not open questions. They are reflected above as confirmed inputs.
+The HttpOnly JWT cookie, CSRF protection, Argon2id hashing, UUID entity identifiers, PostgreSQL-backed background worker, GAP-02 behaviour, GAP-11 validation precedence, and dual local/public deployment scope are recorded as owner-approved. Provider selection may be completed later without blocking schema design.
 
 ## 16. Architecture acceptance checklist
 
 Before this document is marked approved, review that:
 - [ ] Every core component and service boundary aligns with PRD v0.7 and User Stories v0.3.
 - [ ] Every proposed choice in §14 has an explicit owner disposition.
-- [ ] The cookie/CSRF decision and AC-004 interpretation are resolved before API contracts are frozen.
-- [ ] Public hosting provider and production environment guardrails are agreed.
+- [x] The cookie/CSRF decision is settled and AC-004 remains testable through Set-Cookie and protected-endpoint checks.
+- [ ] Public hosting provider and production environment guardrails are agreed; provider selection is deliberately deferred.
 - [ ] GAP-02 and GAP-11 rules are consistently represented in APIs and future tests.
 - [ ] TX-1, TX-2, cancellation, expiry, idempotency and refund races preserve the PRD transaction boundaries.
 - [ ] Test-support, seed credentials and clock overrides cannot be enabled in public deployment.
@@ -645,3 +644,4 @@ Before this document is marked approved, review that:
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 2026-10-20 | Initial architecture draft based on approved PRD v0.7, User Stories v0.3 and Design Brief v0.3. Records owner decisions for GAP-02, GAP-11 and dual local/public deployment scope. No application code implemented. |
+| 0.2 | 2026-10-20 | Recorded owner approval of HttpOnly JWT cookie transport with CSRF protection, Argon2id, UUID entity IDs and a PostgreSQL-polled background worker. AC-004 verification is specified. Hosting provider and operational deployment settings remain deferred. |
