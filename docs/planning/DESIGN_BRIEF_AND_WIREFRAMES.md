@@ -2393,7 +2393,7 @@ Every screen carries a release label. 23 screens: 15 are R1 (some with a named R
 | ID | Question | Approved default | Related | Status |
 |---|---|---|---|---|
 | DQ-01 | After a password change, does the app sign the customer in again, or require login? | Show a confirmation and require login (the PRD ends all earlier sessions) | GAP-01, FR-008, SCR-14 | Approved 2026-10-17; aligned with CL-17 on 2026-10-20 |
-| DQ-02 | What does the interface do for a product that becomes unavailable between viewing and adding? | The product page already shows not found or out of stock; any failed add shows the API's message inline. The API response itself is an architecture matter | GAP-02, SCR-04 | Approved 2026-10-17 |
+| DQ-02 | What does the interface do for a product that becomes unavailable between viewing and adding? | Any failed add shows the API's message inline. The owner-approved architecture default is 404 `NOT_FOUND` for an unknown ID and 409 `PRODUCT_UNAVAILABLE` for a known inactive/unavailable mutation target; direct access to an inactive product still follows FR-025/AC-020 (404). | GAP-02, SCR-04 | Approved 2026-10-17; API default confirmed 2026-10-20 |
 | DQ-03 | What do guests see in the header for wishlist and cart? | Both links are shown and lead to login; no counts for guests; no wishlist count for anyone | GAP-03, FR-040 | Approved 2026-10-17 |
 | DQ-04 | Which columns does the order history show? | Order number, placement date, status, total, a View link | GAP-04, SCR-09 | Approved 2026-10-17 |
 | DQ-05 | How are reviews presented? | First name only, newest first, 10 per page; no review editing | GAP-05, SCR-16 | Approved 2026-10-17 |
