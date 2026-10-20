@@ -38,7 +38,7 @@ erDiagram
     USERS ||--o{ ORDERS : places
     USERS ||--o{ REVIEWS : writes
     USERS ||--o{ COUPON_USAGES : consumes
-    USERS ||--o{ AUDIT_EVENTS : acts
+    USERS o|--o{ AUDIT_EVENTS : acts
     USERS ||--o{ NOTIFICATIONS : receives
     CATEGORIES o|--o{ CATEGORIES : parent_of
     CATEGORIES ||--o{ PRODUCTS : contains
@@ -59,8 +59,8 @@ erDiagram
     ORDERS ||--o{ ORDER_STATUS_HISTORY : records
     ORDERS ||--o{ PAYMENT_ATTEMPTS : has
     ORDERS ||--o| REFUNDS : may_create
-    ORDERS ||--o{ IDEMPOTENCY_RECORDS : protects
-    ORDERS ||--o{ INVENTORY_MOVEMENTS : causes
+    ORDERS o|--o{ IDEMPOTENCY_RECORDS : protects
+    ORDERS o|--o{ INVENTORY_MOVEMENTS : causes
     PRODUCT_VARIANTS ||--o{ INVENTORY_MOVEMENTS : tracks
     PRODUCT_VARIANTS ||--o{ ORDER_ITEMS : purchased_as
     SHIPPING_OPTIONS ||--o{ ORDERS : snapshots
