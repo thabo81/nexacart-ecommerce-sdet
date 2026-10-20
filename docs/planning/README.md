@@ -11,7 +11,7 @@ Start with [PROJECT_BRIEF.md](PROJECT_BRIEF.md). The planning sequence is listed
 3. `DESIGN_BRIEF_AND_WIREFRAMES.md` — UX, page layouts, responsive behaviour and wireframes
 4. `TECHNICAL_ARCHITECTURE.md` — frontend/backend boundaries, API contracts, services and environments
 5. `DATABASE_SCHEMA_AND_ERD.md` — entities, columns, constraints, relationships and ER diagram
-6. [Implementation Plan & Backlog — review draft](https://github.com/thabo81/nexacart-ecommerce-sdet/blob/docs/technical-architecture-draft/docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — prioritized work items, dependencies and milestones; not yet published to main
+6. [Implementation Plan & Backlog — review draft](https://github.com/thabo81/nexacart-ecommerce-sdet/blob/docs/implementation-plan-backlog-review/docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — prioritized work items, dependencies and milestones; not yet published to main
 
 ## Document control
 
