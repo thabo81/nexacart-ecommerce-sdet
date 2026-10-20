@@ -3,17 +3,17 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/TECHNICAL_ARCHITECTURE.md |
-| Version | 0.7 — architecture aligned to Database Schema v0.7 |
+| Version | 0.8 — architecture aligned to Database Schema v0.8 |
 | Status | **Draft under owner review; not yet approved as a complete document.** Owner-confirmed: HttpOnly JWT cookie transport with CSRF protection (AC-004), Argon2id, UUID IDs, PostgreSQL 16 with native `gen_random_uuid()`, explicit CHECK/partial-index names, nightly cleanup of expired sessions and idempotency records, row-level locking for review aggregates, GAP-02/GAP-11 defaults, and local plus public deployment. Hosting provider is deliberately deferred. Catalogue field limits not numerically specified in the PRD are proposed in the ERD and await owner review. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
 | Related documents | PROJECT_BRIEF.md; README.md; docs/testing/README.md |
-| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.7 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
+| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.8 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
 
 ## 1. Purpose and decision status
 
-This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.7 is drafted for review.
+This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.8 is drafted for review.
 
 No application implementation is authorised yet. Owner decisions are being recorded in the architecture baseline; the remaining hosting-provider choice can be decided later. Before feature implementation begins, finish and review the database schema/ERD and implementation backlog and record final architecture sign-off.
 
@@ -649,11 +649,13 @@ The table distinguishes owner-confirmed requirements, proposed technical limits,
 
 ## 15. Remaining architecture review items
 
-The owner has approved the core architecture mechanisms and the additional PostgreSQL/worker/locking specifications. The following items still require review before merging the architecture/database documents:
+The owner has confirmed the PostgreSQL 16/UUID mechanism, cookie/CSRF auth approach, Argon2id, GAP-02/GAP-11 defaults, nightly-cleanup requirement, and product-row locking protocol. The following items still require owner review before merging the architecture/database documents:
 
-1. **Catalogue field lengths:** confirm the proposed maxima in ERD §3.8 for fields where the PRD does not state numeric limits. The limits explicitly stated by the PRD are fixed. No implemented FastAPI/Pydantic request schemas currently exist, so true parity will be verified by CI only after those schemas are built.
-2. **Performance reference profile:** approve or adjust the proposed Linux/x86_64, 4-vCPU, 8-GiB, SSD-backed benchmark profile in §9.2. The PRD delegates definition of the reference environment to this document.
-3. **Document-level sign-off:** review the complete architecture and database drafts, including the named constraint/index registry and ERD relationships, before they are merged into `main`.
+1. **Overall architecture approach:** approve or adjust the proposed modular-monolith structure in ARCH-01 (§3–4), with one FastAPI application, one PostgreSQL database and a separate worker process.
+2. **Catalogue field lengths:** confirm the proposed maxima in ERD §3.8 for fields where the PRD does not state numeric limits. PRD-defined limits are fixed. No implemented FastAPI/Pydantic request schemas currently exist, so true length parity can be verified only after implementation and CI boundary tests.
+3. **Performance reference profile:** approve or adjust the proposed Linux/x86_64, 4-vCPU, 8-GiB, SSD-backed benchmark profile in §9.2. The PRD delegates definition of the reference environment to this document.
+4. **Nightly run time:** the nightly cleanup itself is owner-specified; 02:00 UTC is a configurable proposed default in §8.2. Accept this default or specify another preferred UTC time.
+5. **Document-level sign-off:** review the complete architecture and database drafts, including the named constraint/index registry and ERD relationships, before they are merged into `main`.
 
 **Not a blocker:** public hosting provider and region can be selected later, as requested. Operational limits that depend on the chosen host will be set during deployment planning.
 
@@ -666,8 +668,10 @@ Before this document is marked approved, review that:
 - [x] Owner dispositions are recorded for the owner-specified technical mechanisms in §14; proposed field limits in ERD §3.8 are still awaiting confirmation.
 - [x] The cookie/CSRF decision is settled and AC-004 remains testable through Set-Cookie and protected-endpoint checks.
 - [x] Public hosting provider is explicitly deferred and does not block the relational model; production guardrails remain specified.
+- [ ] Owner approves or adjusts the proposed modular-monolith architecture in ARCH-01.
 - [ ] Owner confirms proposed catalogue-field length caps in ERD §3.8 before merge.
 - [ ] Owner approves or adjusts the proposed reference performance environment in §9.2.
+- [ ] Owner accepts the configurable 02:00 UTC nightly cleanup default or specifies another time.
 - [ ] GAP-02 and GAP-11 rules are consistently represented in APIs and future tests.
 - [ ] TX-1, TX-2, cancellation, expiry, idempotency and refund races preserve the PRD transaction boundaries.
 - [ ] Test-support, seed credentials and clock overrides cannot be enabled in public deployment.
@@ -702,3 +706,4 @@ Before this document is marked approved, review that:
 | 0.5 | 2026-10-20 | Updated baseline references to owner-approved User Stories v0.4 and Design Brief v0.4, which now reflect the approved GAP-02/GAP-11 defaults. No backend implementation or migrations were created. |
 | 0.6 | 2026-10-20 | Added the proposed reference performance-test profile required to measure NFR-001–004, and aligned architecture metadata to Database Schema v0.5. Hosting provider remains deferred; catalogue string caps and the benchmark profile await owner sign-off. |
 | 0.7 | 2026-10-20 | Aligned schema reference metadata to Database Schema v0.7 after named constraint/index registry and table-description reconciliation. No application code or migration is present. Hosting provider remains deferred; proposed catalogue-field caps and performance reference profile await owner sign-off. |
+| 0.8 | 2026-10-20 | Aligned metadata to Database Schema v0.8 after completing the explicit coupon-usage check registry. Expanded the owner-review list to call out the proposed modular-monolith approach, catalogue field caps, benchmark reference profile and configurable nightly run time. No application code or migrations exist. |
