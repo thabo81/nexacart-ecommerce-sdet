@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/DATABASE_SCHEMA_AND_ERD.md |
-| Version | 0.4 — updated draft for owner review |
+| Version | 0.5 — updated draft for owner review |
 | Status | **Draft under owner review; not implemented.** Records PostgreSQL 16, native UUID generation, explicitly named CHECK constraints and partial indexes, nightly cleanup of expired sessions and idempotency records, and product-row locking for concurrent review aggregate updates. Proposed catalogue-field caps not numerically specified in the PRD remain awaiting owner confirmation. The public hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
-| Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.5 |
-| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.5 draft; public hosting provider deferred |
+| Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.6 |
+| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.6 draft; public hosting provider deferred |
 | Not yet created | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
 
 ## 1. Purpose and design rules
@@ -828,3 +828,4 @@ PostgreSQL 16, native `gen_random_uuid()`, explicit named CHECK constraints and 
 | 0.2 | 2026-10-20 | Set PostgreSQL 16 and native `gen_random_uuid()`; established request/database string-length parity; enumerated explicit names for CHECK constraints and partial indexes; defined nightly expired-session/idempotency cleanup and the `SELECT ... FOR UPDATE` review-aggregate protocol. Updated idempotency foreign-key behaviour so retention cleanup cannot be blocked by historical payment attempts. |
 | 0.3 | 2026-10-20 | Tightened the named CHECK registry (including discount ≤ subtotal, order-number format and phone format), corrected migration-rule numbering, recorded the proposed 02:00 UTC cleanup time in the data-retention policy, and aligned schema draft metadata to Architecture v0.4. The proposed catalogue-field caps remain explicitly flagged for owner review; no migration is implemented. |
 | 0.4 | 2026-10-20 | Aligned the schema draft to owner-approved User Stories v0.4, Design Brief v0.4 and Technical Architecture v0.5. No physical migration was created. |
+| 0.5 | 2026-10-20 | Aligned the schema design with Technical Architecture v0.6 and its proposed reference performance profile; no relational-model change is required by the deferred hosting-provider choice. Document remains a draft pending owner approval of proposed catalogue-field caps and final ERD review; no migration was created. |
