@@ -3,17 +3,17 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/TECHNICAL_ARCHITECTURE.md |
-| Version | 0.4 — architecture draft aligned to Database Schema v0.3 |
+| Version | 0.5 — architecture draft aligned to Database Schema v0.4 |
 | Status | **Draft under owner review; not yet approved as a complete document.** Owner-confirmed: HttpOnly JWT cookie transport with CSRF protection (AC-004), Argon2id, UUID IDs, PostgreSQL 16 with native `gen_random_uuid()`, explicit CHECK/partial-index names, nightly cleanup of expired sessions and idempotency records, row-level locking for review aggregates, GAP-02/GAP-11 defaults, and local plus public deployment. Hosting provider is deliberately deferred. Catalogue field limits not numerically specified in the PRD are proposed in the ERD and await owner review. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
 | Related documents | PROJECT_BRIEF.md; README.md; docs/testing/README.md |
-| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.3 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
+| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.4 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
 
 ## 1. Purpose and decision status
 
-This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.2 is drafted for review.
+This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.4 is drafted for review.
 
 No application implementation is authorised yet. Owner decisions are being recorded in the architecture baseline; the remaining hosting-provider choice can be decided later. Before feature implementation begins, finish and review the database schema/ERD and implementation backlog and record final architecture sign-off.
 
