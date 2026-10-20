@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>NexaCart design exploration: three home page directions</title>
+<!--
+  Design exploration only. Not production code and not the storefront.
+  Self-contained: no network requests, no external fonts, images or scripts.
+  Product images are labelled placeholder slots; final imagery must be generated or licensed (see the design brief, section 12).
+  Products, prices and brands are fictional.
+-->
+<style>
+:root{--ease:cubic-bezier(.2,.7,.2,1);--picker-h:56px}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent;padding-bottom:calc(var(--picker-h) + env(safe-area-inset-bottom))}
+button,input{font:inherit;color:inherit}
+button{touch-action:manipulation;cursor:pointer}
+img,svg{max-width:100%}
+a{color:inherit}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ph{display:flex;align-items:flex-end;justify-content:flex-start;padding:12px;font-size:12px;letter-spacing:.02em;border-radius:var(--r,8px);min-width:0}
+.ph span{opacity:.85}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+button:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}button:active{transform:none}}
+/* picker (own implementation: the skill's PICKER.md was not available) */
+.picker{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;display:flex;gap:4px;padding:4px;background:#14161A;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);max-width:calc(100vw - 16px)}
+.picker button{border:0;background:transparent;color:#fff;padding:0 14px;min-height:44px;border-radius:8px;font-size:14px;white-space:nowrap;transition:background .15s var(--ease)}
+.picker button[aria-pressed="true"]{background:#fff;color:#14161A}
+.picker .hint{align-self:center;color:#C9CDD3;font-size:12px;padding:0 8px;display:none}
+@media (min-width:700px){.picker .hint{display:block}}
+/* shared card */
+.card{position:relative;min-width:0}
+.card h3{margin:0;font-size:1rem;line-height:1.3;font-weight:600}
+.card .brand{font-size:.8125rem}
+.card .rating,.card .avail{font-size:.8125rem}
+.wish{position:absolute;top:8px;right:8px;min-height:44px;min-width:44px;border:0;border-radius:8px;font-size:.8125rem;padding:0 10px;transition:transform .15s var(--ease),opacity .15s var(--ease)}
+.tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:999px}
+/* ============ Direction A: Gallery ============ */
+.va{--bg:#fff;--surface:#F6F7F8;--ink:#14161A;--body:#2A2E35;--muted:#5B616B;--line:#DDE0E4;--accent:#2447D6;--r:8px;background:var(--bg);color:var(--body)}
+.va h1,.va h2,.va h3{color:var(--ink);letter-spacing:-.02em}
+.va .notice{background:var(--surface);color:var(--muted);font-size:.8125rem;text-align:center;padding:8px 16px}
+.va header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);border-bottom:1px solid var(--line)}
+.va .bar{max-width:1280px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.va .logo{font-weight:700;letter-spacing:-.03em;font-size:1.25rem;color:var(--ink);text-decoration:none}
+.va nav{display:none;width:100%;order:5}
+.va header.nav-open nav{display:block}
+.va nav ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.va nav a{display:block;padding:12px 0;text-decoration:none;color:var(--body)}
+.va .search{flex:1 1 200px;min-width:0;min-height:44px;border:1px solid #8B919B;border-radius:8px;padding:0 14px;background:#fff}
+.va .actions{display:flex;gap:4px;margin-left:auto}
+.va .actions button,.va .menu{min-height:44px;border:0;background:transparent;padding:0 10px;border-radius:8px;color:var(--ink)}
+.va .menu{border:1px solid var(--line)}
+@media (min-width:900px){.va .menu{display:none}.va nav{display:block;width:auto;order:0}.va nav ul{flex-direction:row;gap:20px}.va nav a{padding:8px 0;font-size:.9375rem}}
+.va main{max-width:1280px;margin:0 auto;padding:0 16px}
+.va .hero{display:grid;gap:32px;padding:48px 0 40px;align-items:end}
+.va .hero h1{font-size:clamp(2.25rem,6.2vw,4.75rem);line-height:1.02;margin:0 0 16px;max-width:14ch}
+.va .hero p{max-width:46ch;margin:0 0 24px;color:var(--muted)}
+.va .hero .ph{background:var(--surface);color:var(--muted);aspect-ratio:4/5;width:100%}
+.va .btn{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;text-decoration:none;transition:transform .15s var(--ease)}
+.va .link{color:var(--ink);margin-left:16px}
+@media (min-width:900px){.va .hero{grid-template-columns:7fr 5fr;padding:72px 0 56px}}
+.va .promo{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;font-size:.9375rem;text-align:center;color:var(--ink)}
+.va .section{padding:64px 0 0}
+.va .section h2{font-size:clamp(1.5rem,3vw,2rem);margin:0 0 24px}
+.va .tiles{display:grid;gap:16px;grid-template-columns:1fr}
+.va .tile{position:relative;min-height:200px}
+.va .tile .ph{height:100%;min-height:200px;background:var(--surface);color:var(--muted)}
+.va .tile a{position:absolute;left:16px;bottom:14px;color:var(--ink);font-weight:600;text-decoration:none}
+@media (min-width:700px){.va .tiles{grid-template-columns:repeat(12,1fr)}.va .t1{grid-column:span 7}.va .t2{grid-column:span 5}.va .t3,.va .t4,.va .t5{grid-column:span 4}.va .tile,.va .tile .ph{min-height:260px}}
+.va .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.va .filters button{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--body);transition:background .15s var(--ease),color .15s var(--ease)}
+.va .filters button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.va .grid{display:grid;gap:32px 24px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:700px){.va .grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1100px){.va .grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.va .card .ph{aspect-ratio:4/5;background:var(--surface);color:var(--muted);margin-bottom:12px}
+.va .card .brand,.va .card .rating{color:var(--muted)}
+.va .price{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:6px}
+.va .avail{color:var(--body)}
+.va .wish{background:#fff;color:var(--ink)}
+.va .wish[aria-pressed="true"]{background:var(--ink);color:#fff}
+.va .tag{background:#E6EEFB;color:#1B3F9A}
+.va .band{display:grid;gap:24px;align-items:center}
+.va .band .ph{background:var(--surface);color:var(--muted);aspect-ratio:16/10}
+@media (min-width:900px){.va .band{grid-template-columns:1fr 1fr}}
+.va footer{margin-top:80px;border-top:1px solid var(--line);padding:32px 16px;color:var(--muted);font-size:.875rem}
+.va footer div{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:space-between}
+/* ============ Direction B: Catalogue ============ */
+.vb{--bg:#F2F4F3;--card:#fff;--ink:#101614;--body:#27302C;--muted:#4F5B55;--line:#C9D1CD;--accent:#0F6B4F;--r:6px;background:var(--bg);color:var(--body)}
+.vb h1,.vb h2,.vb h3{color:var(--ink)}
+.vb .strip{background:var(--accent);color:#fff;text-align:center;font-size:.875rem;padding:8px 16px;font-weight:600}
+.vb header{background:var(--card);border-bottom:1px solid var(--line)}
+.vb .bar{max-width:1400px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.vb .logo{font-weight:800;font-size:1.25rem;color:var(--accent);text-decoration:none}
+.vb .search{flex:1 1 220px;min-height:44px;border:2px solid var(--ink);border-radius:6px;padding:0 12px;background:#fff}
+.vb .actions{display:flex;gap:4px;margin-left:auto}
+.vb .actions button,.vb .menu{min-height:44px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:0 12px;color:var(--ink)}
+.vb .menu{display:inline-block}
+.vb nav{display:none;border-top:1px solid var(--line);background:#fff}
+.vb header.nav-open nav{display:block}
+.vb nav ul{list-style:none;margin:0 auto;padding:0 16px;max-width:1400px;display:flex;flex-direction:column}
+.vb nav a{display:block;padding:12px 0;text-decoration:none;font-weight:600;color:var(--ink)}
+@media (min-width:900px){.vb .menu{display:none}.vb nav{display:block}.vb nav ul{flex-direction:row;gap:24px}.vb nav a{padding:10px 0;font-size:.9375rem}}
+.vb main{max-width:1400px;margin:0 auto;padding:16px}
+.vb .promos{display:grid;gap:12px}
+.vb .promos article{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px;display:grid;grid-template-columns:1fr 96px;gap:12px;align-items:center}
+.vb .promos .ph{background:#DDE5E1;color:var(--muted);aspect-ratio:1/1;padding:6px;font-size:11px}
+.vb .promos h2{margin:0 0 4px;font-size:1.0625rem}
+.vb .promos p{margin:0;font-size:.9375rem}
+@media (min-width:800px){.vb .promos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vb .layout{display:grid;gap:16px;margin-top:16px}
+.vb .rail{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px}
+.vb .rail h2{font-size:.875rem;margin:8px 8px;text-transform:uppercase;letter-spacing:.06em}
+.vb .rail .cats{display:flex;flex-wrap:wrap;gap:6px;padding:4px}
+.vb .rail button{min-height:44px;text-align:left;border:1px solid transparent;background:transparent;padding:0 12px;border-radius:6px;color:var(--ink)}
+.vb .rail button[aria-pressed="true"]{background:var(--accent);color:#fff}
+@media (min-width:900px){.vb .layout{grid-template-columns:220px minmax(0,1fr)}.vb .rail .cats{flex-direction:column;flex-wrap:nowrap}.vb .rail button{width:100%}}
+.vb .grid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:700px){.vb .grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1200px){.vb .grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.vb .card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:4px}
+.vb .card .ph{aspect-ratio:1/1;background:#E3EAE6;color:var(--muted);margin-bottom:6px}
+.vb .card .brand,.vb .card .rating{color:var(--muted)}
+.vb .price{font-size:1.25rem;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.vb .avail::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:6px}
+.vb .avail[data-s="low"]::before{background:#8A5A00}
+.vb .avail[data-s="out"]::before{background:#9B1C23}
+.vb .wish{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.vb .wish[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.vb .tag{background:#FBF1D8;color:#7A5200}
+.vb footer{max-width:1400px;margin:24px auto 0;padding:16px;color:var(--muted);font-size:.875rem}
+/* ============ Direction C: Court ============ */
+.vc{--bg:#0E1014;--panel:#171A20;--ink:#F4F5F7;--body:#D5D9E0;--muted:#A3A9B3;--line:#2B3039;--accent:#D7FF3A;--r:4px;background:var(--bg);color:var(--body)}
+.vc h1,.vc h2,.vc h3{color:var(--ink)}
+.vc header{border-bottom:1px solid var(--line)}
+.vc .bar{max-width:1320px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.vc .logo{font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);text-decoration:none;font-size:1.25rem}
+.vc .search{flex:1 1 180px;min-height:44px;border:1px solid #6D7480;border-radius:4px;padding:0 12px;background:var(--panel);color:var(--ink)}
+.vc .actions{display:flex;gap:4px;margin-left:auto}
+.vc .actions button,.vc .menu{min-height:44px;border:1px solid var(--line);background:transparent;border-radius:4px;padding:0 12px;color:var(--ink);text-transform:uppercase;font-size:.8125rem;letter-spacing:.06em}
+.vc nav{display:none;width:100%}
+.vc header.nav-open nav{display:block}
+.vc nav ul{list-style:none;margin:0;padding:0}
+.vc nav a{display:block;padding:12px 0;text-decoration:none;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--ink)}
+@media (min-width:900px){.vc .menu{display:none}.vc nav{display:block;width:auto}.vc nav ul{display:flex;gap:24px}.vc nav a{padding:8px 0;font-size:.875rem}}
+.vc .notice{background:var(--panel);color:var(--muted);font-size:.8125rem;text-align:center;padding:6px 16px}
+.vc main{max-width:1320px;margin:0 auto;padding:0 16px}
+.vc .hero{display:grid;gap:0;margin-top:16px;border-radius:4px;overflow:hidden}
+.vc .hero .copy{background:var(--accent);color:#0E1014;padding:32px 24px}
+.vc .hero h1{margin:0 0 12px;color:#0E1014;font-size:clamp(2.5rem,9vw,6.5rem);line-height:.92;text-transform:uppercase;letter-spacing:-.02em;font-weight:900}
+.vc .hero p{margin:0 0 20px;max-width:34ch;font-weight:600}
+.vc .btn{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:4px;background:#0E1014;color:var(--accent);text-decoration:none;font-weight:800;text-transform:uppercase;letter-spacing:.06em;transition:transform .15s var(--ease)}
+.vc .hero .ph{background:var(--panel);color:var(--muted);border-radius:0;min-height:260px}
+@media (min-width:900px){.vc .hero{grid-template-columns:3fr 2fr}.vc .hero .copy{padding:56px 48px}.vc .hero .ph{min-height:420px}}
+.vc .promo{margin:16px 0;padding:14px 16px;border:1px solid var(--line);border-radius:4px;color:var(--ink);font-weight:600}
+.vc .rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;overscroll-behavior-x:contain}
+.vc .rail a{flex:0 0 min(70vw,260px);scroll-snap-align:start;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;min-height:150px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;justify-content:space-between}
+.vc .rail b{font-size:2rem;color:var(--accent);font-weight:900}
+.vc .section{padding:40px 0 0}
+.vc .section h2{font-size:clamp(1.5rem,4vw,2.25rem);text-transform:uppercase;margin:0 0 16px;letter-spacing:-.01em}
+.vc .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.vc .filters button{min-height:44px;padding:0 16px;border:1px solid #6D7480;background:transparent;border-radius:999px;color:var(--ink);text-transform:uppercase;font-size:.8125rem;letter-spacing:.06em}
+.vc .filters button[aria-pressed="true"]{background:var(--accent);color:#0E1014;border-color:var(--accent)}
+.vc .grid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:900px){.vc .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}}
+.vc .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px;display:flex;flex-direction:column;gap:4px}
+.vc .card .ph{aspect-ratio:1/1;background:#222731;color:var(--muted);margin-bottom:6px}
+.vc .card .brand,.vc .card .rating{color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-size:.75rem}
+.vc .price{display:inline-block;align-self:flex-start;background:var(--accent);color:#0E1014;font-weight:800;padding:2px 10px;border-radius:999px;font-variant-numeric:tabular-nums;margin-top:6px}
+.vc .wish{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.vc .wish[aria-pressed="true"]{background:var(--accent);color:#0E1014;border-color:var(--accent)}
+.vc .tag{background:#2B3039;color:var(--ink)}
+.vc footer{margin-top:56px;border-top:1px solid var(--line);padding:24px 16px;color:var(--muted);font-size:.875rem;text-align:center}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div class="picker" role="toolbar" aria-label="Design direction">
+  <button type="button" data-pick="a" aria-pressed="true">1 Gallery</button>
+  <button type="button" data-pick="b" aria-pressed="false">2 Catalogue</button>
+  <button type="button" data-pick="c" aria-pressed="false">3 Court</button>
+  <span class="hint">keys 1 2 3 or arrows</span>
+</div>
+<div class="sr-only" role="status" aria-live="polite" id="live"></div>
+<script>
+(function(){
+  var CATS=[["all","All"],["computers","Computers & Tech"],["phones","Smartphones"],["audio","Wearables & Audio"],["football","Football & Apparel"],["shoes","Shoes & Sneakers"]];
+  var P=[
+    {id:"laptop",cat:"computers",brand:"Halden",name:"Halden 14 Laptop",rating:4.6,count:23,price:18499,stock:9,note:"14 in, 16 GB, 512 GB"},
+    {id:"phone",cat:"phones",brand:"Kestrel",name:"Kestrel 5G Phone",rating:4.2,count:8,price:5999,stock:3,note:"128 GB, 6.5 in"},
+    {id:"buds",cat:"audio",brand:"Orbit",name:"Orbit Buds",rating:0,count:0,price:649,stock:41,note:"Noise cancelling"},
+    {id:"watch",cat:"audio",brand:"Pulse",name:"Pulse Watch",rating:4.8,count:41,price:2299,stock:12,note:"40 mm, 5-day battery"},
+    {id:"shirt",cat:"football",brand:"Meridian",name:"Meridian Home Shirt",rating:4.1,count:9,price:899,stock:26,note:"Fictional listing",fictional:true},
+    {id:"run",cat:"shoes",brand:"Stride",name:"Stride Run 2",rating:4.5,count:12,price:1799,stock:0,note:"Running, mesh upper"},
+    {id:"low",cat:"shoes",brand:"Court Line",name:"Court Low",rating:4.4,count:17,price:1299,stock:5,note:"Casual, leather upper"},
+    {id:"keys",cat:"computers",brand:"Vector",name:"Vector 75 Keyboard",rating:4.7,count:30,price:1499,stock:18,note:"Hot-swappable, 75%"}
+  ];
+  var wish={}, state={v:"a",cat:{a:"all",b:"all",c:"all"}};
+  function money(n){var s=String(Math.floor(n)).replace(/\B(?=(\d{3})+(?!\d))/g,",");return "R"+s+".00";}
+  function avail(s){return s===0?["Out of stock","out"]:(s<=5?["Low stock","low"]:["In stock","in"]);}
+  function card(p){
+    var a=avail(p.stock), saved=!!wish[p.id];
+    var rating=p.count?(p.rating.toFixed(1)+" ("+p.count+")"):"No reviews yet";
+    return '<article class="card" data-id="'+p.id+'">'
+      +'<div class="ph" role="img" aria-label="Photo placeholder, 4 by 5: '+p.name+'"><span>photo slot</span></div>'
+      +'<button type="button" class="wish" data-wish="'+p.id+'" aria-pressed="'+saved+'" aria-label="'+(saved?"Remove ":"Save ")+p.name+(saved?" from wishlist":" to wishlist")+'">'+(saved?"Saved":"Save")+'</button>'
+      +'<span class="brand">'+p.brand+'</span><h3><a href="#" data-open="'+p.id+'">'+p.name+'</a></h3>'
+      +'<span class="rating">'+rating+'</span>'
+      +'<span class="price">From '+money(p.price)+'</span>'
+      +'<span class="avail" data-s="'+a[1]+'">'+a[0]+'</span>'
+      +(p.fictional?'<span class="tag">Fictional listing</span>':'')
+      +'</article>';
+  }
+  function grid(v){
+    var c=state.cat[v], list=P.filter(function(p){return c==="all"||p.cat===c;});
+    return list.length?list.map(card).join(""):'<p>No products match this filter.</p>';
+  }
+  function filters(v,label){
+    return '<div class="filters" role="group" aria-label="'+label+'">'+CATS.map(function(c){return '<button type="button" data-cat="'+c[0]+'" aria-pressed="'+(state.cat[v]===c[0])+'">'+c[1]+'</button>';}).join("")+'</div>';
+  }
+  var NAV='<ul>'+CATS.slice(1).map(function(c){return '<li><a href="#">'+c[1]+'</a></li>';}).join("")+'</ul>';
+  var PROMO="Free Standard delivery on your first order from R250.00 to R999.99. Express is R120.00.";
+  function head(cls){
+    return '<header class="'+'"><div class="bar"><a class="logo" href="#">NexaCart</a><button type="button" class="menu" data-menu aria-expanded="false" aria-controls="nav-'+cls+'">Menu</button>'
+      +'<nav id="nav-'+cls+'" aria-label="Categories">'+NAV+'</nav>'
+      +'<input class="search" type="search" aria-label="Search products by name or brand" placeholder="Search products or brands">'
+      +'<div class="actions"><button type="button">Wishlist <span data-wc>0</span></button><button type="button">Account</button><button type="button">Cart 0</button></div></div></header>';
+  }
+  function build(){
+    var A='<div class="va variant" data-v="a"><div class="notice">Demo store: listings are fictional and carry no sponsorship or brand affiliation.</div>'+head("a")
+      +'<main><section class="hero" aria-labelledby="ha"><div><h1 id="ha">Everything worth wearing, carrying and playing on.</h1><p>Computers, phones, audio, football shirts and sneakers, priced clearly and delivered with no surprises.</p><a class="btn" href="#fa">Shop featured</a><a class="link" href="#">Browse all products</a></div><div class="ph" role="img" aria-label="Hero photo placeholder, 4 by 5"><span>hero photo slot 4:5</span></div></section>'
+      +'<p class="promo">'+PROMO+'</p>'
+      +'<section class="section" aria-labelledby="ca"><h2 id="ca">Shop by category</h2><div class="tiles">'
+      +['Computers & Tech','Smartphones','Wearables & Audio','Football & Apparel','Shoes & Sneakers'].map(function(n,i){return '<div class="tile t'+(i+1)+'"><div class="ph" role="img" aria-label="Category photo placeholder: '+n+'"><span>category photo slot</span></div><a href="#">'+n+'</a></div>';}).join("")
+      +'</div></section>'
+      +'<section class="section" id="fa" aria-labelledby="fta"><h2 id="fta">Featured products</h2>'+filters("a","Filter featured products by category")+'<div class="grid" data-grid>'+grid("a")+'</div></section>'
+      +'<section class="section" aria-labelledby="ba"><div class="band"><div><h2 id="ba">Wearables and audio, side by side</h2><p>Compare battery life, fit and price without leaving the page.</p><a class="btn" href="#">See wearables</a></div><div class="ph" role="img" aria-label="Editorial photo placeholder, 16 by 10"><span>editorial photo slot 16:10</span></div></div></section></main>'
+      +'<footer><div><span>NexaCart demo store. All listings are fictional.</span><span>Payments are simulated. No card details are collected.</span></div></footer></div>';
+    var B='<div class="vb variant" data-v="b" hidden><div class="strip">'+PROMO+'</div>'+head("b")
+      +'<main><section class="promos" aria-label="Offers"><article><div><h2>First order? Delivery is on us</h2><p>Standard delivery is free on a first order from R250.00 to R999.99.</p></div><div class="ph" role="img" aria-label="Offer photo placeholder"><span>slot</span></div></article><article><div><h2>Returning customer?</h2><p>Use WELCOME10 for 10% off orders of R500.00 or more, after your first order ships.</p></div><div class="ph" role="img" aria-label="Offer photo placeholder"><span>slot</span></div></article></section>'
+      +'<div class="layout"><aside class="rail" aria-label="Categories"><h2>Category</h2><div class="cats" role="group" aria-label="Filter products by category">'+CATS.map(function(c){return '<button type="button" data-cat="'+c[0]+'" aria-pressed="'+(state.cat.b===c[0])+'">'+c[1]+'</button>';}).join("")+'</div></aside>'
+      +'<section aria-labelledby="fb"><h2 id="fb" class="sr-only">Featured products</h2><div class="grid" data-grid>'+grid("b")+'</div></section></div></main>'
+      +'<footer>NexaCart demo store. All listings are fictional. Payments are simulated.</footer></div>';
+    var C='<div class="vc variant" data-v="c" hidden><div class="notice">Demo store: fictional listings, no brand affiliation.</div>'+head("c")
+      +'<main><section class="hero" aria-labelledby="hc"><div class="copy"><h1 id="hc">Gear up.</h1><p>Boots to laptops. One basket, clear prices, simulated checkout.</p><a class="btn" href="#fc">Shop the drop</a></div><div class="ph" role="img" aria-label="Hero photo placeholder"><span>hero photo slot</span></div></section>'
+      +'<p class="promo">'+PROMO+'</p>'
+      +'<section class="section" aria-labelledby="cc"><h2 id="cc">Shop by category</h2><div class="rail">'+CATS.slice(1).map(function(c,i){return '<a href="#"><b>0'+(i+1)+'</b><span>'+c[1]+'</span></a>';}).join("")+'</div></section>'
+      +'<section class="section" id="fc" aria-labelledby="fcc"><h2 id="fcc">Featured</h2>'+filters("c","Filter featured products by category")+'<div class="grid" data-grid>'+grid("c")+'</div></section></main>'
+      +'<footer>NexaCart demo store. All listings are fictional. Payments are simulated.</footer></div>';
+    document.getElementById("stage").innerHTML=A+B+C;
+  }
+  function wc(){var n=Object.keys(wish).filter(function(k){return wish[k];}).length;[].forEach.call(document.querySelectorAll("[data-wc]"),function(e){e.textContent=n;});}
+  function show(v){
+    state.v=v;
+    [].forEach.call(document.querySelectorAll(".variant"),function(e){e.hidden=e.getAttribute("data-v")!==v;});
+    [].forEach.call(document.querySelectorAll("[data-pick]"),function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-pick")===v));});
+    var names={a:"Gallery",b:"Catalogue",c:"Court"};
+    document.getElementById("live").textContent="Showing direction "+names[v];
+    window.scrollTo(0,0);
+  }
+  function refresh(v){
+    var root=document.querySelector('.variant[data-v="'+v+'"]');
+    root.querySelector("[data-grid]").innerHTML=grid(v);
+    [].forEach.call(root.querySelectorAll("[data-cat]"),function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-cat")===state.cat[v]));});
+  }
+  document.addEventListener("click",function(e){
+    var t=e.target.closest?e.target.closest("button,a"):null; if(!t) return;
+    if(t.hasAttribute("data-pick")){show(t.getAttribute("data-pick"));return;}
+    if(t.hasAttribute("data-menu")){var h=t.closest("header"),open=!h.classList.contains("nav-open");h.classList.toggle("nav-open",open);t.setAttribute("aria-expanded",String(open));return;}
+    if(t.hasAttribute("data-cat")){state.cat[state.v]=t.getAttribute("data-cat");refresh(state.v);return;}
+    if(t.hasAttribute("data-wish")){var id=t.getAttribute("data-wish");wish[id]=!wish[id];refresh(state.v);wc();document.getElementById("live").textContent=(wish[id]?"Saved ":"Removed ")+id;return;}
+    if(t.tagName==="A"&&t.getAttribute("href")==="#"){e.preventDefault();}
+  });
+  document.addEventListener("keydown",function(e){
+    var tag=(e.target.tagName||"").toLowerCase(); if(tag==="input"||e.metaKey||e.ctrlKey||e.altKey) return;
+    var order=["a","b","c"],i=order.indexOf(state.v);
+    if(e.key==="1")show("a"); else if(e.key==="2")show("b"); else if(e.key==="3")show("c");
+    else if(e.key==="ArrowRight"&&tag!=="button")show(order[(i+1)%3]); else if(e.key==="ArrowLeft"&&tag!=="button")show(order[(i+2)%3]);
+  });
+  build(); show("a");
+})();
+</script>
+</body>
+</html>

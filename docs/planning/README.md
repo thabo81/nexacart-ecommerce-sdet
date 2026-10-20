@@ -4,7 +4,7 @@ This directory contains the approved product and engineering decisions for NexaC
 
 ## Source of truth
 
-Start with [PROJECT_BRIEF.md](PROJECT_BRIEF.md). The remaining documents are to be created and approved in this order:
+Start with [PROJECT_BRIEF.md](PROJECT_BRIEF.md). The planning sequence is listed below. Current approval status is recorded at the end of this document:
 
 1. `PRD.md` — Product Requirements Document
 2. `USER_STORIES_AND_FLOWS.md` — epics, user stories, acceptance criteria and application flows
@@ -24,4 +24,4 @@ Start with [PROJECT_BRIEF.md](PROJECT_BRIEF.md). The remaining documents are to 
 
 ## Current status
 
-Planning foundation established. Formal deliverables have not yet been approved. Application feature implementation should begin only after the requirements and initial architecture have been reviewed.
+Approved planning baselines: `PRD.md` v0.7, `USER_STORIES_AND_FLOWS.md` v0.3, and `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.3. The design brief is aligned with the PRD and story baseline; Gallery (A) and the N-and-dot logo concept are owner-approved. `GAP-02` (unavailable-product API response semantics) and `GAP-11` (deterministic coupon-error precedence) remain architecture follow-ups. `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, and `IMPLEMENTATION_PLAN_AND_BACKLOG.md` have not yet been created. Do not begin application feature implementation until architecture, database design and delivery backlog are reviewed and approved.

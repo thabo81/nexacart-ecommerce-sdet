@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | Document | `docs/planning/USER_STORIES_AND_FLOWS.md` |
-| Version | 0.3 — updated against PRD v0.7; owner review pending |
-| Status | **Revision updated on 2026-10-20 under the owner's instruction.** Version 0.2 was approved on 2026-10-15 against PRD v0.6. This revision aligns the relevant stories with approved PRD v0.7 clarifications CL-17 – CL-20. Review this revision before treating it as a newly approved baseline; the PRD remains authoritative if a discrepancy is discovered. |
+| Version | 0.3 — owner-approved baseline against PRD v0.7 |
+| Status | **Approved by the owner on 2026-10-20.** Version 0.3 is the approved story baseline aligned with PRD v0.7 and clarifications CL-17 – CL-20. The PRD remains authoritative if a discrepancy is discovered. |
 | Date created | 2026-10-13 |
 | Previous approval date | 2026-10-15 (version 0.2) |
 | Last updated | 2026-10-20 |
 | Primary source | `docs/planning/PRD.md` v0.7 (approved baseline) |
 | Context source | `docs/planning/PROJECT_BRIEF.md` |
 | Related | `docs/planning/README.md` (document sequence), `docs/testing/README.md` (SDET workflow), `CLAUDE.md` (engineering rules) |
-| Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.2 is approved locally; its repository version is awaiting review and reconciliation. |
+| Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.3 is owner-approved and aligned with this story baseline and PRD v0.7. |
 | Not yet created | `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
 
 ## 1. Purpose, scope and conventions
@@ -1549,4 +1549,4 @@ While writing the stories, these points were found where the PRD was silent or l
 |---|---|---|
 | 0.1 | 2026-10-13 | First draft for owner review, based on PRD v0.6. No other planning document was created and no application code was written |
 | 0.2 | 2026-10-15 | Owner approved the user stories and flows against PRD v0.6. |
-| 0.3 | 2026-10-20 | Aligned password-change, pending-order reservation display/return path, customer cancellation reason, and five-minute session-expiry warning behaviour with PRD v0.7 (CL-17 – CL-20); added UI-28; closed GAP-01, GAP-06 and GAP-10. Remaining observations left for design-brief reconciliation or architecture; owner review pending. No application code was written. |
+| 0.3 | 2026-10-20 | Aligned password-change, pending-order reservation display/return path, customer cancellation reason, and five-minute session-expiry warning behaviour with PRD v0.7 (CL-17 – CL-20); added UI-28; closed GAP-01, GAP-06 and GAP-10. Owner approved this baseline on 2026-10-20. GAP-02 and GAP-11 remain architecture follow-ups. No application code was written. |
