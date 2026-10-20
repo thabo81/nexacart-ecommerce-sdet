@@ -9,11 +9,11 @@
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.3; Design Brief & Wireframes v0.3 |
 | Related documents | PROJECT_BRIEF.md; README.md; docs/testing/README.md |
-| Not yet created | DATABASE_SCHEMA_AND_ERD.md; IMPLEMENTATION_PLAN_AND_BACKLOG.md |
+| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.1 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
 
 ## 1. Purpose and decision status
 
-This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate downstream documents.
+This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.1 is now drafted for review.
 
 No application implementation is authorised yet. Owner decisions are being recorded in the architecture baseline; the remaining hosting-provider choice can be decided later. Before feature implementation begins, finish and review the database schema/ERD and implementation backlog and record final architecture sign-off.
 
