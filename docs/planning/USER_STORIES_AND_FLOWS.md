@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | Document | `docs/planning/USER_STORIES_AND_FLOWS.md` |
-| Version | 0.3 — owner-approved baseline against PRD v0.7 |
-| Status | **Approved by the owner on 2026-10-20.** Version 0.3 is the approved story baseline aligned with PRD v0.7 and clarifications CL-17 – CL-20. The PRD remains authoritative if a discrepancy is discovered. |
+| Version | 0.4 — owner-approved clarification update against PRD v0.7 |
+| Status | **Approved by the owner on 2026-10-20.** Version 0.4 remains aligned with PRD v0.7 and clarifications CL-17 – CL-20, and records the owner-approved GAP-02 unavailable-item response and GAP-11 coupon precedence. The PRD remains authoritative for business rules; architecture records the approved API defaults. |
 | Date created | 2026-10-13 |
 | Previous approval date | 2026-10-15 (version 0.2) |
 | Last updated | 2026-10-20 |
 | Primary source | `docs/planning/PRD.md` v0.7 (approved baseline) |
 | Context source | `docs/planning/PROJECT_BRIEF.md` |
 | Related | `docs/planning/README.md` (document sequence), `docs/testing/README.md` (SDET workflow), `CLAUDE.md` (engineering rules) |
-| Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.3 is owner-approved and aligned with this story baseline and PRD v0.7. |
-| Not yet created | `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
+| Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.4 is owner-approved and aligned with this story baseline and PRD v0.7. |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.9 and `DATABASE_SCHEMA_AND_ERD.md` v0.9 are owner-approved planning baselines. GAP-02/GAP-11 behaviour, catalogue field caps, performance reference profile and 02:00 UTC cleanup default are owner-approved. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` v0.1 is drafted and awaits owner approval. Hosting-provider selection remains deferred; application implementation remains blocked until the final planning gate is approved. |
 
 ## 1. Purpose, scope and conventions
 
@@ -1108,24 +1108,26 @@ Addresses are managed on their own: the first address becomes the default; at mo
 ### FL-11 — Coupon validation
 **Stories:** US-035, US-036, US-041 · **PRD:** FR-046 – FR-048, BR-030 – BR-036, BR-075, DEC-28
 
-The PRD does not define which rejection code wins when several conditions fail at once (GAP-11); the order below is illustrative.
+The owner-approved GAP-11 precedence is specified in the architecture draft and is normative for both coupon application and placement revalidation; the flow below illustrates the same first-failure sequence.
 
 ```mermaid
 flowchart TD
   S["Customer applies a code at the cart, or placement re-validates it"] --> N["Trim and upper-case the code"]
   N --> A{"Code exists?"}
   A -->|No| E1["422 COUPON_NOT_FOUND"]
-  A -->|Yes| B{"Active?"}
+  A -->|Yes| B{"Coupon active?"}
   B -->|No| E2["422 COUPON_NOT_ACTIVE"]
-  B -->|Yes| C{"Inside its start and expiry times?"}
-  C -->|No| E3["422 COUPON_EXPIRED"]
-  C -->|Yes| D{"Customer eligible? WELCOME10 needs an order that has shipped"}
+  B -->|Yes| T{"Start time reached?"}
+  T -->|No| E2
+  T -->|Yes| X{"Current time before exclusive expiry?"}
+  X -->|No| E3["422 COUPON_EXPIRED"]
+  X -->|Yes| D{"Customer eligible? WELCOME10 needs an order that has shipped"}
   D -->|No| E4["422 COUPON_NOT_ELIGIBLE"]
   D -->|Yes| M{"Pre-coupon subtotal meets the minimum?"}
   M -->|No| E5["422 COUPON_MIN_ORDER_NOT_MET"]
   M -->|Yes| U{"Global and per-customer limits allow it?"}
   U -->|No| E6["422 COUPON_USAGE_LIMIT_REACHED"]
-  U -->|Yes| OK["Discount calculated and capped; a use is counted only when the order is placed"]
+  U -->|Yes| OK["Calculate discount and apply caps; count usage only when placing the order"]
 ```
 
 Minimums: `WELCOME10` R500.00 inclusive; `SAVE100` above R800.00 (exclusive). Only one coupon applies per order, and coupons never discount shipping.
@@ -1441,7 +1443,7 @@ While writing the stories, these points were found where the PRD was silent or l
 | ID | Observation | Stories | Suggested home |
 |---|---|---|---|
 | GAP-01 | **Resolved by PRD v0.7 / CL-17:** after password change, all old tokens are invalidated; UI confirms success and requires login with the new password. | US-008 | Closed — CL-17 |
-| GAP-02 | The response when adding to the cart or wishlist an inactive, removed or unknown product or variant is not specified (FR-025 covers direct page access only) | US-026, US-032 | Technical architecture |
+| GAP-02 | Owner-approved architecture default: unknown product/variant ID returns 404 `NOT_FOUND`; known inactive/unavailable target returns 409 `PRODUCT_UNAVAILABLE`; rejected add leaves cart/wishlist unchanged, and UI shows the API message. Direct inactive product detail still follows FR-025/AC-020 (404). | US-026, US-032 | Architecture v0.9 owner-approved planning baseline |
 | GAP-03 | Whether guests see a cart or wishlist indicator, and whether the wishlist has a count like the cart (FR-040) | US-028 | Design brief |
 | GAP-04 | Which fields each entry of the order-history list shows | US-050 | Design brief |
 | GAP-05 | The reviewer name shown with a review and the ordering and paging of reviews | US-057 | Design brief |
@@ -1450,7 +1452,7 @@ While writing the stories, these points were found where the PRD was silent or l
 | GAP-08 | Which actions besides order cancellation (WF-08) need a confirmation step, for example deleting an address or clearing the cart | US-010, US-027 | Design brief |
 | GAP-09 | Wording, tone and localisation of messages, and whether the request id is shown to users (English only, ASM-01) | All UI stories | Design brief |
 | GAP-10 | **Resolved by PRD v0.7 / CL-19:** customers do not provide a cancellation reason; administrator cancellation still requires a 1–200 character reason. | US-053, US-054, US-074 | Closed — CL-19 |
-| GAP-11 | The PRD does not say which `COUPON_*` code wins when several conditions fail at once | US-035 | Technical architecture |
+| GAP-11 | Owner-approved deterministic first-failure order: normalize/lookup → active and time window → customer eligibility → minimum amount → usage limits → discount/caps; same order at apply and placement. | US-035 | Architecture v0.9 owner-approved planning baseline |
 
 ## Appendix A — Story index
 
@@ -1549,4 +1551,5 @@ While writing the stories, these points were found where the PRD was silent or l
 |---|---|---|
 | 0.1 | 2026-10-13 | First draft for owner review, based on PRD v0.6. No other planning document was created and no application code was written |
 | 0.2 | 2026-10-15 | Owner approved the user stories and flows against PRD v0.6. |
-| 0.3 | 2026-10-20 | Aligned password-change, pending-order reservation display/return path, customer cancellation reason, and five-minute session-expiry warning behaviour with PRD v0.7 (CL-17 – CL-20); added UI-28; closed GAP-01, GAP-06 and GAP-10. Owner approved this baseline on 2026-10-20. GAP-02 and GAP-11 remain architecture follow-ups. No application code was written. |
+| 0.3 | 2026-10-20 | Aligned password-change, pending-order reservation display/return path, customer cancellation reason, and five-minute session-expiry warning behaviour with PRD v0.7 (CL-17 – CL-20); added UI-28; closed GAP-01, GAP-06 and GAP-10. Owner approved this baseline on 2026-10-20. The GAP-02 and GAP-11 defaults are now owner-confirmed and recorded in architecture v0.3; final architecture/schema review remains pending. No application code was written. |
+| 0.4 | 2026-10-20 | Recorded the owner-approved GAP-02 API response distinction and the exact first-failure coupon precedence in FL-11 and §10; updated cross-document metadata. No approved PRD business rule changed and no application code was written. |
