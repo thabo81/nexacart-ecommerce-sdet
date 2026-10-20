@@ -8,7 +8,7 @@
 | Date | 2026-10-20 |
 | Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.9 |
 | Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.9 owner-approved planning baseline; public hosting provider deferred |
-| Not yet created | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
+| Related downstream document | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md v0.1 draft awaiting owner approval |
 
 ## 1. Purpose and design rules
 
