@@ -13,7 +13,7 @@
 
 ## 1. Purpose and decision status
 
-This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.8 is drafted for review.
+This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.9 is owner-approved as a planning baseline, while IMPLEMENTATION_PLAN_AND_BACKLOG.md v0.1 is drafted for review.
 
 No application implementation is authorised yet. Owner decisions are being recorded in the architecture baseline; the remaining hosting-provider choice can be decided later. Before feature implementation begins, finish and review the database schema/ERD and implementation backlog and record final architecture sign-off.
 
