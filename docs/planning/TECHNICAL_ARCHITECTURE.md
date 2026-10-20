@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/TECHNICAL_ARCHITECTURE.md |
-| Version | 0.8 — architecture aligned to Database Schema v0.8 |
+| Version | 0.9 — owner-approved architecture baseline, pending backlog approval |
 | Status | **Draft under owner review; not yet approved as a complete document.** Owner-confirmed: HttpOnly JWT cookie transport with CSRF protection (AC-004), Argon2id, UUID IDs, PostgreSQL 16 with native `gen_random_uuid()`, explicit CHECK/partial-index names, nightly cleanup of expired sessions and idempotency records, row-level locking for review aggregates, GAP-02/GAP-11 defaults, and local plus public deployment. Hosting provider is deliberately deferred. Catalogue field limits not numerically specified in the PRD are proposed in the ERD and await owner review. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
