@@ -430,7 +430,7 @@ Polling interval, batch size, retry policy and nightly run time are configuratio
 
 ### 9.2 Reference performance-test environment
 
-The PRD's NFR-001–004 targets shall be evaluated in a documented Docker Compose reference environment, not inferred from the public host. **Proposed benchmark profile for owner review:**
+The PRD's NFR-001–004 targets shall be evaluated in a documented Docker Compose reference environment, not inferred from the public host. **Owner-approved benchmark profile (2026-10-20):**
 
 | Resource | Reference baseline |
 |---|---|
