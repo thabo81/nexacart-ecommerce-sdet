@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/DATABASE_SCHEMA_AND_ERD.md |
-| Version | 0.3 — updated draft for owner review |
+| Version | 0.4 — updated draft for owner review |
 | Status | **Draft under owner review; not implemented.** Records PostgreSQL 16, native UUID generation, explicitly named CHECK constraints and partial indexes, nightly cleanup of expired sessions and idempotency records, and product-row locking for concurrent review aggregate updates. Proposed catalogue-field caps not numerically specified in the PRD remain awaiting owner confirmation. The public hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
-| Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.4 |
+| Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.5 |
 | Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.5 draft; public hosting provider deferred |
 | Not yet created | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
 
