@@ -445,7 +445,7 @@ The PRD's NFR-001–004 targets shall be evaluated in a documented Docker Compos
 
 Every benchmark report shall record CPU/architecture, available RAM, storage type, OS/kernel, Docker Engine/Compose versions, exact database image/version, dataset size, build SHA and measured result. Comparisons are valid only when the same profile and workload are used. If the available host cannot provide this profile, label the result as a non-reference diagnostic run instead of claiming an NFR pass. Public-host performance observations are tracked separately and do not replace the Compose baseline.
 
-This resource profile is a proposed engineering benchmark convention, not an approved product requirement; owner sign-off is pending.
+This resource profile is an owner-approved engineering benchmark convention, not a product requirement. It defines repeatable measurements for NFR-001–004; execution results must still be measured and documented.
 
 ### 9.3 Environment variable groups
 
