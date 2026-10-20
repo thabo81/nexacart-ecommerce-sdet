@@ -3,14 +3,15 @@
 | Field | Value |
 |---|---|
 | Document | `docs/planning/PRD.md` |
-| Version | 0.6 — approved baseline |
-| Status | **Approved.** All decisions (DEC-01 – DEC-29) and clarifications (CL-01 – CL-16) are approved by the owner (DEC-01 – DEC-27 and CL-01 – CL-13 on 2026-10-12; DEC-28, DEC-29 and CL-14 – CL-16 on 2026-10-13). No open items remain. Standalone draft file, not yet in the repository |
-| Date | 2026-10-13 |
+| Version | 0.7 — approved baseline |
+| Status | **Approved.** All decisions (DEC-01 – DEC-29) and clarifications (CL-01 – CL-20) are approved by the owner. DEC-01 – DEC-27 and CL-01 – CL-13 were approved on 2026-10-12; DEC-28, DEC-29 and CL-14 – CL-16 on 2026-10-13; CL-17 – CL-20 on 2026-10-20. No open PRD decisions or clarifications remain. |
+| Date updated | 2026-10-20 |
 | Baseline | `PROJECT_BRIEF.md` (initial source of truth). This PRD refines it and does not silently change it |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Author role | Lead application engineer / technical architect |
 | Companion work | SDET strategy, test design and automation are produced separately and must trace to the IDs in this document |
-| Not yet created | `USER_STORIES_AND_FLOWS.md`, `DESIGN_BRIEF_AND_WIREFRAMES.md`, `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
+| Related planning documents | `USER_STORIES_AND_FLOWS.md` v0.2 approved on 2026-10-15; v0.3 is being aligned to this PRD. `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.2 is approved locally; its repository update is pending. |
+| Not yet created | `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
 
 ## Conventions
 
@@ -27,11 +28,11 @@
 | BR | Business rule | RSK / DEP / ASM | Risk / dependency / assumption |
 | WF | Workflow | DEC / CL | Decision / clarification requiring approval (§14) |
 
-**Change markers.** Rows tagged *(amended v0.N)* or *(new v0.N)* changed in version 0.N (a row changed in several versions carries each tag). New IDs continue the existing sequences (FR-109+, BR-068+, AC-074+, DEC-25+, CL-01+); v0.5 adds FR-116, BR-076 – BR-077, AC-117 – AC-118, DEC-29 and CL-16. Nothing was renumbered or reused. See Appendices C and D. Version 0.6 closes CL-16 and adds no new IDs.
+**Change markers.** Rows tagged *(amended v0.N)* or *(new v0.N)* changed in version 0.N (a row changed in several versions carries each tag). New IDs continue the existing sequences (FR-109+, BR-068+, AC-074+, DEC-25+, CL-01+); v0.5 adds FR-116, BR-076 – BR-077, AC-117 – AC-118, DEC-29 and CL-16. Nothing was renumbered or reused. See Appendices C and D. Version 0.6 closed CL-16. Version 0.7 adds AC-119 – AC-121 and CL-17 – CL-20; no existing identifier was renumbered or reused.
 
 **Priority** (MoSCoW): **M** Must, **S** Should, **C** Could. **Release**: R1, R2, R3 (§4.3).
 
-**Decision tags.** `DEC-nn` marks a point where the brief is silent or ambiguous and this PRD set a default. The owner approved every default (DEC-01 – DEC-27) and every clarification (CL-01 – CL-13) on 2026-10-12, so these defaults are now requirements; any later change goes through change control and the change log. DEC-28, DEC-29 and CL-14 – CL-16 were approved on 2026-10-13; no item is waiting for the owner.
+**Decision tags.** `DEC-nn` marks a point where the brief is silent or ambiguous and this PRD set a default. The owner approved every default (DEC-01 – DEC-27) and every clarification (CL-01 – CL-13) on 2026-10-12, so these defaults are now requirements; any later change goes through change control and the change log. DEC-28, DEC-29 and CL-14 – CL-16 were approved on 2026-10-13; CL-17 – CL-20 were approved on 2026-10-20. No item is waiting for the owner.
 
 **Normative language.** "Shall" = mandatory. "Should" = recommended. "May" = optional.
 
@@ -176,10 +177,10 @@ All requirements are **Planned**. "Refs" lists the governing rules/decisions.
 | FR-002 | Email uniqueness is case-insensitive; duplicate registration returns 409 `EMAIL_ALREADY_REGISTERED`. | M | R1 | BR-002 |
 | FR-003 | Users shall log in with email and password and receive a signed access token. Failure responses shall not reveal whether the email exists. | M | R1 | BR-004, BR-005, SEC-003 |
 | FR-004 | Logout shall invalidate the presented token server-side so it can no longer authenticate. | M | R1 | BR-005, SEC-005 |
-| FR-005 | Missing, malformed, expired or revoked tokens return 401 (`UNAUTHENTICATED` / `TOKEN_EXPIRED`). The UI redirects to login and returns the user to the intended destination after success. | M | R1 | BR-005 |
+| FR-005 | Missing, malformed, expired or revoked tokens return 401 (`UNAUTHENTICATED` / `TOKEN_EXPIRED`). Five minutes before an access token expires, the UI shall display and announce “Your session is about to expire.” This warning does not refresh, renew or extend the token (CL-20). When the token expires, the UI redirects to login and returns the user to the intended destination after success. *(amended v0.7)* | M | R1 | BR-005, CL-20 |
 | FR-006 | The UI shall guard protected routes (cart, wishlist, checkout, account, orders, admin) and redirect unauthenticated users to login. | M | R1 | DEC-03, CL-08 |
 | FR-007 | Customers shall view and update their profile (name, optional phone). Email is read-only in the MVP. | M | R1 | BR-003, DEC-04 |
-| FR-008 | Customers shall change password by supplying the current password; the new password shall satisfy policy, differ from the current one, and invalidate previously issued tokens. | M | R1 | BR-001, BR-005 |
+| FR-008 | Customers shall change password by supplying the current password; the new password shall satisfy policy, differ from the current one, and invalidate previously issued tokens. On success, the UI shall confirm the change and require the customer to log in again using the new password (CL-17). *(amended v0.7)* | M | R1 | BR-001, BR-005, CL-17 |
 | FR-009 | Repeated failed logins shall be throttled per account. | S | R1 | BR-007, DEC-05 |
 | FR-010 | Admin accounts shall be provisioned only via seed/CLI; no public endpoint or UI path can create or elevate an administrator. | M | R1 | BR-006, SEC-008 |
 
@@ -278,8 +279,8 @@ All requirements are **Planned**. "Refs" lists the governing rules/decisions.
 | FR-069 | Order detail shall show item snapshots, address snapshot, totals breakdown, order status, payment status, refund status and status history. | M | R1 | BR-050, BR-052 |
 | FR-070 | Each order has a unique human-readable order number. | M | R1 | BR-051 |
 | FR-071 | Order status changes shall obey the transition matrix; invalid transitions return 409 `INVALID_STATUS_TRANSITION`. | M | R1 | BR-043 |
-| FR-072 | Customers shall cancel their own **unpaid pending** orders (including from the payment-failed page), releasing stock and coupon usage. Cancelling a `confirmed` order is not available before R2 (DEC-26). *(amended v0.2)* | M | R1 | BR-053, BR-054, DEC-26 |
-| FR-073 | Customers shall cancel their own **confirmed** (paid) orders; stock is restored and a full simulated refund is created. | M | R2 | BR-053, BR-055 |
+| FR-072 | Customers shall cancel their own **unpaid pending** orders (including from the payment-failed page), releasing stock and coupon usage, without being required to provide a cancellation reason (CL-19). Cancelling a `confirmed` order is not available before R2 (DEC-26). *(amended v0.7)* | M | R1 | BR-053, BR-054, DEC-26, CL-19 |
+| FR-073 | Customers shall cancel their own **confirmed** (paid) orders without being required to provide a cancellation reason (CL-19); stock is restored and a full simulated refund is created. *(amended v0.7)* | M | R2 | BR-053, BR-055, CL-19 |
 | FR-074 | Refunds shall progress `refund_pending` → `refunded` via the simulated refund processor, with a configurable delay (zero in test environments). | M | R2 | BR-056, DEC-13 |
 | FR-075 | Cancellation of unpaid pending orders (by the customer or the expiry job) shall be idempotent and concurrency-safe: stock is restored and coupon usage released exactly once; repeating a cancellation returns 409 `ORDER_NOT_CANCELLABLE` with no side effects. The paid-order counterpart is FR-109 (R2). *(amended v0.2)* | M | R1 | BR-040, BR-054 |
 | FR-076 | Every status change shall append an entry (from, to, actor, timestamp, reason) to the order status history. | M | R1 | BR-052 |
@@ -343,7 +344,7 @@ All requirements are **Planned**. "Refs" lists the governing rules/decisions.
 | FR-109 | Cancellation of paid (`confirmed`) orders shall be idempotent and concurrency-safe: stock is restored exactly once and at most one refund is created; repeating a cancellation returns 409 `ORDER_NOT_CANCELLABLE` with no side effects. Paid-order counterpart of FR-075. | M | R2 | BR-040, BR-055, BR-056 |
 | FR-110 | Order placement (create the pending order and reserve stock) and payment attempt shall be two separate API operations with separate transactions and separate idempotency scopes. The UI performs them in sequence when the customer selects Place order. | M | R1 | BR-068, BR-069, BR-070, DEC-10, DEC-11 |
 | FR-111 | A customer shall have at most one pending order. A further placement that is not a replay and passes the key, replay and schema checks returns 409 `CHECKOUT_ALREADY_PENDING` (details: the existing order id) whatever its new `Idempotency-Key` or payload content, ahead of the address, cart, stock, coupon and total checks (BR-074 step 5); a replay of the original key and payload returns the stored response; concurrent placements create exactly one order. *(amended v0.3)* | M | R1 | BR-071, DEC-25 |
-| FR-112 | While a pending order exists the cart is locked to it: cart mutations return 409 `CART_LOCKED`; cart reads succeed and show a locked indicator and the pending order id; the UI offers "Pay now" and "Cancel order". | M | R1 | BR-071, DEC-25 |
+| FR-112 | While a pending order exists the cart is locked to it: cart mutations return 409 `CART_LOCKED`; cart reads succeed and show a locked indicator and the pending order id; the cart and checkout entry show a pending-order banner offering "Pay now" and "Cancel order". The payment page and order detail display "Reserved until [time]" using the order's reservation deadline, and order detail offers a "Pay now" route (CL-18). *(amended v0.7)* | M | R1 | BR-071, DEC-25, CL-18 |
 | FR-113 | Cart behaviour after outcomes: approval empties and unlocks the cart; cancellation or reservation expiry unlocks it and retains its lines and selections for re-validation. | M | R1 | BR-072, DEC-25 |
 | FR-114 | Paying an order that is cancelled or expired returns 409 `ORDER_NOT_PAYABLE` and records no payment attempt. If the reservation deadline has elapsed, expiry takes precedence over payment: the payment operation applies the expiry transition first. Payment, cancellation and expiry on the same order are serialised so that exactly one outcome wins, and the simulated payment delay never blocks or overrides cancellation or expiry. *(amended v0.3)* | M | R1 | BR-049, BR-069, BR-073 |
 | FR-115 | Order placement shall evaluate its preconditions in the 12-step order defined in BR-074 and return the specified status and error code for each failure. An existing pending order is reported (step 5) before address, cart, stock, coupon and total checks; idempotency replay and key-reuse resolution (step 3) precede schema validation (step 4). A rejected request creates no order, inventory movement, coupon usage or idempotency record. *(amended v0.3)* | M | R1 | BR-074 |
@@ -721,7 +722,7 @@ Cell values are the expected outcome. `own` = only the caller's records. Unauthe
 
 ## 12. Acceptance criteria and success metrics
 
-Layers: **U** = UI (Playwright), **A** = API (HTTPX), **D** = database (SQL). **Rel** = the release in which the criterion first applies (the highest release among the functional requirements it verifies; criteria with no functional requirement default to R1). R2/R3 criteria are not part of the R1 gate. v0.2 added AC-074 – AC-104, v0.3 added AC-105 – AC-114 v0.4 added AC-115 – AC-116 and v0.5 adds AC-117 – AC-118 as new IDs; no existing AC was renumbered. All criteria are Planned.
+Layers: **U** = UI (Playwright), **A** = API (HTTPX), **D** = database (SQL). **Rel** = the release in which the criterion first applies (the highest release among the functional requirements it verifies; criteria with no functional requirement default to R1). R2/R3 criteria are not part of the R1 gate. v0.2 added AC-074 – AC-104, v0.3 added AC-105 – AC-114 v0.4 added AC-115 – AC-116, v0.5 added AC-117 – AC-118 and v0.7 adds AC-119 – AC-121; no existing AC was renumbered. All criteria are Planned.
 
 ### 12.1 Acceptance criteria
 
@@ -737,7 +738,7 @@ Layers: **U** = UI (Playwright), **A** = API (HTTPX), **D** = database (SQL). **
 | AC-006 | R1 | FR-004 | After logout, the same token on a protected endpoint → 401; UI redirects to login. | A U |
 | AC-007 | R1 | FR-005 | With `TOKEN_TTL` shortened and the clock advanced, an expired token → 401 `TOKEN_EXPIRED`; the UI redirects to `/login` and returns to the original page after login. | A U |
 | AC-008 | R1 | FR-009, BR-007 | After 5 consecutive failures the 6th attempt (correct password) → 429 `RATE_LIMITED`; after the lock window succeeds; a success resets the counter. | A |
-| AC-009 | R1 | FR-008 | Wrong current password → 422 `INVALID_CURRENT_PASSWORD`; success invalidates old tokens (→ 401) and the new password logs in. A new password equal to the current one, or one violating BR-001, → 422. *(amended v0.3)* | A |
+| AC-009 | R1 | FR-008, CL-17 | Wrong current password → 422 `INVALID_CURRENT_PASSWORD`; success invalidates old tokens (→ 401), the UI confirms the change and redirects to login, and the new password logs in. A new password equal to the current one, or one violating BR-001, → 422. *(amended v0.7)* | A U |
 | AC-010 | R1 | FR-010, BR-006, SEC-008 | Registration/profile payloads containing `role: admin` → 422; no admin created or elevated. | A D |
 | AC-011 | R1 | SEC-004 | Token with `alg=none`, wrong signature or modified claims → 401. | A |
 
@@ -945,6 +946,9 @@ Layers: **U** = UI (Playwright), **A** = API (HTTPX), **D** = database (SQL). **
 |---|---|---|---|---|
 | AC-117 | R1 | FR-049, FR-050, FR-116, BR-028, BR-029, BR-075, BR-076, BR-077 | First-order free shipping. (a) A first-time buyer placing a Standard order with a pre-coupon subtotal from R250.00 up to under R1,000.00 pays R0.00 shipping (T-13, T-09); R1,000.00 or more pays R60.00 (T-06, T-08); Express is R120.00 in every case (T-10). (b) The band uses the pre-coupon subtotal: a R900.00 cart with `SAVE100` (discounted to R800.00) still ships free for a first-time buyer (T-16). (c) A returning customer pays R60.00 Standard at every subtotal (T-17). (d) First-order status is decided from the customer's previous orders, excluding `cancelled` orders and the order currently being placed: a customer whose only earlier orders are `cancelled` (including an unpaid order cancelled or expired) is still a first-time buyer, while an earlier `pending`, `confirmed`, `processing`, `shipped` or `delivered` order makes the next order a returning order. (e) A customer using `WELCOME10` is returning by definition and pays R60.00 Standard, including at subtotals from R250.00 to R999.99 (T-01 – T-03, T-05, T-07). (f) The small-goods exception grants no free shipping: a first-time buyer's R249.99 cart of four small-goods units pays R60.00 (T-14). (g) The shipping fee shown in the cart equals the fee stored on the placed order. *(new v0.5)* *(amended v0.6)* | A U D |
 | AC-118 | R1 | FR-116, BR-077 | Minimum order and small goods. (a) A cart whose pre-coupon subtotal is below R250.00 and that holds fewer than four small-goods units shows the `below_minimum_order` flag, the UI disables "Place order", and placement returns 409 `ORDER_BELOW_MINIMUM` with nothing created (T-15); three units do not qualify. (b) A cart of four Wearables and Audio units at R249.99 is accepted (T-14); units are counted across all small-goods lines (two units of one product plus two of another qualify); three small units plus other items below R250.00 is rejected. (c) R250.00 with no small-goods items is accepted (T-13). (d) The check ignores coupons: a R260.00 cart with `ONCE1` (discounted to R247.00) is accepted. (e) A subcategory of Wearables and Audio counts as small goods; four units of a product in another category totalling below R250.00 are rejected. (f) The exception waives only the minimum: Standard shipping stays R60.00 (T-14). *(new v0.5)* *(amended v0.6)* | A U |
+| AC-119 | R1 | FR-005, BR-005, CL-20 | With an authenticated session and five minutes remaining before access-token expiry, the UI displays and announces “Your session is about to expire.” The warning does not obtain a replacement token or alter the token's expiry. Once the token expires, a protected request returns 401 `TOKEN_EXPIRED`; the UI redirects to login and restores the intended destination after successful login. | A U |
+| AC-120 | R1 | FR-112, BR-041, CL-18 | While a pending order's reservation remains active, the payment page and order detail display “Reserved until [time]” using the reservation deadline; order detail offers “Pay now”; the cart and checkout entry display the pending-order banner with “Pay now” and “Cancel order.” The deadline is placement time plus the configured 30-minute reservation window and is never extended by retries. An expired order cannot be paid. | A U D |
+| AC-121 | R1 | FR-072, FR-073, FR-094, CL-09, CL-19 | Customer cancellation of an eligible unpaid pending order (R1) or confirmed paid order (R2) does not require or request a reason. The cancellation can be completed without a reason value. Administrator cancellation (R2) still requires a 1–200 character reason; omitting it returns 422. | A U |
 
 ### 12.2 Success metrics
 
@@ -1009,11 +1013,11 @@ Layers: **U** = UI (Playwright), **A** = API (HTTPX), **D** = database (SQL). **
 | ASM-10 | Registration revealing an existing email is acceptable while verification is out of scope |
 | ASM-11 | Default delivery country and currency are single configured values (DEC-02, DEC-17) |
 
-## 14. Open questions and decision register (requires your approval)
+## 14. Decision register and clarifications
 
 Each decision shows the **approved default** used throughout this PRD (approved by the owner on 2026-10-12 with "approve all"). "Needed by" is the earliest downstream document that depends on it.
 
-**Status: DEC-01 – DEC-27 and CL-01 – CL-13 approved on 2026-10-12; DEC-28, DEC-29 and CL-14 – CL-16 approved on 2026-10-13; no item is pending.** Items tagged *(amended v0.2)* changed in v0.2 and items tagged *(amended v0.3)* or *(new v0.3)* changed in v0.3. DEC-25 – DEC-27 and CL-01 – CL-09 were added in v0.2; CL-10 – CL-13 were added in v0.3; DEC-28, CL-14 and CL-15 were added in v0.4; DEC-29 and CL-16 were added in v0.5 and CL-16 was approved in v0.6.
+**Status: DEC-01 – DEC-27 and CL-01 – CL-13 approved on 2026-10-12; DEC-28, DEC-29 and CL-14 – CL-16 approved on 2026-10-13; CL-17 – CL-20 approved on 2026-10-20; no item is pending.** Items tagged *(amended v0.2)* changed in v0.2 and items tagged *(amended v0.3)* or *(new v0.3)* changed in v0.3. DEC-25 – DEC-27 and CL-01 – CL-09 were added in v0.2; CL-10 – CL-13 were added in v0.3; DEC-28, CL-14 and CL-15 were added in v0.4; DEC-29 and CL-16 were added in v0.5 and CL-16 was approved in v0.6; CL-17 – CL-20 were added and approved in v0.7.
 
 ### 14.1 Decision register
 
@@ -1051,7 +1055,7 @@ Each decision shows the **approved default** used throughout this PRD (approved 
 
 ### 14.2 Clarifications (new in v0.2)
 
-Gaps found while auditing requirement coverage (CL-01 – CL-09 in v0.2, CL-10 – CL-13 in v0.3, CL-14 – CL-15 in v0.4, CL-16 in v0.5). No behaviour has been invented as settled: each item gives its default and the criteria that depend on it are marked with the CL ID. CL-01 – CL-13 were approved on 2026-10-12 and CL-14 – CL-16 on 2026-10-13.
+Gaps found while auditing requirement coverage (CL-01 – CL-09 in v0.2, CL-10 – CL-13 in v0.3, CL-14 – CL-15 in v0.4, CL-16 in v0.5, and CL-17 – CL-20 in v0.7). Each approved clarification states its default, and dependent criteria reference the CL ID. CL-01 – CL-13 were approved on 2026-10-12; CL-14 – CL-16 on 2026-10-13; CL-17 – CL-20 on 2026-10-20.
 
 | ID | Requirement(s) | Gap | Approved default | Needed by |
 |---|---|---|---|---|
@@ -1071,10 +1075,14 @@ Gaps found while auditing requirement coverage (CL-01 – CL-09 in v0.2, CL-10 �
 | CL-14 | BR-028, FR-050 | Owner statement (2026-10-13), recorded as written: "your first order if its between exactly under 1000 and 250 . we dont ship products under that price {we ship more than three if its small products , this rule only applies to small products only}". It is not specific enough to implement. It seems to describe a first-order shipping offer plus a minimum shippable order value of R250 with a quantity exception for small products, but "first order", "small products", the scope of the R250 minimum and the effect on the approved R1,000 free-shipping rule are undefined *(new v0.4)* | **Approved 2026-10-13.** Owner answers: small products are marked by category and the category is Wearables and Audio; a first order (earliest non-cancelled) with a subtotal from R250 up to under R1,000 ships Standard free; Standard R60 and Express R120 on orders above R1,000; an order under R250 is blocked unless it has more than three small-goods units; the minimum is checked on the pre-discount subtotal. Implemented as DEC-29, BR-028, BR-076 and BR-077; consequences the owner did not state: CL-16 | Stories |
 | CL-15 | BR-026, §8.3 | `ONCE1` is now a percentage coupon (DEC-28) but no percentage or maximum discount was given *(new v0.4)* | **Approved 2026-10-13:** 5%, maximum discount R50.00, no minimum order | Stories |
 | CL-16 | BR-028, BR-076, BR-077 | Consequences of the owner's CL-14 answers that the owner did not state *(new v0.5)* | **Approved 2026-10-13.** Owner confirmed: Standard R60 and Express R120, Express always R120; free Standard shipping only for a customer's first non-cancelled order with a pre-coupon subtotal of R250 or more and under R1,000; returning customers always pay R60 Standard and first-time customers at R1,000 or more also pay R60; the minimum order uses the pre-coupon subtotal and needs four or more small-goods units to be waived; the exception waives only the minimum and grants no free shipping; coupons never change eligibility (a R900 first order with `SAVE100` still ships free); `WELCOME10` users are returning and pay R60 Standard; first-order status excludes cancelled orders and the order being placed | Stories |
+| CL-17 | FR-008, BR-005 | The PRD required token invalidation after a password change but did not define the customer-facing outcome *(new v0.7)* | **Approved 2026-10-20.** A successful password change revokes all previously issued tokens; the UI confirms the change and redirects the customer to login; the customer must authenticate again with the new password. | Stories / Architecture |
+| CL-18 | FR-112, BR-041 | The PRD did not define how the reservation deadline and route back to a pending order are displayed *(new v0.7)* | **Approved 2026-10-20.** While a reservation is active, the payment page and order detail display “Reserved until [time]”; the cart and checkout entry show a pending-order banner with “Pay now” and “Cancel order”; order detail offers a “Pay now” route. The reservation remains placement time plus the existing 30-minute window; the display does not extend it. | Stories / Architecture |
+| CL-19 | FR-072, FR-073, FR-094, CL-09 | Customer cancellation reason requirements were unspecified; administrator reason is already defined by FR-094 and CL-09 *(new v0.7)* | **Approved 2026-10-20.** Customers do not need to provide a reason when cancelling eligible unpaid pending (R1) or confirmed paid (R2) orders. Administrator cancellation still requires a 1–200 character reason. | Stories |
+| CL-20 | FR-005, BR-005 | The PRD did not define whether the UI warns before token expiry *(new v0.7)* | **Approved 2026-10-20.** Five minutes before access-token expiry, the UI displays and announces “Your session is about to expire.” This is informational only and does not refresh, renew or extend the token. On expiry, existing FR-005 redirect-to-login and return-to-destination behaviour applies. | Stories / Architecture / SDET tests |
 
 ## 15. Definition of done
 
-**Planning document (this PRD).** All decisions DEC-01–DEC-29 and all clarifications CL-01–CL-16 approved by the owner (DEC-01–DEC-27 and CL-01–CL-13 on 2026-10-12; DEC-28, DEC-29 and CL-14–CL-16 on 2026-10-13; no item is pending); IDs unique and consistent; every **M** requirement has at least one acceptance criterion (Appendix D); no further planning document is started before that approval; no real payment, email verification or OTP introduced; stack unchanged; owner has approved the version.
+**Planning document (this PRD).** All decisions DEC-01–DEC-29 and all clarifications CL-01–CL-20 are approved by the owner (DEC-01–DEC-27 and CL-01–CL-13 on 2026-10-12; DEC-28, DEC-29 and CL-14–CL-16 on 2026-10-13; CL-17–CL-20 on 2026-10-20; no item is pending); IDs unique and consistent; every **M** requirement has at least one acceptance criterion (Appendix D); no further planning document is started before that approval; no real payment, email verification or OTP introduced; stack unchanged; owner has approved the version.
 
 **Requirement / feature.** A requirement is **Verified** only when: (1) code reviewed and merged; (2) database migration included, reversible where feasible, and applied cleanly; (3) business rules implemented in the service layer; (4) acceptance criteria automated at the planned layers (UI/API/DB) with meaningful assertions, none weakened to pass; (5) OpenAPI and error catalogue updated; (6) lint, formatting and type checks pass; (7) CI is green with reports, traces and screenshots retained for failures; (8) no open Critical/High defects against it; (9) seed/fixtures updated; (10) status updated in the traceability matrix.
 
@@ -1131,6 +1139,7 @@ Exact status-code mapping may be refined in the architecture document; codes are
 | 0.4 (confirmation record) | 2026-10-13 | Owner answers: small products are identified by category (CL-14 item e; the categories are not yet named); the `ONCE1` percentage is 5% (CL-15; the R50.00 cap and no minimum await confirmation). Seed table §8.3 updated. No identifier, requirement, rule or acceptance criterion changed; the document version stays 0.4 |
 | 0.5 | 2026-10-13 | Owner answers on shipping and minimum order applied (DEC-29, approved): Standard R60 / Express R120; Standard free only for a first order (earliest non-cancelled) with a pre-discount subtotal from R250 up to under R1,000, so the earlier "free at R1,000" rule is withdrawn (BR-028, new BR-076, FR-049, FR-050); minimum order of R250 unless more than three small-goods units, small goods = Wearables and Audio (new BR-077, FR-116, `ORDER_BELOW_MINIMUM`, category designation in §5.2, fixtures, config keys); worked totals rebuilt (T-01 – T-17, customer column); AC-032, AC-036, AC-095, AC-098, AC-114 adjusted; new AC-117, AC-118. CL-14 and CL-15 resolved (`ONCE1` = 5%, cap R50.00, no minimum); new CL-16 (derived shipping consequences) pending. No existing ID renumbered or removed |
 | 0.6 | 2026-10-13 | Owner confirmed all five CL-16 points and three further statements; CL-16 closed (approved) and the PRD is the approved baseline with no open items. Documented explicitly: the small-goods exception waives only the minimum order and grants no free shipping (BR-077, BR-076, FR-116, T-14); `WELCOME10` customers are returning and pay R60.00 Standard (BR-075, BR-076, AC-117); first-order status excludes cancelled orders and the order being placed (BR-076, AC-117); both the minimum and the free-shipping band use the pre-coupon subtotal (BR-076, BR-077). AC-036, AC-117 and AC-118 reworded. No new IDs; no existing ID renumbered or removed; version label changed to 0.6 (approved baseline) |
+| 0.7 | 2026-10-20 | Owner-approved clarifications CL-17–CL-20: require login after password change; show reservation deadline and Pay Now route for pending orders; customer cancellation reasons are not required while administrator reasons remain required; display and announce “Your session is about to expire” five minutes before token expiry without extending the session. FR-005, FR-008, FR-072, FR-073, FR-112 and AC-009 amended; AC-119–AC-121 added; no existing identifier renumbered or removed. |
 
 ## Appendix D — Traceability audit and consistency review (v0.6)
 
@@ -1161,7 +1170,7 @@ Recomputed in v0.6 from the actual requirement and acceptance-criterion tables o
 | FR-002 | R1 | AC-002 | Mapped; no clause gap found | — |
 | FR-003 | R1 | AC-004, AC-005, AC-088 | Mapped; no clause gap found | — |
 | FR-004 | R1 | AC-006 | Mapped; no clause gap found | — |
-| FR-005 | R1 | AC-007 | Mapped; no clause gap found | — |
+| FR-005 | R1 | AC-007, AC-119 | Strengthened in v0.7: AC-119 | CL-20 |
 | FR-006 | R1 | AC-089 | Mapped; no clause gap found | CL-08 |
 | FR-007 | R1 | AC-089 | Mapped; no clause gap found | — |
 | FR-008 | R1 | AC-009 | Clause gap closed in v0.3: AC-009 | — |
@@ -1224,8 +1233,8 @@ Recomputed in v0.6 from the actual requirement and acceptance-criterion tables o
 | FR-069 | R1 | AC-050, AC-051, AC-110, AC-111 | Strengthened in v0.3: AC-110, AC-111 | CL-12 |
 | FR-070 | R1 | AC-096 | Mapped; no clause gap found | — |
 | FR-071 | R1 | AC-056, AC-085 | Mapped; no clause gap found | — |
-| FR-072 | R1 | AC-054, AC-055, AC-075, AC-081, AC-106, AC-107 | Mapped; no clause gap found | DEC-26 |
-| FR-073 | R2 | AC-052, AC-108, AC-111 | Mapped; no clause gap found | DEC-26, CL-10 |
+| FR-072 | R1 | AC-054, AC-055, AC-075, AC-081, AC-106, AC-107, AC-121 | Strengthened in v0.7: AC-121 | DEC-26, CL-19 |
+| FR-073 | R2 | AC-052, AC-108, AC-111, AC-121 | Strengthened in v0.7: AC-121 | DEC-26, CL-10, CL-19 |
 | FR-074 | R2 | AC-052, AC-111 | Mapped; no clause gap found | — |
 | FR-075 | R1 | AC-054, AC-106 | Mapped; no clause gap found | — |
 | FR-076 | R1 | AC-097, AC-110 | Mapped; no clause gap found | — |
@@ -1245,7 +1254,7 @@ Recomputed in v0.6 from the actual requirement and acceptance-criterion tables o
 | FR-091 | R2 | AC-101 | Mapped; no clause gap found | CL-04 |
 | FR-092 | R2 | AC-101 | Mapped; no clause gap found | — |
 | FR-093 | R2 | AC-056 | Mapped; no clause gap found | — |
-| FR-094 | R2 | AC-102 | Mapped; no clause gap found | CL-09 |
+| FR-094 | R2 | AC-102, AC-121 | Strengthened in v0.7: AC-121 | CL-09, CL-19 |
 | FR-095 | R2 | AC-103 | Mapped; no clause gap found | — |
 | FR-096 | R2 | AC-063, AC-112 | Mapped; no clause gap found | — |
 | FR-103 | R1 | AC-067 | Mapped; no clause gap found | — |
@@ -1257,7 +1266,7 @@ Recomputed in v0.6 from the actual requirement and acceptance-criterion tables o
 | FR-109 | R2 | AC-074, AC-108 | Mapped; no clause gap found | CL-10 |
 | FR-110 | R1 | AC-082 | Mapped; no clause gap found | — |
 | FR-111 | R1 | AC-078, AC-114 | Strengthened in v0.3: AC-078, AC-114 | DEC-25 |
-| FR-112 | R1 | AC-079 | Mapped; no clause gap found | DEC-25 |
+| FR-112 | R1 | AC-079, AC-120 | Strengthened in v0.7: AC-120 | DEC-25, CL-18 |
 | FR-113 | R1 | AC-080, AC-081 | Mapped; no clause gap found | DEC-25 |
 | FR-114 | R1 | AC-084, AC-105, AC-106, AC-107 | Strengthened in v0.3: AC-084, AC-105 – AC-107 | — |
 | FR-115 | R1 | AC-037, AC-076, AC-077, AC-078, AC-114 | Strengthened in v0.3: AC-114 | — |
@@ -1350,3 +1359,14 @@ All 77 business rules (BR-001 – BR-077) are referenced by at least one accepta
 | F-46 | Rules used both "pre-discount" and "pre-coupon" for the same subtotal; AC-036 did not say the R249.99 cart is a four-unit small-goods cart | BR-076, BR-077, FR-116 and AC-036 use "pre-coupon (pre-discount)" consistently; AC-036 clarified |
 
 No open items remain: all decisions (DEC-01 – DEC-29) and clarifications (CL-01 – CL-16) are approved.
+
+### D.6 Targeted traceability check (v0.7)
+
+This targeted check covers the v0.7 clarification changes only; it does not replace the earlier full v0.6 audit.
+
+| Clarification | Requirement and story trace | Acceptance criterion |
+|---|---|---|
+| CL-17 | FR-008 → US-008 | AC-009 |
+| CL-18 | FR-112 → US-043, US-044, US-051 | AC-120 |
+| CL-19 | FR-072, FR-073, FR-094 → US-053, US-054, US-074 | AC-121 |
+| CL-20 | FR-005, BR-005 → US-005, UI-28 | AC-119 |
