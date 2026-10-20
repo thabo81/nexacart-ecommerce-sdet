@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/DATABASE_SCHEMA_AND_ERD.md |
-| Version | 0.1 — draft for owner review |
-| Status | **Draft. Not implemented.** Proposed PostgreSQL model based on PRD v0.7, User Stories v0.3 and Technical Architecture v0.2. |
+| Version | 0.2 — updated draft for owner review |
+| Status | **Draft under owner review; not implemented.** Updated for the owner's PostgreSQL 16, native UUID generation, named-constraint, nightly-cleanup and review-locking specifications. The public hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
 | Primary baseline | docs/planning/PRD.md v0.7 |
-| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.2; hosting provider deferred |
+| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.3 draft; public hosting provider deferred |
 | Not yet created | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
 
 ## 1. Purpose and design rules
@@ -17,12 +17,14 @@ This document translates approved product requirements into a proposed physical 
 - PostgreSQL is the durable source of truth. Business-critical state must not exist only in process memory.
 - Store monetary amounts as integer minor units (ZAR cents), never as binary floating point.
 - Store times as TIMESTAMPTZ in UTC and exchange ISO-8601 timestamps through the API.
-- Primary keys use UUIDs, consistent with approved ARCH-05. UUID generation method is a schema detail; PostgreSQL UUIDv4 generation is the default proposal.
+- Target database is PostgreSQL 16 (use the latest available minor release in the 16 major line). Every generated UUID primary key and generated `auth_sessions.jti` uses the native PostgreSQL `gen_random_uuid()` default. No extension is required for this function on PostgreSQL 16.
 - Write schemas are strict. Clients cannot set role, ownership, stock, prices, discounts, totals, shipping fees or order/payment/refund status.
 - Use deactivation rather than hard deletion for products, variants and categories referenced by orders (BR-061).
 - Order line and delivery-address snapshots must not change after placement (BR-050, FR-015).
 - Order history, inventory movements and audit events are append-only (BR-042, BR-052, BR-066, FR-076, FR-100).
-- Use named CHECK constraints for controlled status values where this simplifies future migrations. Use JSONB for flexible specifications, canonical variant options, replay response bodies and safe audit summaries—not for relational identity or fields needing database uniqueness.
+- Every CHECK constraint and every partial index has an explicit, stable name listed in §5. Migrations must create those exact names; never rely on PostgreSQL-generated names.
+- Use JSONB for flexible canonical variant options, replay response bodies and safe audit summaries—not for relational identity or fields needing database uniqueness.
+- §3.8 defines the canonical API string-length contract. Where the PRD provides a bound, it is authoritative; where the PRD is silent, explicitly marked schema-design limits are proposed here and must be used identically by request schemas and database columns/constraints. The repository contains no implemented request schemas yet, so length parity must be verified by schema-boundary tests when code is built.
 - Use Alembic migrations as the schema source of truth. Do not create the production schema implicitly during application startup.
 
 ## 2. Entity relationship diagram
@@ -130,7 +132,7 @@ Use atomic updates for the account-based BR-007 lockout. Five consecutive failed
 | parent_id | UUID nullable FK to categories.id |
 | slug | VARCHAR(120), unique, required |
 | name | VARCHAR(100), required |
-| description | TEXT, nullable |
+| description | VARCHAR(1000), nullable |
 | is_active | BOOLEAN, required |
 | is_small_goods | BOOLEAN, default false |
 | sort_order | INTEGER, non-negative |
@@ -148,7 +150,7 @@ A top-level category has no parent; prevent self-parenting. Enforce maximum dept
 | base_sku | VARCHAR(80), unique required product code |
 | name | VARCHAR(200), required |
 | brand | VARCHAR(100), required |
-| description | TEXT, required by the write schema |
+| description | VARCHAR(5000), required, non-blank |
 | is_active, is_featured, is_fictional | BOOLEAN; fictional defaults true |
 | rating_average | NUMERIC(3,1), 0.0–5.0 cached aggregate |
 | rating_count | INTEGER, non-negative cached aggregate |
@@ -163,14 +165,15 @@ Index by active/category and newest ordering. Products referenced by orders are 
 | id | UUID primary key |
 | product_id | UUID FK to products.id, required |
 | sku | VARCHAR(80), globally unique |
-| options | JSONB canonical option map, e.g. colour and storage |
-| options_key | TEXT canonical representation of normalized options |
+| options | JSONB canonical option map; at most 10 entries, option keys 1–50 characters and string values 1–100 characters |
+| options_key | VARCHAR(2000) canonical representation of normalized options |
 | unit_price_minor | BIGINT, positive integer cents |
 | stock_quantity | INTEGER, never negative |
 | is_active | BOOLEAN, required |
+| is_default | BOOLEAN, required, default false; true only for the sole no-options variant of a product |
 | created_at, updated_at | TIMESTAMPTZ, required |
 
-Required constraints: unique (product_id, options_key), unique SKU, positive price and non-negative stock. The same normalization routine must sort and normalize option names/values before producing options_key. Do not rely on arbitrary JSON text formatting for uniqueness. A product without options has exactly one default variant. Product/variant SKU and identity fields are immutable (BR-010–013, NFR-006).
+Required constraints: unique (product_id, options_key), unique SKU, positive price and non-negative stock. The same normalization routine must sort and normalize option names/values before producing options_key. Do not rely on arbitrary JSON text formatting for uniqueness. A product without options has exactly one empty-options default variant; a partial unique index enforces at most one such default and the service requires it at product creation. Product/variant SKU and identity fields are immutable (BR-010–013, NFR-006).
 
 #### product_images
 
@@ -318,7 +321,7 @@ The order header is created as pending in TX-1. Payment is a separate TX-2 opera
 | Column | Type and rule |
 |---|---|
 | id | UUID primary key |
-| order_number | VARCHAR(24), unique human-readable NC-YYYYMMDD-NNNNNN; never authorization |
+| order_number | VARCHAR(18), unique generated `NC-YYYYMMDD-NNNNNN`; never authorization |
 | customer_id | UUID FK to users.id |
 | status | TEXT CHECK pending/confirmed/processing/shipped/delivered/cancelled |
 | subtotal_minor, discount_minor, shipping_fee_minor, total_minor | BIGINT, non-negative cents |
@@ -344,7 +347,7 @@ Unique order number; index (customer_id, placed_at DESC) and (status, reservatio
 | product_id | UUID FK to products.id; restrict delete |
 | variant_id | UUID FK to product_variants.id; restrict delete |
 | product_name_snapshot | VARCHAR(200), required |
-| variant_description_snapshot | TEXT, required |
+| variant_description_snapshot | VARCHAR(1000), required |
 | sku_snapshot | VARCHAR(80), required |
 | image_asset_key_snapshot | VARCHAR(240), required local asset key |
 | unit_price_minor | BIGINT, non-negative |
@@ -399,10 +402,10 @@ Every committed simulated attempt is recorded; no card details exist.
 | outcome | TEXT CHECK approved/declined/timed_out/error |
 | amount_minor | BIGINT, equals the order total |
 | idempotency_key | VARCHAR(64), required |
-| idempotency_record_id | UUID FK to idempotency_records.id, unique |
+| idempotency_record_id | UUID nullable FK to idempotency_records.id with `ON DELETE SET NULL`, unique when non-null; cleanup must not be blocked by a historical payment-attempt reference |
 | occurred_at | TIMESTAMPTZ, required |
 
-Constraints: unique (order_id, attempt_number), unique (order_id, idempotency_key), at most one approved attempt per order via a partial unique index. The service enforces attempt cap and amount equality. A payment request rejected because the order is cancelled/expired, already paid or over the attempt limit creates no attempt and no idempotency record (BR-046–049, BR-069). The timeout delay occurs before TX-2 and does not hold a database lock.
+Constraints: unique (order_id, attempt_number), unique (order_id, idempotency_key), at most one approved attempt per order via a partial unique index. The service enforces attempt cap and amount equality. A payment request rejected because the order is cancelled/expired, already paid or over the attempt limit creates no attempt and no idempotency record (BR-046–049, BR-069). The timeout delay occurs before TX-2 and does not hold a database lock. When an idempotency record is purged after expiry, `ON DELETE SET NULL` clears its optional link from the retained payment-attempt row; the payment audit fields themselves remain.
 
 #### refunds
 
@@ -508,6 +511,46 @@ Unique (customer_id, product_id); index by product and newest-first date. At sub
 | read_at | TIMESTAMPTZ nullable |
 
 Index (customer_id, created_at DESC). R3 notifications are optional and require separate release approval (FR-101–102, BR-067); do not implement them as part of R1.
+
+### 3.8 Request and persisted-field string-length contract
+
+The API request models and database columns/constraints must share one length contract. Enforce the same minimum/maximum values in FastAPI validation and in the matching bounded column or named CHECK constraint; add a boundary test for each maximum. Where the PRD specifies a bound, that bound is fixed. **The PRD leaves several catalogue-field maximums unstated**, so the values marked *schema proposal* below are the proposed canonical limits for owner review. The project currently has no implemented request schemas; they will be written against this contract after approval.
+
+| Request/input field | Canonical limit | Database representation | Basis |
+|---|---|---|---|
+| Account name | 1–100 characters after trimming | users.name VARCHAR(100) plus `ck_users_name_nonblank` | BR-003 |
+| Email | 1–254 characters; trimmed and lowercase for storage | users.email VARCHAR(254) plus `ck_users_email_normalized` | BR-002 |
+| Password | 8–128 characters; never store raw value | password_hash TEXT stores adaptive hash only | BR-001 |
+| Phone | 7–15 digits, optional leading +; maximum physical length 16 | VARCHAR(16) | BR-003, BR-008 |
+| Address recipient | 1–100 characters | VARCHAR(100) | BR-008 |
+| Address line 1 / line 2 | 1–150 / optional 0–150 | VARCHAR(150) | BR-008 |
+| City / province | 1–80 characters each | VARCHAR(80) | BR-008 |
+| Postal code | Exactly 4 digits | VARCHAR(4) with `ck_addresses_postal_code_format` | BR-008 |
+| Country code | Exactly 2 uppercase letters; configured country only | CHAR(2) | DEC-17 |
+| Search query | 2–100 characters after trim and whitespace normalization | Query only; no persisted field | BR-014 |
+| Coupon code | 3–20 characters from A–Z, 0–9, underscore, hyphen; normalized uppercase | coupons.code VARCHAR(20) with `ck_coupons_code_format` | BR-031 |
+| Idempotency key | 8–64 permitted characters | VARCHAR(64) with named key-format checks | BR-070 |
+| Review comment | Optional, up to 1,000 characters | reviews.comment VARCHAR(1000) | BR-059 |
+| Admin cancellation / inventory-adjustment reason | 1–200 characters | VARCHAR(200); service validates only for the relevant admin action | BR-062, CL-09, CL-11 |
+| Category name | 1–100 characters (*schema proposal; maximum not numeric in PRD*) | VARCHAR(100) | Proposed shared request/DB limit |
+| Category slug | 1–120 characters (*schema proposal*) | VARCHAR(120) and unique | Proposed shared request/DB limit |
+| Category description | Optional, up to 1,000 characters (*schema proposal*) | VARCHAR(1000) | Proposed shared request/DB limit |
+| Product name | 1–200 characters (*schema proposal; PRD requires nonblank and tests the over-limit boundary but does not state number*) | VARCHAR(200) | FR-084–085, AC-103 |
+| Product brand | 1–100 characters (*schema proposal*) | VARCHAR(100) | Proposed shared request/DB limit |
+| Product slug | 1–160 characters (*schema proposal*) | VARCHAR(160) and unique | Proposed shared request/DB limit |
+| Product/base and variant SKU | 1–80 characters (*schema proposal*) | VARCHAR(80) and unique per approved scope | BR-013; exact maximum proposed |
+| Product description | 1–5,000 characters (*schema proposal*) | VARCHAR(5000) | Proposed shared request/DB limit |
+| Variant option key/value | Key 1–50; string value 1–100; at most 10 entries (*schema proposal*) | JSONB with the same validator limits; canonical options key VARCHAR(2000) | DEC-06 and variant option requirements |
+| Image asset key | 1–240 characters (*schema proposal; managed local asset only*) | VARCHAR(240) | NG-10, FR-097 |
+| Image alt text | 1–250 characters, nonblank | VARCHAR(250) | FR-029 |
+| Product specification name/value | Name 1–100; value 1–500 characters (*schema proposal*) | VARCHAR(100) / VARCHAR(500) | Product specification model |
+| Shipping option code/name/estimate | Code 1–30; name 1–80; estimate 1–100 (*schema proposal*) | Matching VARCHAR columns | FR-049 |
+| Payment or order status values | Enumerated values only; not arbitrary free text | TEXT plus named CHECK constraint | BR-043–044, BR-056 |
+| Order status-history reason | Optional 0–200; admin cancellation request separately requires 1–200 | VARCHAR(200) | BR-052, BR-062, CL-09 |
+| Request/correlation ID | Up to 100 characters (*technical proposal*) | VARCHAR(100) where persisted | NFR-015–016 |
+| Inventory operation key | Up to 160 characters (*technical internal cap*) | VARCHAR(160) | Idempotent ledger write |
+
+This table is the source for the future request model limits. Do not infer that these limits have already been validated in code: implementation and CI contract checks are still pending.
 
 ## 4. Derived read models
 
