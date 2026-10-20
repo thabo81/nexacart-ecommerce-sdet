@@ -308,7 +308,7 @@ Do not hold a database transaction open while waiting for a long simulated timeo
 
 ### 6.8 Request schema and database length parity
 
-The ERD's §3.8 string-length contract is the shared boundary for request-model validation and physical database storage. Where the PRD states a maximum, it remains authoritative. Where the PRD does not state a numeric catalogue-field maximum, the ERD labels the value as a proposed technical cap for owner review. Once those caps are accepted, the FastAPI/Pydantic models and database column/CHECK constraint must use the same lengths; CI must exercise lower/upper boundaries and reject over-length values before persistence. No request schema implementation exists yet, so parity is planned rather than already verified.
+The ERD's §3.8 string-length contract is the shared boundary for request-model validation and physical database storage. Where the PRD states a maximum, it remains authoritative. Where the PRD does not state a numeric catalogue-field maximum, the owner-approved caps in ERD v0.9 are the canonical technical limits. Future FastAPI/Pydantic models and matching database columns/constraints must use the same lengths; CI must exercise lower/upper boundaries and reject over-length values before persistence. No request schema implementation exists yet, so parity is planned rather than already verified.
 
 ### 6.9 Review aggregate concurrency
 
