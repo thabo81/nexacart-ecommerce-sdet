@@ -12,7 +12,7 @@
 | Context source | `docs/planning/PROJECT_BRIEF.md` |
 | Related | `docs/planning/README.md` (document sequence), `docs/testing/README.md` (SDET workflow), `CLAUDE.md` (engineering rules) |
 | Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.4 is owner-approved and aligned with this story baseline and PRD v0.7. |
-| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.8 and `DATABASE_SCHEMA_AND_ERD.md` v0.8 are drafts under owner review. GAP-02/GAP-11 behaviour is owner-confirmed; proposed catalogue-field limits still await confirmation. Hosting-provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.9 and `DATABASE_SCHEMA_AND_ERD.md` v0.9 are owner-approved planning baselines. GAP-02/GAP-11 behaviour, catalogue field caps, performance reference profile and 02:00 UTC cleanup default are owner-approved. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` v0.1 is drafted and awaits owner approval. Hosting-provider selection remains deferred; application implementation remains blocked until the final planning gate is approved. |
 
 ## 1. Purpose, scope and conventions
 
