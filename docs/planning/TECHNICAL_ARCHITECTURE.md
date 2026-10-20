@@ -3,17 +3,17 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/TECHNICAL_ARCHITECTURE.md |
-| Version | 0.5 — architecture draft aligned to Database Schema v0.4 |
+| Version | 0.6 — architecture draft aligned to Database Schema v0.5 |
 | Status | **Draft under owner review; not yet approved as a complete document.** Owner-confirmed: HttpOnly JWT cookie transport with CSRF protection (AC-004), Argon2id, UUID IDs, PostgreSQL 16 with native `gen_random_uuid()`, explicit CHECK/partial-index names, nightly cleanup of expired sessions and idempotency records, row-level locking for review aggregates, GAP-02/GAP-11 defaults, and local plus public deployment. Hosting provider is deliberately deferred. Catalogue field limits not numerically specified in the PRD are proposed in the ERD and await owner review. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
 | Related documents | PROJECT_BRIEF.md; README.md; docs/testing/README.md |
-| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.4 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
+| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.5 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
 
 ## 1. Purpose and decision status
 
-This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.4 is drafted for review.
+This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.5 is drafted for review.
 
 No application implementation is authorised yet. Owner decisions are being recorded in the architecture baseline; the remaining hosting-provider choice can be decided later. Before feature implementation begins, finish and review the database schema/ERD and implementation backlog and record final architecture sign-off.
 
@@ -428,7 +428,26 @@ Polling interval, batch size, retry policy and nightly run time are configuratio
 | Test intensity | Developer-selected | Unit/API/DB/UI/accessibility/concurrency suites | Read-only health/catalog smoke checks by default; no destructive full regression |
 | Logs/artifacts | Local diagnostics | Safe CI logs, Allure and Playwright artifacts | Runtime structured logs with secrets redacted |
 
-### 9.2 Environment variable groups
+### 9.2 Reference performance-test environment
+
+The PRD's NFR-001–004 targets shall be evaluated in a documented Docker Compose reference environment, not inferred from the public host. **Proposed benchmark profile for owner review:**
+
+| Resource | Reference baseline |
+|---|---|
+| Host OS / architecture | Linux x86_64 |
+| CPU | 4 vCPU available to the Docker host |
+| Memory | 8 GiB RAM available to the Docker host |
+| Storage | SSD-backed storage with at least 20 GiB free before the test |
+| Containers | API, worker, frontend and PostgreSQL run on the same Compose host; do not run unrelated CPU-heavy workloads during the measurement |
+| Database | PostgreSQL 16; record the exact pinned image tag/digest and minor version in the run artefact |
+| Data | Standard deterministic seed for NFR-001–003; 10,000-product generated dataset and required indexes for NFR-004 |
+| Measurement | Single-user request load for PRD p95 targets; separate startup/readiness and UI content-timing measurements |
+
+Every benchmark report shall record CPU/architecture, available RAM, storage type, OS/kernel, Docker Engine/Compose versions, exact database image/version, dataset size, build SHA and measured result. Comparisons are valid only when the same profile and workload are used. If the available host cannot provide this profile, label the result as a non-reference diagnostic run instead of claiming an NFR pass. Public-host performance observations are tracked separately and do not replace the Compose baseline.
+
+This resource profile is a proposed engineering benchmark convention, not an approved product requirement; owner sign-off is pending.
+
+### 9.3 Environment variable groups
 
 The eventual .env.example and deployment runbook shall document the exact names. At minimum, configuration must cover:
 
@@ -442,7 +461,7 @@ The eventual .env.example and deployment runbook shall document the exact names.
 
 Validate configuration at startup. Production-like startup must fail clearly if required secrets, origins or database settings are missing or invalid. Never provide real production-like defaults for credentials or signing secrets.
 
-### 9.3 Migrations and seed policy
+### 9.4 Migrations and seed policy
 
 - Alembic owns every schema change. Do not rely on automatic table creation during normal application startup.
 - Test migrations from an empty database and from the prior released schema.
@@ -626,13 +645,15 @@ The table distinguishes owner-confirmed requirements, proposed technical limits,
 | ARCH-14 | Nightly retention cleanup | Owner-specified nightly deletion of expired `auth_sessions` and `idempotency_records`; proposed default 02:00 UTC, configurable, and never before expiry | Preserve live-token revocation and 24-hour replay guarantees |
 | ARCH-15 | Review aggregate concurrency | Owner-specified: `SELECT ... FOR UPDATE` on the parent product row before review create/hide mutations and aggregate recomputation | Serializes per-product aggregate updates |
 | ARCH-16 | Public hosting provider | Deliberately deferred until after architecture/schema model review | Provider does not alter relational model; hosting validation is a later deployment task |
+| ARCH-17 | Performance reference environment | Proposed: Linux x86_64, 4 vCPU, 8 GiB RAM, SSD-backed storage with 20 GiB free, Compose services colocated; same profile and workload for comparisons | Makes NFR-001–004 reproducible; owner sign-off remains pending |
 
 ## 15. Remaining architecture review items
 
-The owner has approved the core architecture mechanisms and the additional PostgreSQL/worker/locking specifications. Two review areas remain before merging the architecture/database documents:
+The owner has approved the core architecture mechanisms and the additional PostgreSQL/worker/locking specifications. The following items still require review before merging the architecture/database documents:
 
 1. **Catalogue field lengths:** confirm the proposed maxima in ERD §3.8 for fields where the PRD does not state numeric limits. The limits explicitly stated by the PRD are fixed. No implemented FastAPI/Pydantic request schemas currently exist, so true parity will be verified by CI only after those schemas are built.
-2. **Document-level sign-off:** review the complete architecture and database drafts, including the named constraint/index registry and ERD relationships, before they are merged into `main`.
+2. **Performance reference profile:** approve or adjust the proposed Linux/x86_64, 4-vCPU, 8-GiB, SSD-backed benchmark profile in §9.2. The PRD delegates definition of the reference environment to this document.
+3. **Document-level sign-off:** review the complete architecture and database drafts, including the named constraint/index registry and ERD relationships, before they are merged into `main`.
 
 **Not a blocker:** public hosting provider and region can be selected later, as requested. Operational limits that depend on the chosen host will be set during deployment planning.
 
@@ -646,6 +667,7 @@ Before this document is marked approved, review that:
 - [x] The cookie/CSRF decision is settled and AC-004 remains testable through Set-Cookie and protected-endpoint checks.
 - [x] Public hosting provider is explicitly deferred and does not block the relational model; production guardrails remain specified.
 - [ ] Owner confirms proposed catalogue-field length caps in ERD §3.8 before merge.
+- [ ] Owner approves or adjusts the proposed reference performance environment in §9.2.
 - [ ] GAP-02 and GAP-11 rules are consistently represented in APIs and future tests.
 - [ ] TX-1, TX-2, cancellation, expiry, idempotency and refund races preserve the PRD transaction boundaries.
 - [ ] Test-support, seed credentials and clock overrides cannot be enabled in public deployment.
@@ -678,3 +700,4 @@ Before this document is marked approved, review that:
 | 0.3 | 2026-10-20 | Added owner-specified PostgreSQL 16/`gen_random_uuid()`, named CHECK and partial-index registry requirement, nightly expiry cleanup and `SELECT ... FOR UPDATE` review aggregate serialization. Aligned the architecture to Database Schema v0.2. Catalogue string caps absent from PRD are identified for owner confirmation. |
 | 0.4 | 2026-10-20 | Aligned architecture metadata to Database Schema v0.3, and clarified that 02:00 UTC is a proposed configurable nightly-cleanup default, while the nightly cleanup requirement itself is owner-approved. Hosting provider remains deferred; proposed catalogue field caps await confirmation. |
 | 0.5 | 2026-10-20 | Updated baseline references to owner-approved User Stories v0.4 and Design Brief v0.4, which now reflect the approved GAP-02/GAP-11 defaults. No backend implementation or migrations were created. |
+| 0.6 | 2026-10-20 | Added the proposed reference performance-test profile required to measure NFR-001–004, and aligned architecture metadata to Database Schema v0.5. Hosting provider remains deferred; catalogue string caps and the benchmark profile await owner sign-off. |
