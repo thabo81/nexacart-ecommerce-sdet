@@ -12,7 +12,7 @@
 | Context source | `docs/planning/PROJECT_BRIEF.md` |
 | Related | `docs/planning/README.md` (document sequence), `docs/testing/README.md` (SDET workflow), `CLAUDE.md` (engineering rules) |
 | Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.4 is owner-approved and aligned with this story baseline and PRD v0.7. |
-| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.5 and `DATABASE_SCHEMA_AND_ERD.md` v0.4 are drafts under owner review. GAP-02/GAP-11 behaviour is owner-confirmed; proposed catalogue-field limits still await confirmation. Hosting-provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.6 and `DATABASE_SCHEMA_AND_ERD.md` v0.5 are drafts under owner review. GAP-02/GAP-11 behaviour is owner-confirmed; proposed catalogue-field limits still await confirmation. Hosting-provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
 
 ## 1. Purpose, scope and conventions
 
@@ -1443,7 +1443,7 @@ While writing the stories, these points were found where the PRD was silent or l
 | ID | Observation | Stories | Suggested home |
 |---|---|---|---|
 | GAP-01 | **Resolved by PRD v0.7 / CL-17:** after password change, all old tokens are invalidated; UI confirms success and requires login with the new password. | US-008 | Closed — CL-17 |
-| GAP-02 | Owner-approved architecture default: unknown product/variant ID returns 404 `NOT_FOUND`; known inactive/unavailable target returns 409 `PRODUCT_UNAVAILABLE`; rejected add leaves cart/wishlist unchanged, and UI shows the API message. Direct inactive product detail still follows FR-025/AC-020 (404). | US-026, US-032 | Architecture v0.5 draft; final doc review pending |
+| GAP-02 | Owner-approved architecture default: unknown product/variant ID returns 404 `NOT_FOUND`; known inactive/unavailable target returns 409 `PRODUCT_UNAVAILABLE`; rejected add leaves cart/wishlist unchanged, and UI shows the API message. Direct inactive product detail still follows FR-025/AC-020 (404). | US-026, US-032 | Architecture v0.6 draft; final doc review pending |
 | GAP-03 | Whether guests see a cart or wishlist indicator, and whether the wishlist has a count like the cart (FR-040) | US-028 | Design brief |
 | GAP-04 | Which fields each entry of the order-history list shows | US-050 | Design brief |
 | GAP-05 | The reviewer name shown with a review and the ordering and paging of reviews | US-057 | Design brief |
@@ -1452,7 +1452,7 @@ While writing the stories, these points were found where the PRD was silent or l
 | GAP-08 | Which actions besides order cancellation (WF-08) need a confirmation step, for example deleting an address or clearing the cart | US-010, US-027 | Design brief |
 | GAP-09 | Wording, tone and localisation of messages, and whether the request id is shown to users (English only, ASM-01) | All UI stories | Design brief |
 | GAP-10 | **Resolved by PRD v0.7 / CL-19:** customers do not provide a cancellation reason; administrator cancellation still requires a 1–200 character reason. | US-053, US-054, US-074 | Closed — CL-19 |
-| GAP-11 | Owner-approved deterministic first-failure order: normalize/lookup → active and time window → customer eligibility → minimum amount → usage limits → discount/caps; same order at apply and placement. | US-035 | Architecture v0.5 draft; final doc review pending |
+| GAP-11 | Owner-approved deterministic first-failure order: normalize/lookup → active and time window → customer eligibility → minimum amount → usage limits → discount/caps; same order at apply and placement. | US-035 | Architecture v0.6 draft; final doc review pending |
 
 ## Appendix A — Story index
 
