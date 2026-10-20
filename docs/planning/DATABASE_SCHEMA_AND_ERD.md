@@ -105,8 +105,8 @@ Durable JWT session state so logout and password-change revocation work across A
 | user_id | UUID FK to users.id, required |
 | issued_at, expires_at | TIMESTAMPTZ; expiry must be later than issue time |
 | revoked_at | TIMESTAMPTZ, nullable |
-| revocation_reason | TEXT, nullable, controlled safe reason |
-| csrf_token_hash | TEXT, required; store a hash, never the raw CSRF token |
+| revocation_reason | VARCHAR(100), nullable, controlled safe reason |
+| csrf_token_hash | CHAR(64), required; SHA-256 hex digest of the CSRF token, never store the raw token |
 | created_at | TIMESTAMPTZ, required |
 
 Index by user_id and expiry. An authenticated request validates signature, pinned algorithm, expiry, revocation/session state and the current database role. Cookie logout revokes the session and clears the cookie. Password change revokes all older sessions and forces login with the new password (SEC-003–005, CL-17). Raw JWTs and CSRF values must not be stored or logged.
@@ -457,7 +457,7 @@ Append-only stock ledger. For every variant, current stock must equal the sum of
 | reference_id | UUID nullable related record |
 | operation_key | VARCHAR(160), stable unique deduplication key |
 | actor_user_id | UUID nullable FK to users.id; null for system/seed |
-| reason_text | VARCHAR(200), required 1–200 chars for admin adjustment |
+| reason_text | VARCHAR(200), nullable for non-admin/system movement; admin adjustment requires 1–200 characters via the named check and service validation |
 | occurred_at | TIMESTAMPTZ, required |
 
 Unique operation_key; index (variant_id, occurred_at) and reference fields. Write stock balance changes and movements in the same transaction. Seed an initial_stock movement for every variant. Any correction is a new audited adjustment, never an edit to ledger history. The database prevents negative stock; a conditional update and row locking prevent overselling (BR-037–042).
@@ -581,20 +581,26 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_users_email_normalized` | Stored email is trimmed and lowercase | BR-002 |
 | `ck_users_role` | Role is customer or admin | BR-006 |
 | `ck_users_phone_format` | Null or `^\+?[0-9]{7,15}$` | BR-003 |
+| `ck_auth_sessions_csrf_token_hash_format` | Exactly 64 lowercase hexadecimal characters | CSRF storage |
 | `ck_auth_sessions_expiry_after_issue` | `expires_at > issued_at` | BR-005 |
 | `ck_login_throttle_failures_nonnegative` | `consecutive_failures >= 0` | BR-007 |
+| `ck_categories_slug_format` | `slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'` | Category slug schema |
 | `ck_categories_name_nonblank` | Trimmed name is not blank | Category write schema |
 | `ck_categories_sort_order_nonnegative` | `sort_order >= 0` | Category ordering |
 | `ck_categories_not_own_parent` | Parent is null or `parent_id <> id` | Category hierarchy |
+| `ck_products_slug_format` | `slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'` | Product slug schema |
+| `ck_products_base_sku_nonblank` | `btrim(base_sku) <> ''` | BR-013 |
 | `ck_products_name_nonblank` | Trimmed name is not blank | FR-084–085 |
 | `ck_products_brand_nonblank` | Trimmed brand is not blank | Product write schema |
 | `ck_products_rating_average_range` | `rating_average BETWEEN 0 AND 5` | BR-060 |
 | `ck_products_rating_count_nonnegative` | `rating_count >= 0` | BR-060 |
+| `ck_product_variants_sku_nonblank` | `btrim(sku) <> ''` | BR-013 |
 | `ck_product_variants_price_positive` | `unit_price_minor > 0` | BR-010 |
 | `ck_product_variants_stock_nonnegative` | `stock_quantity >= 0` | BR-037 |
 | `ck_product_variants_options_object` | `jsonb_typeof(options) = 'object'` | Variant write schema |
 | `ck_product_variants_options_key_nonblank` | Canonical options key is not blank | Variant identity |
 | `ck_product_variants_default_has_no_options` | `NOT is_default OR options_key = '{}'` | DEC-06 |
+| `ck_product_images_asset_key_nonblank` | `btrim(asset_key) <> ''` | NG-10, FR-097 |
 | `ck_product_images_alt_text_nonblank` | Trimmed alt text is not blank | FR-029, FR-097 |
 | `ck_product_images_sort_order_nonnegative` | `sort_order >= 0` | Image ordering |
 | `ck_product_specifications_name_nonblank` | Trimmed specification name is not blank | Product write schema |
@@ -620,7 +626,8 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_coupons_global_usage_limit_positive` | Null or positive | BR-034 |
 | `ck_coupons_per_customer_usage_limit_positive` | Null or positive | BR-034 |
 | `ck_coupons_eligibility_rule` | All customers or returning customer | BR-075 |
-| `ck_coupon_usages_state` | Reserved, consumed or released | BR-035 |
+| `ck_coupon_usages_finalization_consistency` | Reserved iff `finalized_at IS NULL`; consumed/released iff it is non-null | BR-035 |
+| `ck_shipping_options_code_format` | `code ~ '^[a-z0-9_-]{1,30}$'` | Shipping option schema |
 | `ck_shipping_options_fee_nonnegative` | `base_fee_minor >= 0` | BR-028 |
 | `ck_shipping_options_sort_order_nonnegative` | `sort_order >= 0` | Shipping ordering |
 | `ck_orders_status` | One of pending/confirmed/processing/shipped/delivered/cancelled | BR-043 |
@@ -636,6 +643,7 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_order_address_snapshots_postal_code_format` | Four numeric digits | BR-008, BR-050 |
 | `ck_order_status_history_to_status` | `to_status` is a legal order status | BR-043, BR-052 |
 | `ck_order_status_history_from_status` | Null or a legal order status | BR-043, BR-052 |
+| `ck_order_status_history_admin_cancel_reason` | If actor is admin and `to_status = 'cancelled'`, trimmed reason must contain 1–200 characters | BR-062, CL-09 |
 | `ck_order_status_history_actor_type` | Customer/admin/system | BR-052 |
 | `ck_payment_attempts_attempt_number_positive` | `attempt_number > 0` | FR-062, FR-067 |
 | `ck_payment_attempts_outcome` | Approved/declined/timed_out/error | BR-044, BR-047 |
@@ -653,6 +661,8 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_inventory_movements_reason_code` | Only the five approved inventory movement reasons | BR-042 |
 | `ck_inventory_movements_operation_key_nonblank` | Operation key is not blank | BR-038–042 |
 | `ck_inventory_movements_admin_reason` | Admin adjustment requires a trimmed reason of 1–200 chars; system movements may use null | BR-062, CL-11 |
+| `ck_audit_events_action_nonblank` | `btrim(action) <> ''` | BR-066 |
+| `ck_audit_events_entity_type_nonblank` | `btrim(entity_type) <> ''` | BR-066 |
 | `ck_audit_events_actor_role` | Customer/admin/system role snapshot | BR-066 |
 | `ck_reviews_rating_range` | Rating between 1 and 5 | BR-059 |
 | `ck_reviews_comment_length` | Null or length at most 1000 | BR-059 |
@@ -701,12 +711,30 @@ All PK, FK and full unique constraints are explicitly named in migrations as wel
 | `uq_inventory_operation_key` | Unique inventory-operation idempotency key |
 | `uq_review_customer_product` | Unique `(customer_id, product_id)` |
 | `fk_<table>_<column>_<target>` | Explicit name for every foreign key; add cyclic/cart-order or payment-idempotency references in a later migration step if required by creation order |
+| `ix_auth_sessions_user_id` | Lookup all sessions/revocations for one user |
 | `ix_auth_sessions_expires_at` | Index for expiry lookup and nightly cleanup |
-| `ix_idempotency_records_expires_at` | Index for expiry lookup and nightly cleanup |
+| `ix_categories_parent_sort_order` | Category tree children ordered deterministically by sort order and id |
+| `ix_products_category_active_created` | Product filtering by leaf category/active status and newest sort |
+| `ix_products_brand_active` | Product filtering by brand and active status |
+| `ix_products_rating_sort` | Product sorting by cached rating average/count and id |
+| `ix_product_variants_product_active_price` | Active-variant price lookup/from-price calculation |
+| `ix_product_variants_product_active_stock` | Active-variant availability/stock checks |
+| `ix_addresses_customer_created` | Address listing and default-promotion ordering |
+| `ix_coupon_usages_coupon_state` | Global coupon-use limit calculation |
+| `ix_coupon_usages_customer_coupon_state` | Per-customer coupon-use limit calculation |
+| `ix_orders_customer_placed_at` | Customer order-history listing by placement date |
 | `ix_orders_status_deadline` | Order expiry scan by status and deadline |
 | `ix_order_status_history_order_time` | Order history retrieval in timestamp order |
+| `ix_refunds_status_created` | Worker scan of refund-pending rows by status and age |
+| `ix_idempotency_records_expires_at` | Index for expiry lookup and nightly cleanup |
 | `ix_inventory_movements_variant_time` | Ledger reconciliation and variant movement history |
+| `ix_inventory_movements_reference` | Trace inventory changes by reference type/id |
+| `ix_audit_events_occurred_at` | Audit filtering and ordering by event time |
+| `ix_audit_events_actor_time` | Audit lookup by actor and time |
+| `ix_audit_events_action_time` | Audit lookup by action and time |
+| `ix_audit_events_entity_time` | Audit lookup by entity and time |
 | `ix_reviews_product_created` | Visible product review pagination newest-first |
+| `ix_notifications_customer_created` | R3 notification listing by customer and creation time |
 
 For case-insensitive matching, normalize email and coupon code on write and enforce the named CHECK constraints for normalized storage. If functional uniqueness is chosen instead of normalized storage, its unique expression index must also be explicitly named.
 
