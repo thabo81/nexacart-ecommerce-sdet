@@ -9,7 +9,7 @@
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
 | Related documents | PROJECT_BRIEF.md; README.md; docs/testing/README.md |
-| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.8 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
+| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.9 owner-approved planning baseline; IMPLEMENTATION_PLAN_AND_BACKLOG.md v0.1 draft under owner review |
 
 ## 1. Purpose and decision status
 
