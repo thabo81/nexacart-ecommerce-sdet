@@ -9,7 +9,7 @@
 | Primary sources | `docs/planning/PRD.md` v0.7 (approved baseline) and `docs/planning/USER_STORIES_AND_FLOWS.md` v0.3 (approved baseline) |
 | Context sources | `docs/planning/PROJECT_BRIEF.md`, `docs/planning/README.md`, `docs/testing/README.md`, `CLAUDE.md`, `README.md` |
 | Visual exploration assets | `docs/planning/design/prototypes/home-direction-picker.html`, `docs/planning/design/brand/nexacart-logo-concepts.svg` |
-| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.1 is drafted and under owner review. `DATABASE_SCHEMA_AND_ERD.md` and `IMPLEMENTATION_PLAN_AND_BACKLOG.md` have not yet been created. |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.2 records owner-approved core mechanisms and is under final review; hosting-provider selection is deferred. `DATABASE_SCHEMA_AND_ERD.md` and `IMPLEMENTATION_PLAN_AND_BACKLOG.md` have not yet been created. |
 
 ## 1. Purpose, scope and conventions
 
