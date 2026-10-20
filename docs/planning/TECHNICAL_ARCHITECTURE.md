@@ -304,7 +304,7 @@ Do not hold a database transaction open while waiting for a long simulated timeo
 
 ### 6.7 Identifier strategy and UUID generation
 
-**Owner-confirmed:** use UUID identifiers for generated database entities and keep the human-readable order number (\`NC-YYYYMMDD-NNNNNN\`) as a separate unique business identifier; it is never used as an authorization secret. The target database is PostgreSQL 16. Generated UUID primary keys and generated \`auth_sessions.jti\` use the native PostgreSQL \`gen_random_uuid()\` default. Do not add an extension solely for UUID generation.
+**Owner-confirmed:** use UUID identifiers for generated database entities and keep the human-readable order number (`NC-YYYYMMDD-NNNNNN`) as a separate unique business identifier; it is never used as an authorization secret. The target database is PostgreSQL 16. Generated UUID primary keys and generated `auth_sessions.jti` use the native PostgreSQL `gen_random_uuid()` default. Do not add an extension solely for UUID generation.
 
 ### 6.8 Request schema and database length parity
 
@@ -312,7 +312,7 @@ The ERD's §3.8 string-length contract is the shared boundary for request-model 
 
 ### 6.9 Review aggregate concurrency
 
-Review creation and review hiding must serialize per product. In the same PostgreSQL transaction, each path explicitly executes \`SELECT id FROM products WHERE id = :product_id FOR UPDATE\` **before changing the review row**. While holding that product-row lock, insert or update review visibility, recalculate the visible-review average/count, apply the PRD round-half-up rule, and update the cached aggregate columns. Keep the lock until commit. Every write path uses the same lock ordering. This prevents two concurrent create/hide operations from overwriting a correct aggregate with a stale count or average (BR-060, FR-081–082).
+Review creation and review hiding must serialize per product. In the same PostgreSQL transaction, each path explicitly executes `SELECT id FROM products WHERE id = :product_id FOR UPDATE` **before changing the review row**. While holding that product-row lock, insert or update review visibility, recalculate the visible-review average/count, apply the PRD round-half-up rule, and update the cached aggregate columns. Keep the lock until commit. Every write path uses the same lock ordering. This prevents two concurrent create/hide operations from overwriting a correct aggregate with a stale count or average (BR-060, FR-081–082).
 
 ## 7. Authentication, authorization and application security
 
@@ -606,7 +606,7 @@ The release and operations notes must include commands or platform steps for loc
 
 ## 14. Proposed technical decision register
 
-The table intentionally distinguishes owner-confirmed requirements from design recommendations. Approval of this architecture is approval of the proposed decisions marked for review, unless the owner records a change request.
+The table distinguishes owner-confirmed requirements, proposed technical limits, and host-specific settings that are deliberately deferred. Owner-specified mechanics below are reflected in both architecture and ERD drafts.
 
 | ID | Decision | Recommendation/status | Rationale / approval note |
 |---|---|---|---|
@@ -620,24 +620,32 @@ The table intentionally distinguishes owner-confirmed requirements from design r
 | ARCH-08 | GAP-11 coupon precedence | Owner-approved | One first-failure order shared by apply and placement revalidation |
 | ARCH-09 | Test-support boundary | Confirmed by SEC-018: enabled only local/test and disabled/404 in public/prod-like environments | Prevents destructive control-plane actions from being reachable in public deployment |
 | ARCH-10 | Transaction and race policy | Confirmed by PRD BR-068–074 / NFR-005–009; specific row/constraint implementation to be fixed in ERD | Preserve all-or-nothing writes and first-valid-commit race outcomes |
+| ARCH-11 | Database engine/version | Owner-specified: PostgreSQL 16, latest available minor in major version 16 | Stable version baseline for local Compose, CI and deployment |
+| ARCH-12 | UUID generation | Owner-specified: native PostgreSQL `gen_random_uuid()` defaults for generated UUID keys | No extension added just for UUID generation |
+| ARCH-13 | String limits and named schema objects | PRD-defined lengths are fixed; ERD proposes canonical caps where PRD is silent. All CHECK constraints and partial indexes have explicit names | Request schemas and bounded database fields must agree; CI will test boundary parity |
+| ARCH-14 | Nightly retention cleanup | Owner-specified: worker deletes expired `auth_sessions` and `idempotency_records` nightly, default 02:00 UTC; never before expiry | Preserve live-token revocation and 24-hour replay guarantees |
+| ARCH-15 | Review aggregate concurrency | Owner-specified: `SELECT ... FOR UPDATE` on the parent product row before review create/hide mutations and aggregate recomputation | Serializes per-product aggregate updates |
+| ARCH-16 | Public hosting provider | Deliberately deferred until after architecture/schema model review | Provider does not alter relational model; hosting validation is a later deployment task |
 
 ## 15. Remaining architecture review items
 
-The owner has approved the key technical recommendations and the authentication transport. The remaining deferred decisions are operational rather than product-rule ambiguities:
+The owner has approved the core architecture mechanisms and the additional PostgreSQL/worker/locking specifications. Two review areas remain before merging the architecture/database documents:
 
-1. **Hosting provider and region:** select later after checking managed PostgreSQL persistence/backups, worker support, TLS, health checks, logging, availability/cold-start behaviour and cost. Render is a candidate, not a commitment.
-2. **Operational targets:** after the provider is chosen, set connection-pool/resource limits, worker polling/batch settings, public smoke-check cadence and log retention to fit the deployment environment.
-3. **Schema-specific details:** the ERD must name concrete primary/foreign keys, constraints, UUID version, indexes and migration strategy; it must preserve the architecture and PRD invariants.
+1. **Catalogue field lengths:** confirm the proposed maxima in ERD §3.8 for fields where the PRD does not state numeric limits. The limits explicitly stated by the PRD are fixed. No implemented FastAPI/Pydantic request schemas currently exist, so true parity will be verified by CI only after those schemas are built.
+2. **Document-level sign-off:** review the complete architecture and database drafts, including the named constraint/index registry and ERD relationships, before they are merged into `main`.
 
-The HttpOnly JWT cookie, CSRF protection, Argon2id hashing, UUID entity identifiers, PostgreSQL-backed background worker, GAP-02 behaviour, GAP-11 validation precedence, and dual local/public deployment scope are recorded as owner-approved. Provider selection may be completed later without blocking schema design.
+**Not a blocker:** public hosting provider and region can be selected later, as requested. Operational limits that depend on the chosen host will be set during deployment planning.
+
+The cookie/CSRF transport, Argon2id, UUID identifiers, PostgreSQL 16 with native `gen_random_uuid()`, nightly cleanup, review-row locking, GAP-02 response behaviour, GAP-11 validation precedence, and dual local/public environment scope are owner-confirmed. There are no outstanding product-rule decisions for GAP-02 or GAP-11.
 
 ## 16. Architecture acceptance checklist
 
 Before this document is marked approved, review that:
 - [ ] Every core component and service boundary aligns with PRD v0.7 and User Stories v0.3.
-- [ ] Every proposed choice in §14 has an explicit owner disposition.
+- [x] Owner dispositions are recorded for the owner-specified technical mechanisms in §14; proposed field limits in ERD §3.8 are still awaiting confirmation.
 - [x] The cookie/CSRF decision is settled and AC-004 remains testable through Set-Cookie and protected-endpoint checks.
-- [ ] Public hosting provider and production environment guardrails are agreed; provider selection is deliberately deferred.
+- [x] Public hosting provider is explicitly deferred and does not block the relational model; production guardrails remain specified.
+- [ ] Owner confirms proposed catalogue-field length caps in ERD §3.8 before merge.
 - [ ] GAP-02 and GAP-11 rules are consistently represented in APIs and future tests.
 - [ ] TX-1, TX-2, cancellation, expiry, idempotency and refund races preserve the PRD transaction boundaries.
 - [ ] Test-support, seed credentials and clock overrides cannot be enabled in public deployment.
@@ -667,3 +675,4 @@ Before this document is marked approved, review that:
 |---|---|---|
 | 0.1 | 2026-10-20 | Initial architecture draft based on approved PRD v0.7, User Stories v0.3 and Design Brief v0.3. Records owner decisions for GAP-02, GAP-11 and dual local/public deployment scope. No application code implemented. |
 | 0.2 | 2026-10-20 | Recorded owner approval of HttpOnly JWT cookie transport with CSRF protection, Argon2id, UUID entity IDs and a PostgreSQL-polled background worker. AC-004 verification is specified. Hosting provider and operational deployment settings remain deferred. |
+| 0.3 | 2026-10-20 | Added owner-specified PostgreSQL 16/`gen_random_uuid()`, named CHECK and partial-index registry requirement, nightly expiry cleanup and `SELECT ... FOR UPDATE` review aggregate serialization. Aligned the architecture to Database Schema v0.2. Catalogue string caps absent from PRD are identified for owner confirmation. |
