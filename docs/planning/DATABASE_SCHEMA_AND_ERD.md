@@ -156,7 +156,7 @@ A top-level category has no parent; prevent self-parenting. Enforce maximum dept
 | rating_count | INTEGER, non-negative cached aggregate |
 | created_at, updated_at | TIMESTAMPTZ, required |
 
-Index by active/category and newest ordering. Products referenced by orders are deactivated/reactivated, not hard-deleted. Rating values are denormalized read projections and must be recalculated transactionally from visible reviews (BR-060, FR-081–082); review rows remain the underlying evidence.
+Use `ix_products_category_active_created` on (category_id, is_active, created_at DESC, id ASC) for category/active/newest listing, `ix_products_brand_active` on (brand, is_active) for brand filters, and `ix_products_rating_sort` for deterministic rating order. Products referenced by orders are deactivated/reactivated, not hard-deleted. Rating values are denormalized read projections and must be recalculated transactionally from visible reviews (BR-060, FR-081–082); review rows remain the underlying evidence.
 
 #### product_variants
 
@@ -866,4 +866,4 @@ PostgreSQL 16, native `gen_random_uuid()`, explicit named CHECK constraints and 
 | 0.5 | 2026-10-20 | Aligned the schema design with Technical Architecture v0.6 and its proposed reference performance profile; no relational-model change is required by the deferred hosting-provider choice. Document remains a draft pending owner approval of proposed catalogue-field caps and final ERD review; no migration was created. |
 | 0.6 | 2026-10-20 | Completed the explicit supporting-index definition registry and added indexes for product image/specification ordering and shipping-option ordering. Reconciled the draft metadata with Architecture v0.7. No migration or application implementation exists. |
 | 0.7 | 2026-10-20 | Reconciled table descriptions with the named constraint/index registry so table-level text no longer implies unnamed CHECKs and referenced supporting indexes have explicit names. No Alembic migration or application code exists. |
-| 0.8 | 2026-10-20 | Completed the explicit named CHECK registry for coupon usage state, alongside the separate finalization-timestamp consistency check. No migration was created; this is a documentation design correction. |
+| 0.8 | 2026-10-20 | Completed the explicit named CHECK registry for coupon usage state alongside its separate finalization-timestamp consistency check; reconciled table-level descriptions with the central named constraint/index registry and its exact supporting-index definitions. No migration or application code was created. |
