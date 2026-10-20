@@ -625,7 +625,7 @@ The release and operations notes must include commands or platform steps for loc
 
 ## 14. Proposed technical decision register
 
-The table distinguishes owner-confirmed requirements, proposed technical limits, and host-specific settings that are deliberately deferred. Owner-specified mechanics below are reflected in both architecture and ERD drafts.
+The table distinguishes owner-confirmed requirements, owner-approved technical limits, and host-specific settings that are deliberately deferred. The architecture and ERD planning baselines record the accepted mechanisms.
 
 | ID | Decision | Recommendation/status | Rationale / approval note |
 |---|---|---|---|
