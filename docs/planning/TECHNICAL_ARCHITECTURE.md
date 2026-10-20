@@ -3,17 +3,17 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/TECHNICAL_ARCHITECTURE.md |
-| Version | 0.2 — architecture decisions updated after owner review |
-| Status | **Architecture draft under final review.** Owner-approved: HttpOnly JWT cookie transport with CSRF protection (AC-004 remains satisfied), Argon2id password hashing, UUID entity IDs, PostgreSQL-backed worker polling, GAP-02 and GAP-11 defaults, and local plus public deployment scope. The hosting provider is deliberately deferred. Overall document approval and operational limits remain to be recorded. |
+| Version | 0.3 — updated per owner technical specifications; draft for final review |
+| Status | **Draft under owner review; not yet approved as a complete document.** Owner-confirmed: HttpOnly JWT cookie transport with CSRF protection (AC-004), Argon2id, UUID IDs, PostgreSQL 16 with native `gen_random_uuid()`, explicit CHECK/partial-index names, nightly cleanup of expired sessions and idempotency records, row-level locking for review aggregates, GAP-02/GAP-11 defaults, and local plus public deployment. Hosting provider is deliberately deferred. Catalogue field limits not numerically specified in the PRD are proposed in the ERD and await owner review. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.3; Design Brief & Wireframes v0.3 |
 | Related documents | PROJECT_BRIEF.md; README.md; docs/testing/README.md |
-| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.1 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
+| Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.2 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
 
 ## 1. Purpose and decision status
 
-This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.1 is now drafted for review.
+This document turns the approved product and design baselines into a buildable technical design. It defines the application boundaries, data-flow and transaction rules, API conventions, authentication and security approach, background work, deployment targets, and the architecture needed to support the SDET deliverable. The database schema and delivery backlog are separate companion documents; DATABASE_SCHEMA_AND_ERD.md v0.2 is drafted for review.
 
 No application implementation is authorised yet. Owner decisions are being recorded in the architecture baseline; the remaining hosting-provider choice can be decided later. Before feature implementation begins, finish and review the database schema/ERD and implementation backlog and record final architecture sign-off.
 
@@ -56,7 +56,7 @@ The design shall:
 |---|---|---|
 | Frontend | React + TypeScript | Confirmed |
 | Backend API | Python + FastAPI | Confirmed |
-| Persistence | PostgreSQL | Confirmed |
+| Persistence | PostgreSQL 16; native `gen_random_uuid()` for generated UUID keys | Owner-confirmed |
 | ORM and schema migration | SQLAlchemy + Alembic | Confirmed |
 | API style | REST/JSON under /api/v1; OpenAPI contract | Confirmed |
 | Local runtime | Docker Compose | Confirmed |
@@ -302,9 +302,17 @@ Do not hold a database transaction open while waiting for a long simulated timeo
 - The simulated timeout delay uses real elapsed delay rather than the controllable business clock as required by TR-006.
 - The application clock may be overridden only in local/test. Public deployment always uses the real UTC clock.
 
-### 6.7 Identifier strategy — proposed for owner review
+### 6.7 Identifier strategy and UUID generation
 
-**Proposed:** use opaque UUID identifiers for internal database entities exposed through APIs. Keep the human-readable order number (NC-YYYYMMDD-NNNNNN) as a separate unique business identifier, and never use it as an authorization secret. The final decision, UUID generation/version and any public identifier compatibility rule must be captured in the schema/ERD after owner review.
+**Owner-confirmed:** use UUID identifiers for generated database entities and keep the human-readable order number (\`NC-YYYYMMDD-NNNNNN\`) as a separate unique business identifier; it is never used as an authorization secret. The target database is PostgreSQL 16. Generated UUID primary keys and generated \`auth_sessions.jti\` use the native PostgreSQL \`gen_random_uuid()\` default. Do not add an extension solely for UUID generation.
+
+### 6.8 Request schema and database length parity
+
+The ERD's §3.8 string-length contract is the shared boundary for request-model validation and physical database storage. Where the PRD states a maximum, it remains authoritative. Where the PRD does not state a numeric catalogue-field maximum, the ERD labels the value as a proposed technical cap for owner review. Once those caps are accepted, the FastAPI/Pydantic models and database column/CHECK constraint must use the same lengths; CI must exercise lower/upper boundaries and reject over-length values before persistence. No request schema implementation exists yet, so parity is planned rather than already verified.
+
+### 6.9 Review aggregate concurrency
+
+Review creation and review hiding must serialize per product. In the same PostgreSQL transaction, each path explicitly executes \`SELECT id FROM products WHERE id = :product_id FOR UPDATE\` **before changing the review row**. While holding that product-row lock, insert or update review visibility, recalculate the visible-review average/count, apply the PRD round-half-up rule, and update the cached aggregate columns. Keep the lock until commit. Every write path uses the same lock ordering. This prevents two concurrent create/hide operations from overwriting a correct aggregate with a stale count or average (BR-060, FR-081–082).
 
 ## 7. Authentication, authorization and application security
 
