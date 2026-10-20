@@ -22,7 +22,7 @@ No application implementation is authorised yet. The owner has approved the arch
 | Topic | Confirmed direction | Source |
 |---|---|---|
 | Product baseline | PRD v0.7, all DEC-01–29 and CL-01–20 approved | PRD |
-| Stories and design | User Stories v0.3 and Design Brief v0.3 are approved | Companion planning documents |
+| Stories and design | User Stories v0.4 and Design Brief v0.4 are approved | Companion planning documents |
 | Unavailable product/variant API behaviour (GAP-02) | Unknown ID → 404 NOT_FOUND; known but inactive/unavailable product or variant → 409 PRODUCT_UNAVAILABLE. The rejected request must not mutate cart/wishlist. Display the API error in the UI. | Owner decision 2026-10-20; FR-025, BR-023, SEC-009; DQ-02 |
 | Coupon validation precedence (GAP-11) | Normalize/lookup → active and time-window validity → customer eligibility → minimum amount → usage limits → calculate discount and apply caps. Identical precedence at coupon application and order-placement revalidation. | Owner decision 2026-10-20; FR-048, BR-031–036, BR-075; DQ-11 |
 | Deployment scope | Both local Docker Compose and a public portfolio deployment are in scope | Owner decision 2026-10-20 |
