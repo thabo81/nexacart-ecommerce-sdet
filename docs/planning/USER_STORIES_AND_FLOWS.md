@@ -3,14 +3,16 @@
 | Field | Value |
 |---|---|
 | Document | `docs/planning/USER_STORIES_AND_FLOWS.md` |
-| Version | 0.2 — approved |
-| Status | **Approved by the project owner on 2026-10-15.** This document is approved against PRD v0.6; the PRD remains authoritative if a discrepancy is discovered. The design brief is the next planning deliverable and is being prepared by Claude. |
+| Version | 0.3 — updated against PRD v0.7; owner review pending |
+| Status | **Revision updated on 2026-10-20 under the owner's instruction.** Version 0.2 was approved on 2026-10-15 against PRD v0.6. This revision aligns the relevant stories with approved PRD v0.7 clarifications CL-17 – CL-20. Review this revision before treating it as a newly approved baseline; the PRD remains authoritative if a discrepancy is discovered. |
 | Date created | 2026-10-13 |
-| Approval date | 2026-10-15 |
-| Primary source | `docs/planning/PRD.md` v0.6 (approved baseline) |
+| Previous approval date | 2026-10-15 (version 0.2) |
+| Last updated | 2026-10-20 |
+| Primary source | `docs/planning/PRD.md` v0.7 (approved baseline) |
 | Context source | `docs/planning/PROJECT_BRIEF.md` |
 | Related | `docs/planning/README.md` (document sequence), `docs/testing/README.md` (SDET workflow), `CLAUDE.md` (engineering rules) |
-| Not yet created | `DESIGN_BRIEF_AND_WIREFRAMES.md`, `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
+| Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.2 is approved locally; its repository version is awaiting review and reconciliation. |
+| Not yet created | `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
 
 ## 1. Purpose, scope and conventions
 
@@ -119,11 +121,11 @@ Each story lists its PRD references so that the requirement, rule and acceptance
 #### US-005 — Resume after session expiry
 **Epic:** EP-01 · **Actor:** Customer · **Priority:** M · **Release:** R1
 **Value:** When my session ends I log in again and carry on where I was.
-**Preconditions:** A token is missing, malformed, expired or revoked.
-**Main flow:** 1) A protected request returns 401 `UNAUTHENTICATED` or `TOKEN_EXPIRED`. 2) The UI sends the user to login and remembers the page they wanted. 3) After a successful login the UI returns them there.
-**Alternate / error flows:** A1) Login fails → remains on login. A2) The user had a pending order → it is unaffected, because it and the cart live on the server and the reservation timer keeps running (FR-031, FR-112, BR-041).
-**Postconditions:** The user is back on their intended page with a fresh token.
-**PRD refs:** FR-005, BR-005, FR-031, FR-112, WF-01, FL-01, AC-007
+**Preconditions:** The customer has a valid signed-in session; this flow also covers an expired, missing, malformed or revoked token.
+**Main flow:** 1) Five minutes before access-token expiry, the UI displays and announces “Your session is about to expire.” This notice is informational and does not refresh, renew or extend the token (CL-20). 2) After expiry, a protected request returns 401 `UNAUTHENTICATED` or `TOKEN_EXPIRED`. 3) The UI redirects to login and remembers the intended destination. 4) After successful login, the UI returns the customer to that destination.
+**Alternate / error flows:** A1) Login fails → remains on login. A2) The customer has a pending order → the order and cart remain stored server-side and the reservation deadline continues unchanged (FR-031, FR-112, BR-041).
+**Postconditions:** The customer is returned to the intended page with a fresh token after login; the expired token was not extended.
+**PRD refs:** FR-005, BR-005, CL-20, FR-031, FR-112, WF-01, FL-01, AC-007, AC-119
 
 #### US-006 — Protected pages require login
 **Epic:** EP-01 · **Actor:** Guest · **Priority:** M · **Release:** R1 (admin routes R2)
@@ -146,11 +148,11 @@ Each story lists its PRD references so that the requirement, rule and acceptance
 #### US-008 — Change my password
 **Epic:** EP-01 · **Actor:** Customer · **Priority:** M · **Release:** R1
 **Value:** I can replace my password and invalidate old sessions.
-**Preconditions:** Signed in.
-**Main flow:** 1) Enter current and new password. 2) The server checks the current password, the policy (BR-001) and that the new one differs. 3) On success every token issued earlier stops working (BR-005). 4) The customer logs in with the new password.
-**Alternate / error flows:** A1) Wrong current password → 422 `INVALID_CURRENT_PASSWORD`. A2) New password equals the current one or breaks the policy → 422. A3) Another device's token is used after the change → 401.
-**Postconditions:** Only the new password authenticates (see GAP-01 on automatic re-login).
-**PRD refs:** FR-008, BR-001, BR-005, SEC-005, AC-009
+**Preconditions:** Signed in as a customer who knows their current password.
+**Main flow:** 1) Enter the current password and a new password. 2) The server validates the current password, enforces BR-001, and checks that the new password differs from the current one. 3) On success, all previously issued tokens are invalidated (BR-005). 4) The UI confirms the password change and redirects to login. 5) The customer logs in using the new password (CL-17).
+**Alternate / error flows:** A1) Wrong current password → 422 `INVALID_CURRENT_PASSWORD`. A2) New password equals the current one or breaks the policy → 422. A3) A token issued before the change is used from this or another device → 401.
+**Postconditions:** Only the new password authenticates; no previously issued token remains valid.
+**PRD refs:** FR-008, BR-001, BR-005, CL-17, SEC-005, AC-009
 
 #### US-009 — Provision administrator accounts safely
 **Epic:** EP-01 · **Actor:** Operator · **Priority:** M · **Release:** R1
@@ -476,19 +478,19 @@ Each story lists its PRD references so that the requirement, rule and acceptance
 **Epic:** EP-08 · **Actor:** Customer · **Priority:** M · **Release:** R1
 **Value:** I cannot accidentally create a duplicate order, and I can always resume or cancel the one I have.
 **Preconditions:** The customer has a `pending` order.
-**Main flow:** 1) The cart shows a "locked" indicator and a pending-order banner offering **Pay now** and **Cancel order**. 2) Cart changes (add, update, remove, clear, coupon, shipping, move-to-cart) are refused with 409 `CART_LOCKED` and the pending order id. 3) The customer pays (US-045/US-046), cancels (US-053) or lets the reservation expire (US-048).
+**Main flow:** 1) The cart shows a locked indicator and a pending-order banner offering **Pay now** and **Cancel order**. 2) The payment page and order detail show “Reserved until [time]” while the reservation is active; order detail also offers **Pay now** (CL-18). 3) Cart and checkout-entry changes (add, update, remove, clear, coupon, shipping, move-to-cart) are refused with 409 `CART_LOCKED` and the pending order id. 4) The customer pays (US-044/US-045/US-046), cancels (US-053) or lets the reservation expire (US-048); retrying payment never extends the deadline.
 **Alternate / error flows:** A1) Another placement with a different key → 409 `CHECKOUT_ALREADY_PENDING` with the existing order id, whatever its payload, once the key, replay and schema checks pass. A2) A malformed payload → 422 first. A3) Five concurrent placements with different keys → exactly one 201, the rest 409. A4) After approval the cart is emptied and unlocked; after cancellation or expiry it is unlocked with its lines and selections retained for re-validation (FL-04).
 **Postconditions:** At most one pending order per customer, enforced by the database.
-**PRD refs:** FR-111, FR-112, FR-113, BR-071, BR-072, BR-074, DEC-25, WF-07, FL-04, AC-078, AC-079, AC-080, AC-081
+**PRD refs:** FR-111, FR-112, FR-113, BR-041, BR-071, BR-072, BR-074, CL-18, DEC-25, WF-07, FL-04, AC-078, AC-079, AC-080, AC-120, AC-081
 
 #### US-044 — Choose a simulated payment outcome
 **Epic:** EP-08 · **Actor:** Customer · **Priority:** M · **Release:** R1
 **Value:** I can exercise every payment result without real money.
-**Preconditions:** A `pending` order exists.
-**Main flow:** 1) A clearly labelled "Simulated payment" control offers four outcomes: approved, declined, timeout, processing error. 2) The customer picks one and submits; the UI calls **PayOrder** with a new `Idempotency-Key`. 3) The response is a normal success status whose body carries the attempt status.
-**Alternate / error flows:** A1) A value outside the four → 422. A2) There are no card number, CVV or expiry fields anywhere (FR-066). A3) The customer is not the order's owner → 404.
+**Preconditions:** A `pending` order exists and its reservation has not expired.
+**Main flow:** 1) While the reservation is active, the payment page displays “Reserved until [time]” (CL-18). 2) A clearly labelled "Simulated payment" control offers four outcomes: approved, declined, timeout, processing error. 3) The customer picks one and submits; the UI calls **PayOrder** with a new `Idempotency-Key`. 4) The response is a normal success status whose body carries the attempt status.
+**Alternate / error flows:** A1) A value outside the four → 422. A2) There are no card number, CVV or expiry fields anywhere (FR-066). A3) The customer is not the order's owner → 404. A4) If the reservation expired, payment is refused; the display must not imply that an expired reservation can still be paid.
 **Postconditions:** One payment attempt is recorded when the order was payable (US-045, US-046).
-**PRD refs:** FR-057, FR-066, FR-110, SEC-017, DEC-10, WF-06, AC-086, AC-048
+**PRD refs:** FR-057, FR-066, FR-110, FR-112, BR-041, CL-18, SEC-017, DEC-10, WF-06, AC-086, AC-048, AC-120
 
 #### US-045 — Approved payment confirms my order
 **Epic:** EP-08 · **Actor:** Customer (with the payment simulator) · **Priority:** M · **Release:** R1
@@ -550,10 +552,10 @@ Each story lists its PRD references so that the requirement, rule and acceptance
 **Epic:** EP-09 · **Actor:** Customer · **Priority:** M · **Release:** R1 (refund fields populated from R2)
 **Value:** I can see exactly what I bought, where it goes and what happened to it.
 **Preconditions:** Signed in; the order is mine.
-**Main flow:** 1) Open an order. 2) See the order number (`NC-YYYYMMDD-NNNNNN`) and placement time; each item's product name, variant description, SKU, unit price, quantity and line total as snapshotted at placement; the delivery-address snapshot; subtotal, discount, shipping fee and total (total = subtotal − discount + shipping); order status; payment status (`unpaid`, `failed`, `paid`); refund status; and the status history in chronological order.
-**Alternate / error flows:** A1) Later changes to the product's price, name, SKU or image, or to the address, do not change the detail (BR-050). A2) In R1 refund status is `not_applicable` for every order, including unpaid ones; from R2 a cancelled paid order shows `refund_pending` then `refunded`. A3) Another customer's order → 404.
+**Main flow:** 1) Open an order. 2) See the order number (`NC-YYYYMMDD-NNNNNN`) and placement time; each item's product name, variant description, SKU, unit price, quantity and line total as snapshotted at placement; the delivery-address snapshot; subtotal, discount, shipping fee and total (total = subtotal − discount + shipping); order status; payment status (`unpaid`, `failed`, `paid`); refund status; and the status history in chronological order. 3) While a pending order's reservation remains active, show “Reserved until [time]” and provide **Pay now**; the deadline is not extended by payment retries (CL-18).
+**Alternate / error flows:** A1) Later changes to the product's price, name, SKU or image, or to the address, do not change the detail (BR-050). A2) In R1 refund status is `not_applicable` for every order, including unpaid ones; from R2 a cancelled paid order shows `refund_pending` then `refunded`. A3) Another customer's order → 404. A4) An expired pending order is shown as cancelled and cannot be paid.
 **Postconditions:** The detail equals the persisted order and snapshot data.
-**PRD refs:** FR-069, FR-070, FR-076, BR-029, BR-044, BR-050, BR-051, BR-052, BR-056, BR-064, WF-08, AC-110, AC-111, AC-096, AC-097, AC-051, AC-014
+**PRD refs:** FR-069, FR-070, FR-076, FR-112, BR-029, BR-041, BR-044, BR-050, BR-051, BR-052, BR-056, BR-064, CL-18, WF-08, AC-110, AC-111, AC-096, AC-097, AC-051, AC-014, AC-120
 
 #### US-052 — Order status always follows the allowed transitions
 **Epic:** EP-09 · **Actor:** System · **Priority:** M · **Release:** R1 (administrator transitions R2)
@@ -568,19 +570,19 @@ Each story lists its PRD references so that the requirement, rule and acceptance
 **Epic:** EP-09 · **Actor:** Customer · **Priority:** M · **Release:** R1
 **Value:** I can walk away from a payment I do not want to complete.
 **Preconditions:** I own a `pending` order with no approved payment (for example on the payment-failed page).
-**Main flow:** 1) Choose **Cancel order** and confirm. 2) Under the order lock the server cancels the order, restores stock exactly once, releases coupon usage, appends the status entry and unlocks the cart with its lines retained. 3) The order shows `cancelled`, payment status as recorded, refund status `not_applicable`.
+**Main flow:** 1) Choose **Cancel order** and confirm; no cancellation reason is requested (CL-19). 2) Under the order lock the server cancels the order, restores stock exactly once, releases coupon usage, appends the status entry and unlocks the cart with its lines retained. 3) The order shows `cancelled`, payment status as recorded, refund status `not_applicable`.
 **Alternate / error flows:** A1) Cancelling again, or against an order that expired, → 409 `ORDER_NOT_CANCELLABLE` with no side effects. A2) Two concurrent cancellations, or a cancellation racing the expiry job, → one wins, stock is restored once. A3) Before R2, a `confirmed` order cannot be cancelled by the customer: 409 `ORDER_NOT_CANCELLABLE` and the action is hidden (DEC-26). A4) `shipped` and `delivered` orders are never cancellable.
 **Postconditions:** No refund exists because nothing was paid.
-**PRD refs:** FR-072, FR-075, BR-040, BR-053, BR-054, BR-073, DEC-26, WF-08, FL-08, AC-054, AC-055, AC-075, AC-053
+**PRD refs:** FR-072, FR-075, BR-040, BR-053, BR-054, BR-073, DEC-26, CL-19, WF-08, FL-08, AC-054, AC-055, AC-075, AC-053, AC-121
 
 #### US-054 — Cancel a paid order (R2)
 **Epic:** EP-09 · **Actor:** Customer · **Priority:** M · **Release:** R2
 **Value:** I can cancel an order that has been paid but not yet processed, and get my money back.
 **Preconditions:** I own a `confirmed` order.
-**Main flow:** 1) Choose **Cancel order** and confirm. 2) The server cancels the order, restores stock exactly once, keeps the coupon use counted, and creates one full refund (goods plus shipping) in `refund_pending` (US-055).
-**Alternate / error flows:** A1) The order is `processing`, `shipped` or `delivered` → 409 `ORDER_NOT_CANCELLABLE` (customers can cancel only `pending` and `confirmed`). A2) Repeated or concurrent cancellations → one succeeds, stock restored once, at most one refund. A3) A cancellation that reaches the order only after an approval committed is processed as a paid-order cancellation (CL-10).
+**Main flow:** 1) Choose **Cancel order** and confirm; no cancellation reason is requested (CL-19). 2) The server cancels the order, restores stock exactly once, keeps the coupon use counted, and creates one full refund (goods plus shipping) in `refund_pending` (US-055).
+**Alternate / error flows:** A1) The order is `processing`, `shipped` or `delivered` → 409 `ORDER_NOT_CANCELLABLE` (customers can cancel only `pending` and `confirmed`). A2) Repeated or concurrent cancellations → one succeeds, stock restored once, at most one refund. A3) A cancellation that reaches the order only after an approval committed is processed as a paid-order cancellation (CL-10). A4) No reason value is sent or required for a customer cancellation; this does not alter the administrator reason requirement in US-074.
 **Postconditions:** Status `cancelled`; refund created.
-**PRD refs:** FR-073, FR-109, BR-053, BR-055, BR-056, BR-073, DEC-13, CL-10, WF-08, FL-08, AC-052, AC-074, AC-108
+**PRD refs:** FR-073, FR-109, BR-053, BR-055, BR-056, BR-073, CL-19, DEC-13, CL-10, WF-08, FL-08, AC-052, AC-074, AC-108, AC-121
 
 #### US-055 — Simulated refund completes (R2)
 **Epic:** EP-09 · **Actor:** Refund processor · **Priority:** M · **Release:** R2
@@ -766,7 +768,7 @@ Each story lists its PRD references so that the requirement, rule and acceptance
 **Main flow:** 1) Cancel with a reason (1–200 characters, CL-09). 2) Effects follow US-053 for unpaid orders and US-054 for paid ones, including the refund.
 **Alternate / error flows:** A1) Missing reason → 422. A2) `shipped`, `delivered` or `cancelled` → 409 `ORDER_NOT_CANCELLABLE`.
 **Postconditions:** Stock restored once; refund only for paid orders.
-**PRD refs:** FR-094, BR-053, BR-054, BR-055, CL-09, WF-11, AC-102
+**PRD refs:** FR-094, BR-053, BR-054, BR-055, CL-09, WF-11, AC-102, AC-121
 
 ### EP-13 — Audit events and notifications
 
@@ -885,7 +887,7 @@ Each story lists its PRD references so that the requirement, rule and acceptance
 Each flow summarises the approved behaviour end to end and points to the stories and PRD rules that define it. Diagrams show the **approved** rules; they add none. Release markers (R2, R3) show where a step is not available in R1.
 
 ### FL-01 — Registration, login and session
-**Stories:** US-001 – US-006 · **PRD:** WF-01, FR-001 – FR-006, BR-004, BR-005, BR-007, DEC-04, DEC-27
+**Stories:** US-001 – US-006 · **PRD:** WF-01, FR-001 – FR-006, BR-004, BR-005, BR-007, DEC-04, DEC-27, CL-20
 
 ```mermaid
 flowchart TD
@@ -903,12 +905,15 @@ flowchart TD
   K -->|Locked| E2["429 RATE_LIMITED for 15 minutes"]
   K -->|Valid| T["30-minute access token issued"]
   T --> D["Go to the remembered page, or home"]
-  D --> U{"Later protected request: token valid?"}
+  D --> W["Five minutes before expiry: announce 'Your session is about to expire' (CL-20); do not extend token"]
+  W --> U{"Later protected request: token valid?"}
   U -->|Yes| OK["Request proceeds"]
   U -->|"Expired, revoked or missing"| X["401, redirect to login and remember the page"]
   X --> L0
   OK --> LO["Log out: token revoked server-side"]
 ```
+
+Password change is covered by US-008: success revokes all earlier tokens, confirms the change and requires a new login with the new password (CL-17).
 
 ### FL-02 — Browse, search, filter, sort and choose a variant
 **Stories:** US-013 – US-025, US-056 · **PRD:** WF-02, FR-016 – FR-030, BR-010 – BR-017, DEC-15
@@ -1142,11 +1147,12 @@ flowchart TD
 "First order" means no earlier order that is not cancelled, ignoring the order being placed. Small goods are the Wearables and Audio category and its subcategories. The small-goods exception waives only the minimum; it grants no free shipping. A customer using `WELCOME10` is returning by definition and pays R60.00 Standard.
 
 ### FL-13 — Order history and detail
-**Stories:** US-050, US-051 · **PRD:** WF-08, FR-068 – FR-070, FR-076
+**Stories:** US-050, US-051 · **PRD:** WF-08, FR-068 – FR-070, FR-076, FR-112, CL-18
 1. The customer opens Orders and sees their own orders, newest first, in pages.
 2. They open an order and see snapshotted items, delivery address, subtotal, discount, shipping fee, total, order status, payment status, refund status and the chronological status history.
-3. **Cancel order** is offered for `pending` orders in R1 and for `confirmed` orders from R2 (DEC-26); other orders offer no cancellation. Where a customer returns to pay a pending order, apart from the cart banner of FR-112, is not specified (GAP-06).
-4. Another customer's order, or a non-existent one, returns 404.
+3. For an active pending reservation, order detail shows “Reserved until [time]” and offers **Pay now**; the cart and checkout-entry banner also offer **Pay now** and **Cancel order**. Payment retry never extends the 30-minute reservation (CL-18).
+4. **Cancel order** is offered for `pending` orders in R1 and for `confirmed` orders from R2 (DEC-26); other orders offer no cancellation.
+5. Another customer's order, or a non-existent one, returns 404.
 
 ### FL-14 — Administration of catalog, inventory and orders (R2)
 **Stories:** US-060 – US-074 · **PRD:** WF-10, WF-11, FR-083 – FR-097, BR-057, BR-061 – BR-063
@@ -1238,16 +1244,17 @@ These rows specify **what must be true on screen** for each state. Layout, wordi
 | UI-15 | Simulated payment control | Checkout payment step | A clearly labelled "Simulated payment" control with exactly four options (approved, declined, timeout, processing error); no card, CVV or expiry fields exist | US-044 | FR-057, FR-066 |
 | UI-16 | Payment in progress | After submitting a payment, especially `timeout` | A visible waiting state for the simulated delay; the submit control is disabled; the customer is not shown an outcome until the response arrives | US-044, US-046 | FR-060, TR-012 |
 | UI-17 | Payment approved | After an approved payment | Confirmation page with order number, items, address snapshot, totals and statuses; the cart is shown empty and unlocked | US-045 | FR-058, FR-065 |
-| UI-18 | Payment not approved | After declined, timeout or error | Payment-failed page stating the outcome, with **Retry** and **Cancel order**; the order is shown as still reserved and the cart as locked | US-046 | FR-059 – FR-061, FR-065 |
+| UI-18 | Payment not approved | After declined, timeout or error | Payment-failed page states the outcome and, while the reservation is active, displays “Reserved until [time]”; it offers **Retry** and **Cancel order**, shows the cart as locked, and must not imply that an expired order remains payable | US-044, US-046 | FR-059 – FR-061, FR-065, FR-112, CL-18 |
 | UI-19 | Attempts exhausted | After the third non-approved attempt | Retry is no longer offered; only **Cancel order** remains | US-046 | FR-062, BR-049 |
 | UI-20 | Order cancelled or expired | Order detail, payment page | The order shows `cancelled`; a payment attempt on it is refused and the customer is told it is no longer payable; the cart is shown unlocked with its lines | US-048, US-049, US-053 | FR-064, FR-114 |
 | UI-21 | Cancel confirmation | Cancel order (and, per GAP-08, other destructive actions) | A confirmation step before the cancellation is sent; afterwards the resulting order and refund status are shown | US-053, US-054 | WF-08 |
-| UI-22 | Session ended | Any protected page | The customer is redirected to login with the intended page remembered and returns to it after login | US-005, US-006 | FR-005, FR-006 |
+| UI-22 | Session ended | Any protected page | After expiry the customer is redirected to login with the intended page remembered and returns to it after login; the expiry warning does not extend the session | US-005, US-006 | FR-005, FR-006, CL-20 |
 | UI-23 | Forbidden and not found | Admin routes for customers; inactive or unknown products; other customers' records | A forbidden page for role violations (CL-08); a not-found page for missing or non-owned records | US-006, US-024, US-060 | CL-08, BR-064, FR-025 |
 | UI-24 | Responsive navigation | All pages, 360–1920 px | Search, categories, cart, wishlist and account stay reachable at every supported width, using a collapsible navigation on narrow screens that is operable by touch and keyboard and exposes its expanded state to assistive technology; the page never scrolls sideways | US-085 | NFR-013, NFR-011 |
 | UI-25 | Keyboard and assistive technology | All flows | Every action is reachable by keyboard in a logical order; focus is visible and managed after dialogs and errors; controls have accessible names and labels; images have alt text; status changes (cart updates, payment results, errors) are announced | US-085, US-086 | NFR-011, NFR-012, FR-029, TR-002 |
 | UI-26 | Demo-store notice | All pages and football-shirt products | The site-wide demo notice and the per-product fictional/unofficial notice are visible | US-025 | FR-028, BR-017 |
 | UI-27 | Administrator results | Admin screens (R2) | Create, update, deactivate, adjust, advance and cancel actions show their result or the specific validation error; rejected inventory adjustments leave the displayed stock unchanged | US-061 – US-074 | FR-083 – FR-095 |
+| UI-28 | Session-expiry warning | Five minutes before a protected session's access token expires | Display and announce “Your session is about to expire.” The warning is informational: it does not refresh, renew or extend the token. On actual expiry, follow UI-22 and FR-005. | US-005 | FR-005, BR-005, CL-20 |
 
 ## 8. Traceability matrix
 
@@ -1429,20 +1436,20 @@ Stories whose release reads "R1 (… R2)" are counted under R1; their R2 part is
 
 ## 10. Observations about the PRD
 
-While writing the stories, these points were found where the PRD is silent or leaves room for interpretation. **None is a new requirement and none changes an approved rule.** Each is a question for the design brief, technical architecture or the owner; until answered, the stories assume nothing beyond the PRD.
+While writing the stories, these points were found where the PRD was silent or left room for interpretation. Rows explicitly marked **Resolved** have since been closed by approved PRD v0.7 clarifications. Remaining observations must be reconciled against the updated design brief or resolved in the technical architecture; no unresolved default is silently treated as a new PRD requirement.
 
 | ID | Observation | Stories | Suggested home |
 |---|---|---|---|
-| GAP-01 | The PRD invalidates all earlier tokens after a password change but does not say whether the response signs the customer in again or the customer must log in. The story assumes the customer logs in again | US-008 | Technical architecture |
+| GAP-01 | **Resolved by PRD v0.7 / CL-17:** after password change, all old tokens are invalidated; UI confirms success and requires login with the new password. | US-008 | Closed — CL-17 |
 | GAP-02 | The response when adding to the cart or wishlist an inactive, removed or unknown product or variant is not specified (FR-025 covers direct page access only) | US-026, US-032 | Technical architecture |
 | GAP-03 | Whether guests see a cart or wishlist indicator, and whether the wishlist has a count like the cart (FR-040) | US-028 | Design brief |
 | GAP-04 | Which fields each entry of the order-history list shows | US-050 | Design brief |
 | GAP-05 | The reviewer name shown with a review and the ordering and paging of reviews | US-057 | Design brief |
-| GAP-06 | Whether the customer sees the payment deadline, and how they return to a pending order other than through the cart banner (FR-112) | US-043, US-048 | Design brief |
+| GAP-06 | **Resolved by PRD v0.7 / CL-18:** show “Reserved until [time]” on payment and order detail, and offer **Pay now** on order detail alongside the existing cart/checkout-entry banner. | US-043, US-044, US-051 | Closed — CL-18 |
 | GAP-07 | Search, filter and paging of the administrator product list | US-064 | Design brief |
 | GAP-08 | Which actions besides order cancellation (WF-08) need a confirmation step, for example deleting an address or clearing the cart | US-010, US-027 | Design brief |
 | GAP-09 | Wording, tone and localisation of messages, and whether the request id is shown to users (English only, ASM-01) | All UI stories | Design brief |
-| GAP-10 | Whether a customer gives a reason when cancelling (administrators must, FR-094; BR-052 says "reason where required") | US-053, US-054 | Owner / design brief |
+| GAP-10 | **Resolved by PRD v0.7 / CL-19:** customers do not provide a cancellation reason; administrator cancellation still requires a 1–200 character reason. | US-053, US-054, US-074 | Closed — CL-19 |
 | GAP-11 | The PRD does not say which `COUPON_*` code wins when several conditions fail at once | US-035 | Technical architecture |
 
 ## Appendix A — Story index
@@ -1541,3 +1548,5 @@ While writing the stories, these points were found where the PRD is silent or le
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 2026-10-13 | First draft for owner review, based on PRD v0.6. No other planning document was created and no application code was written |
+| 0.2 | 2026-10-15 | Owner approved the user stories and flows against PRD v0.6. |
+| 0.3 | 2026-10-20 | Aligned password-change, pending-order reservation display/return path, customer cancellation reason, and five-minute session-expiry warning behaviour with PRD v0.7 (CL-17 – CL-20); added UI-28; closed GAP-01, GAP-06 and GAP-10. Remaining observations left for design-brief reconciliation or architecture; owner review pending. No application code was written. |
