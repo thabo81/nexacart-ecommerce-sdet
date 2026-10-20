@@ -1465,7 +1465,7 @@ On mobile the same content stacks in one column with the same behaviour.
 ### SCR-16 — Product reviews (R2)
 **Purpose:** Let shoppers read reviews and let customers who received a product rate it.
 **Release:** R2 (read-only seeded ratings appear in R1 on listings and the product header) · **Stories:** US-057, US-058, US-059 · **PRD:** FR-077 to FR-082, BR-058 to BR-060, DEC-14 · **Mode:** persuade (reading) and operate (writing).
-**Layout rules:** a summary (average and count) then the list, then the form. The form appears only for customers with a delivered order for the product; for everyone else it is absent. Comments are always shown as plain text. Reviewer name and ordering are unresolved (GAP-05, DQ-05). Where an administrator hides a review is also unresolved (US-059, DQ-21).
+**Layout rules:** a summary (average and count) then the list, then the form. The form appears only for customers with a delivered order for the product; for everyone else it is absent. Comments are always shown as plain text. Show the reviewer's first name only, sort newest first, and paginate 10 reviews per page; customers cannot edit reviews after submission (DQ-05). An administrator hides a review using the Hide control on that review in the admin product editor; there is no Hide control on the public page (DQ-21).
 
 **Desktop**
 ```text
@@ -1475,7 +1475,7 @@ On mobile the same content stacks in one column with the same behaviour.
 │ (1) Summary                     │ (2) Review list                                                  │
 │ 4.5 out of 5                    │ 5 / 5   Comment text, shown as plain text.                       │
 │ 12 reviews                      │ 4 / 5   Another comment.                                         │
-│                                 │ (reviewer name and order: GAP-05) [P]                            │
+│                                 │ First name only; newest first; 10 per page [DQ-05]                │
 ├─────────────────────────────────┴──────────────────────────────────────────────────────────────────┤
 │ (3) Write a review (only after a delivered order)                                                  │
 │ Rating *  ( ) 1  ( ) 2  ( ) 3  ( ) 4  ( ) 5                                                        │
