@@ -668,7 +668,7 @@ Every screen below has a purpose, its release and requirement references, a desk
 ### SCR-05 — Cart, coupon and shipping summary
 **Purpose:** Show exactly what will be charged, why, and what must be fixed before checkout; keep the shopper in control of coupon and delivery choices.
 **Release:** R1 · **Stories:** US-027, US-028, US-029, US-030, US-031, US-035, US-036, US-037, US-038, US-039, US-043 · **PRD:** FR-031 to FR-040, FR-046, FR-047, FR-049, FR-050, FR-111 to FR-113, FR-116, BR-018, BR-020, BR-022, BR-025 to BR-029, BR-071, BR-076, BR-077 · **Mode:** operate.
-**Layout rules:** lines on the left, a summary panel on the right (sticky on desktop, placed below the lines on mobile with a sticky Checkout bar). Every amount is a server value; the interface never computes a total itself. The wireframe shows a **first-time buyer** whose pre-coupon subtotal (R1,147.00) is in the free-delivery band, with one informational flag (price changed) and one blocking flag (not enough stock), so Checkout is disabled.
+**Layout rules:** lines on the left, a summary panel on the right (sticky on desktop, placed below the lines on mobile with a sticky Checkout bar). Every amount is a server value; the interface never computes a total itself. The wireframe shows a **first-time buyer** whose pre-coupon subtotal (R1,147.00) is above the free-Standard-delivery band; Standard delivery is R60.00 because first-order free delivery applies only below R1,000.00 (BR-076), with one informational flag (price changed) and one blocking flag (not enough stock), so Checkout is disabled.
 
 **Desktop**
 ```text
@@ -684,11 +684,11 @@ Every screen below has a purpose, its release and requirement references, a desk
 │ Remove                                                    │ (5) Coupon  [ code ] [ Apply ]         │
 │       Price changed: was R599.00, now R649.00 (3)         │ Applied: SAVE100  -R100.00  [ Remove ] │
 │ ----------------------------------------------------      │ (6) Delivery                           │
-│ {img}  Pulse Mouse - Black  [ - ] 2 [ + ]               │ (o) Standard R0.00; 3-5 business days │
+│ {img}  Pulse Mouse - Black  [ - ] 2 [ + ]               │ (o) Standard R60.00; 3-5 business days │
 │       Unit R249.00 each; line total R498.00             │ ( ) Express R120.00; 1-2 business days │
-│ Remove                                                  │ First-order offer applied (7)          │
+│ Remove                                                  │ First-order offer not applied (subtotal ≥ R1,000.00) (7)          │
 │       Only 1 left: reduce the quantity (3)              │                                        │
-│ Clear cart (secondary link)                               │ (8) Total  R1,047.00                 │
+│ Clear cart (secondary link)                               │ (8) Total  R1,107.00                 │
 │                                                           │ [ Checkout ] (9) disabled: fix the     │
 │                                                           │ flagged line (10)                      │
 └───────────────────────────────────────────────────────────┴────────────────────────────────────────┘
@@ -720,11 +720,13 @@ Every screen below has a purpose, its release and requirement references, a desk
 │ SAVE100 -R100.00 [Remove]        │
 ├──────────────────────────────────┤
 │ (6) Delivery                     │
-│ (o) Standard R0.00               │
+│ (o) Standard R60.00              │
 │ ( ) Express R120.00              │
-│ (7) First-order offer            │
+│ (7) First-order offer not        │
+│     applicable (subtotal ≥        │
+│     R1,000.00)                    │
 ├──────────────────────────────────┤
-│ (8) Total R1,047.00              │
+│ (8) Total R1,107.00              │
 ├──────────────────────────────────┤
 │     (9) [ Checkout ] sticky,     │
 │    disabled with reason (10)     │
