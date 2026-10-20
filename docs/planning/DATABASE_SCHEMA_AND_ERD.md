@@ -580,14 +580,7 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_users_name_nonblank` | `btrim(name) <> ''` | BR-003 |
 | `ck_users_email_normalized` | Stored email is trimmed and lowercase | BR-002 |
 | `ck_users_role` | Role is customer or admin | BR-006 |
-| `ck_users_phone_format` | Null or `^\\+?[0-9]{7,15}### 5.1 CHECK constraints
-
-| Explicit constraint name | Definition / invariant | Source |
-|---|---|---|
-| `ck_users_name_nonblank` | `btrim(name) <> ''` | BR-003 |
-| `ck_users_email_normalized` | Stored email is trimmed and lowercase | BR-002 |
-| `ck_users_role` | Role is customer or admin | BR-006 |
- | BR-003 |
+| `ck_users_phone_format` | Null or `^\+?[0-9]{7,15}$` | BR-003 |
 | `ck_auth_sessions_expiry_after_issue` | `expires_at > issued_at` | BR-005 |
 | `ck_login_throttle_failures_nonnegative` | `consecutive_failures >= 0` | BR-007 |
 | `ck_categories_name_nonblank` | Trimmed name is not blank | Category write schema |
@@ -608,42 +601,7 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_product_specifications_value_nonblank` | Trimmed specification value is not blank | Product write schema |
 | `ck_product_specifications_sort_order_nonnegative` | `sort_order >= 0` | Specification ordering |
 | `ck_addresses_recipient_nonblank` | Trimmed recipient name is not blank | BR-008 |
-| `ck_addresses_phone_format` | `^\\+?[0-9]{7,15}### 5.1 CHECK constraints
-
-| Explicit constraint name | Definition / invariant | Source |
-|---|---|---|
-| `ck_users_name_nonblank` | `btrim(name) <> ''` | BR-003 |
-| `ck_users_email_normalized` | Stored email is trimmed and lowercase | BR-002 |
-| `ck_users_role` | Role is customer or admin | BR-006 |
-| `ck_users_phone_format` | Null or `^\\+?[0-9]{7,15}### 5.1 CHECK constraints
-
-| Explicit constraint name | Definition / invariant | Source |
-|---|---|---|
-| `ck_users_name_nonblank` | `btrim(name) <> ''` | BR-003 |
-| `ck_users_email_normalized` | Stored email is trimmed and lowercase | BR-002 |
-| `ck_users_role` | Role is customer or admin | BR-006 |
- | BR-003 |
-| `ck_auth_sessions_expiry_after_issue` | `expires_at > issued_at` | BR-005 |
-| `ck_login_throttle_failures_nonnegative` | `consecutive_failures >= 0` | BR-007 |
-| `ck_categories_name_nonblank` | Trimmed name is not blank | Category write schema |
-| `ck_categories_sort_order_nonnegative` | `sort_order >= 0` | Category ordering |
-| `ck_categories_not_own_parent` | Parent is null or `parent_id <> id` | Category hierarchy |
-| `ck_products_name_nonblank` | Trimmed name is not blank | FR-084–085 |
-| `ck_products_brand_nonblank` | Trimmed brand is not blank | Product write schema |
-| `ck_products_rating_average_range` | `rating_average BETWEEN 0 AND 5` | BR-060 |
-| `ck_products_rating_count_nonnegative` | `rating_count >= 0` | BR-060 |
-| `ck_product_variants_price_positive` | `unit_price_minor > 0` | BR-010 |
-| `ck_product_variants_stock_nonnegative` | `stock_quantity >= 0` | BR-037 |
-| `ck_product_variants_options_object` | `jsonb_typeof(options) = 'object'` | Variant write schema |
-| `ck_product_variants_options_key_nonblank` | Canonical options key is not blank | Variant identity |
-| `ck_product_variants_default_has_no_options` | `NOT is_default OR options_key = '{}'` | DEC-06 |
-| `ck_product_images_alt_text_nonblank` | Trimmed alt text is not blank | FR-029, FR-097 |
-| `ck_product_images_sort_order_nonnegative` | `sort_order >= 0` | Image ordering |
-| `ck_product_specifications_name_nonblank` | Trimmed specification name is not blank | Product write schema |
-| `ck_product_specifications_value_nonblank` | Trimmed specification value is not blank | Product write schema |
-| `ck_product_specifications_sort_order_nonnegative` | `sort_order >= 0` | Specification ordering |
-| `ck_addresses_recipient_nonblank` | Trimmed recipient name is not blank | BR-008 |
- | BR-008 |
+| `ck_addresses_phone_format` | `^\+?[0-9]{7,15}$` | BR-008 |
 | `ck_addresses_line1_nonblank` | Trimmed line1 is not blank | BR-008 |
 | `ck_addresses_city_nonblank` | Trimmed city is not blank | BR-008 |
 | `ck_addresses_province_nonblank` | Trimmed province is not blank | BR-008 |
@@ -670,40 +628,7 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_orders_discount_not_above_subtotal` | `discount_minor <= subtotal_minor` | BR-026–029 |
 | `ck_orders_total_arithmetic` | `total_minor = subtotal_minor - discount_minor + shipping_fee_minor` | BR-029 |
 | `ck_orders_reservation_after_placement` | `reservation_deadline > placed_at` | BR-041 |
-| `ck_orders_number_format` | `order_number ~ '^NC-[0-9]{8}-[0-9]{6}
-| `ck_order_items_unit_price_positive` | `unit_price_minor > 0` | BR-010, BR-050 |
-| `ck_order_items_quantity_positive` | `quantity > 0` | BR-018 |
-| `ck_order_items_line_total` | `line_total_minor = unit_price_minor * quantity` | BR-029 |
-| `ck_order_items_product_name_nonblank` | Snapshot name is not blank | BR-050 |
-| `ck_order_address_snapshots_postal_code_format` | Four numeric digits | BR-008, BR-050 |
-| `ck_order_status_history_to_status` | `to_status` is a legal order status | BR-043, BR-052 |
-| `ck_order_status_history_from_status` | Null or a legal order status | BR-043, BR-052 |
-| `ck_order_status_history_actor_type` | Customer/admin/system | BR-052 |
-| `ck_payment_attempts_attempt_number_positive` | `attempt_number > 0` | FR-062, FR-067 |
-| `ck_payment_attempts_outcome` | Approved/declined/timed_out/error | BR-044, BR-047 |
-| `ck_payment_attempts_amount_positive` | `amount_minor > 0` | BR-046 |
-| `ck_payment_attempts_idempotency_key_format` | 8–64 characters from the BR-070 alphabet | BR-070 |
-| `ck_refunds_status` | Refund pending or refunded | BR-056 |
-| `ck_refunds_amount_positive` | `amount_minor > 0` | BR-056 |
-| `ck_refunds_completion_consistency` | Refunded iff completed_at is set; pending iff null | BR-056 |
-| `ck_idempotency_records_scope_nonblank` | Trimmed scope is not blank | BR-070 |
-| `ck_idempotency_records_key_format` | 8–64 permitted characters | BR-070 |
-| `ck_idempotency_records_fingerprint_format` | Exactly 64 lowercase hexadecimal characters | BR-070 |
-| `ck_idempotency_records_response_status` | HTTP status between 100 and 599 | API contract |
-| `ck_idempotency_records_retention` | `expires_at >= created_at + interval '24 hours'` | BR-048, BR-070 |
-| `ck_inventory_movements_delta_nonzero` | `delta_quantity <> 0` | BR-042 |
-| `ck_inventory_movements_reason_code` | Only the five approved inventory movement reasons | BR-042 |
-| `ck_inventory_movements_operation_key_nonblank` | Operation key is not blank | BR-038–042 |
-| `ck_inventory_movements_admin_reason` | Admin adjustment requires a trimmed reason of 1–200 chars; system movements may use null | BR-062, CL-11 |
-| `ck_audit_events_actor_role` | Customer/admin/system role snapshot | BR-066 |
-| `ck_reviews_rating_range` | Rating between 1 and 5 | BR-059 |
-| `ck_reviews_comment_length` | Null or length at most 1000 | BR-059 |
-| `ck_reviews_hidden_metadata_consistency` | Visible reviews have null hide metadata; hidden reviews have both hidden user and timestamp | FR-082 |
-| `ck_notifications_type` | Only approved R3 notification event types | BR-067 |
-
-Checks that depend on another row, such as review eligibility, legal state transitions, max image count, max address count and max cart lines, remain service/transaction invariants; PostgreSQL CHECK constraints cannot safely enforce those cross-row predicates.
-
-`; 18 characters | BR-051 |
+| `ck_orders_number_format` | `order_number ~ '^NC-[0-9]{8}-[0-9]{6}$'`; 18 characters | BR-051 |
 | `ck_order_items_unit_price_positive` | `unit_price_minor > 0` | BR-010, BR-050 |
 | `ck_order_items_quantity_positive` | `quantity > 0` | BR-018 |
 | `ck_order_items_line_total` | `line_total_minor = unit_price_minor * quantity` | BR-029 |
