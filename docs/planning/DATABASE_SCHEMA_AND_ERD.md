@@ -826,15 +826,27 @@ Running seed twice must not duplicate inventory movements, coupon usage, orders,
 - Fresh install, migration upgrade and repeatable seed all pass.
 - Test-support routes/controls are unavailable in production configuration.
 
-## 10. Remaining schema review items
+## 10. Owner approval disposition and implementation constraints
 
-These are explicit approval or implementation checkpoints:
+On 2026-10-20, the owner approved this proposed schema/ERD as the database planning baseline, including the catalogue-field caps marked as schema proposals in §3.8.
 
-1. **String-length authority:** the PRD precisely defines bounds for core identity, address, coupon, idempotency and review fields but leaves several admin catalogue-field maxima unstated. §3.8 proposes canonical bounds so future Pydantic request schemas and database fields agree. The repository has no implemented request schemas yet, so parity must be verified with schema-boundary tests when code is built.
-2. **Owner review of catalogue caps:** confirm the values marked *schema proposal* in §3.8. PRD-defined limits are fixed and are not awaiting approval.
-3. **Architecture/schema approval:** both documents remain drafts until reviewed. Public hosting provider choice is deferred and does not block the relational model.
+1. **String-length authority:** PRD-defined bounds remain authoritative. Owner-approved caps for fields where the PRD is silent now provide the shared contract for future FastAPI/Pydantic request models, database columns/constraints and boundary tests. Length parity is a future implementation acceptance criterion; it has not yet been verified in code.
+2. **Relational model:** the ERD, foreign keys, named CHECK constraints, named indexes, uniqueness rules, append-only ledgers and order snapshots are approved as the planned physical model. Build Alembic migrations only after the implementation plan/backlog receives owner approval.
+3. **Operational decisions:** PostgreSQL 16, native `gen_random_uuid()`, expiry-safe nightly cleanup using the accepted configurable 02:00 UTC default, and parent-product `SELECT ... FOR UPDATE` for review aggregate serialization are part of the approved baseline.
+4. **Deployment:** local Docker Compose and a public portfolio deployment are in scope. Provider and region remain deferred and must be selected during deployment planning.
+5. **Implementation status:** approval of this document does not mean the schema exists in a database. No migration or application code has been created.
 
-PostgreSQL 16, native `gen_random_uuid()`, explicit named CHECK constraints and partial indexes, nightly expiry cleanup, and the `SELECT ... FOR UPDATE` review-aggregate protocol are owner-specified and included. No migration file or application code has been created yet.
+## 11. Schema acceptance checklist
+
+- [x] Proposed catalogue-field caps in §3.8 are owner-approved; PRD-specific bounds remain authoritative.
+- [x] PostgreSQL 16 and native UUID defaults are recorded.
+- [x] Named CHECK constraints, partial indexes, and supporting indexes have a stable registry.
+- [x] ERD and table design reflect the approved order snapshots, cart lock, idempotency, inventory ledger, payment/refund and audit requirements.
+- [x] Payment/refund status projections avoid competing mutable sources of truth.
+- [x] Review eligibility and concurrent aggregate updates are represented in the service/locking design.
+- [ ] Future request-model/database-boundary parity tests must pass after implementation.
+- [ ] Alembic migrations must apply cleanly to both an empty database and a seeded database.
+- [ ] Implementation plan/backlog approval remains required before any migration or application code is created.
 
 ## Appendix A — Traceability
 
