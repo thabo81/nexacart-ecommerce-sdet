@@ -12,7 +12,7 @@
 | Context source | `docs/planning/PROJECT_BRIEF.md` |
 | Related | `docs/planning/README.md` (document sequence), `docs/testing/README.md` (SDET workflow), `CLAUDE.md` (engineering rules) |
 | Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.3 is owner-approved and aligned with this story baseline and PRD v0.7. |
-| Not yet created | `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.1 is drafted and under owner review. `DATABASE_SCHEMA_AND_ERD.md` and `IMPLEMENTATION_PLAN_AND_BACKLOG.md` have not yet been created. |
 
 ## 1. Purpose, scope and conventions
 
