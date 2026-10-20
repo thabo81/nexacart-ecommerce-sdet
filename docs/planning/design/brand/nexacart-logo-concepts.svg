@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d">
+  <title id="t">NexaCart logo concept: N-and-dot mark with wordmark</title>
+  <desc id="d">Owner-approved N-and-dot concept direction. One continuous N-shaped path followed by a dot stands for a single clear route to arrival. Wordmark uses the approved Geist typeface as live text in this concept sheet. Not final production artwork; prepare outlined artwork separately.</desc>
+  <defs>
+    <symbol id="mark" viewBox="0 0 64 64">
+      <path d="M14 52V14L50 50V30" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="50" cy="13" r="6" fill="var(--dot, #2447D6)"/>
+    </symbol>
+  </defs>
+  <rect width="960" height="400" fill="#F6F7F8"/>
+  <!-- Panel 1: primary lockup on white -->
+  <rect x="24" y="24" width="440" height="220" rx="8" fill="#FFFFFF" stroke="#DDE0E4"/>
+  <g color="#14161A" style="--dot:#2447D6"><use href="#mark" x="64" y="76" width="96" height="96"/></g>
+  <text x="180" y="146" font-family="Geist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="56" font-weight="700" letter-spacing="-2" fill="#14161A">NexaCart</text>
+  <text x="64" y="214" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" fill="#5B616B">Primary lockup, ink on white. Dot in accent cobalt #2447D6.</text>
+  <!-- Panel 2: reversed -->
+  <rect x="496" y="24" width="440" height="220" rx="8" fill="#14161A"/>
+  <g color="#FFFFFF" style="--dot:#8FA6FF"><use href="#mark" x="536" y="76" width="96" height="96"/></g>
+  <text x="652" y="146" font-family="Geist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="56" font-weight="700" letter-spacing="-2" fill="#FFFFFF">NexaCart</text>
+  <text x="536" y="214" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" fill="#C9CDD3">Reversed on ink. Dot lightened to #8FA6FF for contrast.</text>
+  <!-- Panel 3: small sizes -->
+  <rect x="24" y="268" width="912" height="108" rx="8" fill="#FFFFFF" stroke="#DDE0E4"/>
+  <g color="#14161A" style="--dot:#2447D6">
+    <use href="#mark" x="64" y="296" width="48" height="48"/>
+    <use href="#mark" x="140" y="304" width="32" height="32"/>
+    <use href="#mark" x="200" y="308" width="24" height="24"/>
+    <use href="#mark" x="248" y="312" width="16" height="16"/>
+  </g>
+  <text x="300" y="326" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" fill="#5B616B">Mark alone at 48, 32, 24 and 16 px (header, tab, favicon, app badge). Keep clear space equal to the dot diameter on all sides. Minimum size 16 px.</text>
+</svg>
