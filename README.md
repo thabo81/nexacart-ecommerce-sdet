@@ -44,14 +44,14 @@ Both workstreams must use the approved documents in [docs/planning](docs/plannin
 
 ## Planning documents
 
-The following deliverables are being developed before feature implementation:
+Planning baselines and the remaining approval gate are tracked in [docs/planning](docs/planning/README.md):
 
-1. Product Requirements Document (PRD)
-2. User Stories & Application Flows
-3. Design Brief & UI Wireframes
-4. Technical Architecture
-5. Database Schema & Entity Relationship Diagram (ERD)
-6. Implementation Plan & Product Backlog
+1. [Product Requirements Document (PRD)](docs/planning/PRD.md) — approved v0.7
+2. [User Stories & Application Flows](docs/planning/USER_STORIES_AND_FLOWS.md) — approved v0.4
+3. [Design Brief & Wireframes](docs/planning/DESIGN_BRIEF_AND_WIREFRAMES.md) — approved v0.4; real-browser verification remains pending
+4. [Technical Architecture](docs/planning/TECHNICAL_ARCHITECTURE.md) — owner-approved planning baseline v0.9
+5. [Database Schema & ERD](docs/planning/DATABASE_SCHEMA_AND_ERD.md) — owner-approved planning baseline v0.9
+6. [Implementation Plan & Backlog](docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — v0.1 draft awaiting owner approval
 
 Start with [the master project brief](docs/planning/PROJECT_BRIEF.md).
 
