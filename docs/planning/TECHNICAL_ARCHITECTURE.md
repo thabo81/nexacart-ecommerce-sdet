@@ -7,7 +7,7 @@
 | Status | **Draft under owner review; not yet approved as a complete document.** Owner-confirmed: HttpOnly JWT cookie transport with CSRF protection (AC-004), Argon2id, UUID IDs, PostgreSQL 16 with native `gen_random_uuid()`, explicit CHECK/partial-index names, nightly cleanup of expired sessions and idempotency records, row-level locking for review aggregates, GAP-02/GAP-11 defaults, and local plus public deployment. Hosting provider is deliberately deferred. Catalogue field limits not numerically specified in the PRD are proposed in the ERD and await owner review. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
-| Primary baseline | PRD v0.7; User Stories & Flows v0.3; Design Brief & Wireframes v0.3 |
+| Primary baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
 | Related documents | PROJECT_BRIEF.md; README.md; docs/testing/README.md |
 | Related downstream documents | DATABASE_SCHEMA_AND_ERD.md v0.3 draft; IMPLEMENTATION_PLAN_AND_BACKLOG.md not yet created |
 
@@ -677,3 +677,4 @@ Before this document is marked approved, review that:
 | 0.2 | 2026-10-20 | Recorded owner approval of HttpOnly JWT cookie transport with CSRF protection, Argon2id, UUID entity IDs and a PostgreSQL-polled background worker. AC-004 verification is specified. Hosting provider and operational deployment settings remain deferred. |
 | 0.3 | 2026-10-20 | Added owner-specified PostgreSQL 16/`gen_random_uuid()`, named CHECK and partial-index registry requirement, nightly expiry cleanup and `SELECT ... FOR UPDATE` review aggregate serialization. Aligned the architecture to Database Schema v0.2. Catalogue string caps absent from PRD are identified for owner confirmation. |
 | 0.4 | 2026-10-20 | Aligned architecture metadata to Database Schema v0.3, and clarified that 02:00 UTC is a proposed configurable nightly-cleanup default, while the nightly cleanup requirement itself is owner-approved. Hosting provider remains deferred; proposed catalogue field caps await confirmation. |
+| 0.5 | 2026-10-20 | Updated baseline references to owner-approved User Stories v0.4 and Design Brief v0.4, which now reflect the approved GAP-02/GAP-11 defaults. No backend implementation or migrations were created. |
