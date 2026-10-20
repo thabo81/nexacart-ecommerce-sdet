@@ -6,8 +6,8 @@
 | Version | 0.8 — completed named usage-state constraint registry |
 | Status | **Draft under owner review; not implemented.** Records PostgreSQL 16, native UUID generation, explicitly named CHECK constraints and partial indexes, nightly cleanup of expired sessions and idempotency records, and product-row locking for concurrent review aggregate updates. Proposed catalogue-field caps not numerically specified in the PRD remain awaiting owner confirmation. The public hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
-| Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.7 |
-| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.7 draft; public hosting provider deferred |
+| Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.8 |
+| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.8 draft; public hosting provider deferred |
 | Not yet created | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
 
 ## 1. Purpose and design rules
