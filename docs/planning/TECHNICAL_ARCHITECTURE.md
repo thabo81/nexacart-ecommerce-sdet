@@ -629,7 +629,7 @@ The table distinguishes owner-confirmed requirements, owner-approved technical l
 
 | ID | Decision | Recommendation/status | Rationale / approval note |
 |---|---|---|---|
-| ARCH-01 | Overall service topology | Proposed: modular monolith, one API codebase, one PostgreSQL database, separate worker process | Small project and cross-domain atomic operations; avoids microservice overhead |
+| ARCH-01 | Overall service topology | Owner-approved: modular monolith, one API codebase, one PostgreSQL database, separate worker process | Small project and cross-domain atomic operations; avoids microservice overhead |
 | ARCH-02 | Password hashing | Owner-approved: Argon2id | One of the algorithms permitted by SEC-002; strong adaptive password hashing |
 | ARCH-03 | Browser token storage | Owner-approved: HttpOnly Secure cookie with JWT, explicit CSRF defence, server-side jti session revocation | Keeps the JWT unavailable to frontend JavaScript; AC-004 is verified by inspecting Set-Cookie and testing authenticated requests |
 | ARCH-04 | Background execution | Owner-approved: PostgreSQL-polled worker using row locks/skip-locked claiming and idempotent transitions | Durable and testable; avoids new broker infrastructure |
