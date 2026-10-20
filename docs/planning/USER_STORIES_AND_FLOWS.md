@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Document | `docs/planning/USER_STORIES_AND_FLOWS.md` |
-| Version | 0.3 — owner-approved baseline against PRD v0.7 |
-| Status | **Approved by the owner on 2026-10-20.** Version 0.3 is the approved story baseline aligned with PRD v0.7 and clarifications CL-17 – CL-20. The PRD remains authoritative if a discrepancy is discovered. |
+| Version | 0.4 — owner-approved clarification update against PRD v0.7 |
+| Status | **Approved by the owner on 2026-10-20.** Version 0.4 remains aligned with PRD v0.7 and clarifications CL-17 – CL-20, and records the owner-approved GAP-02 unavailable-item response and GAP-11 coupon precedence. The PRD remains authoritative for business rules; architecture records the approved API defaults. |
 | Date created | 2026-10-13 |
 | Previous approval date | 2026-10-15 (version 0.2) |
 | Last updated | 2026-10-20 |
@@ -12,7 +12,7 @@
 | Context source | `docs/planning/PROJECT_BRIEF.md` |
 | Related | `docs/planning/README.md` (document sequence), `docs/testing/README.md` (SDET workflow), `CLAUDE.md` (engineering rules) |
 | Related planning documents | `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.3 is owner-approved and aligned with this story baseline and PRD v0.7. |
-| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.3 and `DATABASE_SCHEMA_AND_ERD.md` v0.2 are draft documents under owner review. GAP-02/GAP-11 behaviour is owner-confirmed in the architecture draft; proposed catalogue-field limits still await confirmation. Hosting-provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.5 and `DATABASE_SCHEMA_AND_ERD.md` v0.4 are drafts under owner review. GAP-02/GAP-11 behaviour is owner-confirmed; proposed catalogue-field limits still await confirmation. Hosting-provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
 
 ## 1. Purpose, scope and conventions
 
@@ -1552,3 +1552,4 @@ While writing the stories, these points were found where the PRD was silent or l
 | 0.1 | 2026-10-13 | First draft for owner review, based on PRD v0.6. No other planning document was created and no application code was written |
 | 0.2 | 2026-10-15 | Owner approved the user stories and flows against PRD v0.6. |
 | 0.3 | 2026-10-20 | Aligned password-change, pending-order reservation display/return path, customer cancellation reason, and five-minute session-expiry warning behaviour with PRD v0.7 (CL-17 – CL-20); added UI-28; closed GAP-01, GAP-06 and GAP-10. Owner approved this baseline on 2026-10-20. The GAP-02 and GAP-11 defaults are now owner-confirmed and recorded in architecture v0.3; final architecture/schema review remains pending. No application code was written. |
+| 0.4 | 2026-10-20 | Recorded the owner-approved GAP-02 API response distinction and the exact first-failure coupon precedence in FL-11 and §10; updated cross-document metadata. No approved PRD business rule changed and no application code was written. |
