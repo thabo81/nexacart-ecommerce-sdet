@@ -647,37 +647,31 @@ The table distinguishes owner-confirmed requirements, proposed technical limits,
 | ARCH-16 | Public hosting provider | Deliberately deferred until after architecture/schema model review | Provider does not alter relational model; hosting validation is a later deployment task |
 | ARCH-17 | Performance reference environment | Proposed: Linux x86_64, 4 vCPU, 8 GiB RAM, SSD-backed storage with 20 GiB free, Compose services colocated; same profile and workload for comparisons | Makes NFR-001–004 reproducible; owner sign-off remains pending |
 
-## 15. Remaining architecture review items
+## 15. Owner review disposition
 
-The owner has confirmed the PostgreSQL 16/UUID mechanism, cookie/CSRF auth approach, Argon2id, GAP-02/GAP-11 defaults, nightly-cleanup requirement, and product-row locking protocol. The following items still require owner review before merging the architecture/database documents:
+On 2026-10-20, the owner explicitly approved the following remaining architecture-review proposals:
 
-1. **Overall architecture approach:** approve or adjust the proposed modular-monolith structure in ARCH-01 (§3–4), with one FastAPI application, one PostgreSQL database and a separate worker process.
-2. **Catalogue field lengths:** confirm the proposed maxima in ERD §3.8 for fields where the PRD does not state numeric limits. PRD-defined limits are fixed. No implemented FastAPI/Pydantic request schemas currently exist, so true length parity can be verified only after implementation and CI boundary tests.
-3. **Performance reference profile:** approve or adjust the proposed Linux/x86_64, 4-vCPU, 8-GiB, SSD-backed benchmark profile in §9.2. The PRD delegates definition of the reference environment to this document.
-4. **Nightly run time:** the nightly cleanup itself is owner-specified; 02:00 UTC is a configurable proposed default in §8.2. Accept this default or specify another preferred UTC time.
-5. **Document-level sign-off:** review the complete architecture and database drafts, including the named constraint/index registry and ERD relationships, before they are merged into `main`.
+1. **Architecture shape (ARCH-01):** modular monolith — one FastAPI application organised by capability, one PostgreSQL database, and a separate worker process sharing the backend codebase.
+2. **Catalogue field caps (ARCH-13 / ERD §3.8):** accept the proposed maximums marked as schema proposals. PRD-defined bounds remain authoritative. FastAPI request models, database columns/constraints, and boundary tests must use the same accepted limits.
+3. **Performance reference profile (ARCH-17 / §9.2):** accept Linux x86_64, 4 vCPU, 8 GiB RAM, SSD-backed storage with 20 GiB free, with services colocated for repeatable comparisons. Measure NFR targets against this documented reference rather than inferring them from public-host performance.
+4. **Nightly cleanup schedule (ARCH-14 / §8.2):** accept 02:00 UTC as the configurable default via `MAINTENANCE_CLEANUP_UTC`. Cleanup remains expiry-safe, bounded, restart-safe and idempotent.
+5. **Database design:** approve the proposed schema/ERD as the planning baseline; physical migrations remain unauthorised until the implementation backlog is approved.
 
-**Not a blocker:** public hosting provider and region can be selected later, as requested. Operational limits that depend on the chosen host will be set during deployment planning.
-
-The cookie/CSRF transport, Argon2id, UUID identifiers, PostgreSQL 16 with native `gen_random_uuid()`, nightly cleanup, review-row locking, GAP-02 response behaviour, GAP-11 validation precedence, and dual local/public environment scope are owner-confirmed. There are no outstanding product-rule decisions for GAP-02 or GAP-11.
+The public hosting provider and deployment region remain deliberately deferred. They do not block schema approval and must be selected during deployment planning, before public deployment work begins.
 
 ## 16. Architecture acceptance checklist
 
-Before this document is marked approved, review that:
-- [ ] Every core component and service boundary aligns with PRD v0.7 and User Stories v0.3.
-- [x] Owner dispositions are recorded for the owner-specified technical mechanisms in §14; proposed field limits in ERD §3.8 are still awaiting confirmation.
-- [x] The cookie/CSRF decision is settled and AC-004 remains testable through Set-Cookie and protected-endpoint checks.
-- [x] Public hosting provider is explicitly deferred and does not block the relational model; production guardrails remain specified.
-- [ ] Owner approves or adjusts the proposed modular-monolith architecture in ARCH-01.
-- [ ] Owner confirms proposed catalogue-field length caps in ERD §3.8 before merge.
-- [ ] Owner approves or adjusts the proposed reference performance environment in §9.2.
-- [ ] Owner accepts the configurable 02:00 UTC nightly cleanup default or specifies another time.
-- [ ] GAP-02 and GAP-11 rules are consistently represented in APIs and future tests.
-- [ ] TX-1, TX-2, cancellation, expiry, idempotency and refund races preserve the PRD transaction boundaries.
-- [ ] Test-support, seed credentials and clock overrides cannot be enabled in public deployment.
-- [ ] The ERD can encode the required uniqueness, status, stock, idempotency and foreign-key constraints.
-- [ ] The SDET strategy covers UI, API, database, contracts, concurrency, accessibility and CI evidence.
-- [ ] The PRD, stories, design brief and planning README metadata are aligned.
+- [x] Component boundaries, responsibilities and modular-monolith approach align with the approved PRD and user stories.
+- [x] Owner-confirmed security mechanisms are recorded, including cookie/CSRF auth, Argon2id, session revocation, and the AC-004 verification method.
+- [x] Proposed catalogue length caps are owner-approved; PRD-defined limits remain authoritative.
+- [x] The owner-approved performance reference profile is recorded for NFR-001–004 measurement.
+- [x] The nightly cleanup requirement and configurable 02:00 UTC default are recorded.
+- [x] GAP-02 unavailable-item semantics and GAP-11 coupon validation precedence are consistent with the owner-approved decisions.
+- [x] TX-1, TX-2, cancellation, expiry, idempotency and refund race rules are tied to the PRD's transaction boundaries.
+- [x] Test-support, seed credentials and clock overrides are constrained to local/test environments and excluded from public/prod-like environments.
+- [x] The ERD defines the required uniqueness, status, stock, idempotency and foreign-key constraints in the approved planning baseline.
+- [ ] The implementation plan/backlog is reviewed and approved, including cross-layer SDET coverage and requirement traceability.
+- [ ] Final planning approval is recorded before any application feature code or Alembic migration is created.
 
 ## Appendix A — Traceability map
 
