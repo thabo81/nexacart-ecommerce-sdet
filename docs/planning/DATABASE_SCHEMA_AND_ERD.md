@@ -33,7 +33,7 @@ This conceptual ERD shows the main persisted relationships. It is not intended t
 erDiagram
     USERS ||--o{ AUTH_SESSIONS : authenticates
     USERS ||--o{ ADDRESSES : owns
-    USERS ||--|| CARTS : has
+    USERS ||--o| CARTS : has
     USERS ||--o{ WISHLIST_ITEMS : owns
     USERS ||--o{ ORDERS : places
     USERS ||--o{ REVIEWS : writes
@@ -49,8 +49,11 @@ erDiagram
     PRODUCTS ||--o{ REVIEWS : receives
     PRODUCT_VARIANTS ||--o{ CART_LINES : selected_in
     CARTS ||--o{ CART_LINES : contains
+    CARTS o|--o| ORDERS : locked_to
+    COUPONS o|--o{ CARTS : selected_by
+    SHIPPING_OPTIONS ||--o{ CARTS : selected_by
     COUPONS ||--o{ COUPON_USAGES : tracks
-    ORDERS ||--o{ COUPON_USAGES : counts
+    ORDERS ||--o| COUPON_USAGES : counts
     ORDERS ||--|{ ORDER_ITEMS : snapshots
     ORDERS ||--|| ORDER_ADDRESS_SNAPSHOTS : preserves
     ORDERS ||--o{ ORDER_STATUS_HISTORY : records
@@ -59,7 +62,7 @@ erDiagram
     ORDERS ||--o{ IDEMPOTENCY_RECORDS : protects
     ORDERS ||--o{ INVENTORY_MOVEMENTS : causes
     PRODUCT_VARIANTS ||--o{ INVENTORY_MOVEMENTS : tracks
-    PRODUCT_VARIANTS o|--o{ ORDER_ITEMS : purchased_as
+    PRODUCT_VARIANTS ||--o{ ORDER_ITEMS : purchased_as
     SHIPPING_OPTIONS ||--o{ ORDERS : snapshots
     USERS ||--o{ IDEMPOTENCY_RECORDS : scopes
 ```
@@ -320,6 +323,7 @@ The order header is created as pending in TX-1. Payment is a separate TX-2 opera
 | status | TEXT CHECK pending/confirmed/processing/shipped/delivered/cancelled |
 | subtotal_minor, discount_minor, shipping_fee_minor, total_minor | BIGINT, non-negative cents |
 | coupon_code_snapshot | VARCHAR(20), nullable |
+| shipping_option_id | UUID FK to shipping_options.id; snapshot fields preserve history |
 | shipping_option_code_snapshot | VARCHAR(30) |
 | shipping_option_name_snapshot | VARCHAR(80) |
 | reservation_deadline | TIMESTAMPTZ, fixed from placement and never extended by retries |
@@ -444,6 +448,8 @@ Append-only stock ledger. For every variant, current stock must equal the sum of
 | variant_id | UUID FK to product_variants.id |
 | delta_quantity | INTEGER, non-zero signed change |
 | reason_code | TEXT CHECK initial_stock/order_placed/order_cancelled/reservation_expired/admin_adjustment |
+| order_id | UUID nullable FK to orders.id for order-related movement |
+| order_item_id | UUID nullable FK to order_items.id for per-line movement |
 | reference_type | TEXT controlled type such as seed/order_item/admin_adjustment |
 | reference_id | UUID nullable related record |
 | operation_key | VARCHAR(160), stable unique deduplication key |
