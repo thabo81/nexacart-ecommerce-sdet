@@ -1126,7 +1126,7 @@ On mobile the same content stacks in one column with the same behaviour.
 
 ### SCR-10 — Order detail
 **Purpose:** Show exactly what was bought, where it goes and what has happened to the order and its money.
-**Release:** R1 (refund and paid-cancellation parts R2) · **Stories:** US-051, US-052, US-053, US-054, US-055, US-012 · **PRD:** FR-069, FR-070, FR-072, FR-073, FR-074, FR-076, BR-029, BR-043, BR-050, BR-052, BR-053, BR-056, DEC-26 · **Mode:** operate.
+**Release:** R1 (refund and paid-cancellation parts R2) · **Stories:** US-051, US-052, US-053, US-054, US-055, US-012, US-043, US-044 · **PRD:** FR-069, FR-070, FR-072, FR-073, FR-074, FR-076, FR-112, CL-18, BR-029, BR-043, BR-050, BR-052, BR-053, BR-056, DEC-26 · **Mode:** operate.
 **Layout rules:** all figures are the snapshot taken at placement and never change. Status, payment status and refund status are always shown together. For an active `pending` order, show **“Reserved until [time]”** using the original reservation deadline and provide **Pay now**; payment retries never extend the 30-minute deadline. An expired pending order is shown as cancelled and non-payable. In R1 refund status is “Not applicable” on every order, and **Cancel order** appears only on a `pending` order (DEC-26); from R2 it also appears on a `confirmed` order, with wording that explains the full refund. The status history is oldest first (CL-18).
 
 **Desktop**
