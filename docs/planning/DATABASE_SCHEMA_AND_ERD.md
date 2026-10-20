@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/DATABASE_SCHEMA_AND_ERD.md |
-| Version | 0.7 — table-level constraint and index alignment |
+| Version | 0.8 — completed named usage-state constraint registry |
 | Status | **Draft under owner review; not implemented.** Records PostgreSQL 16, native UUID generation, explicitly named CHECK constraints and partial indexes, nightly cleanup of expired sessions and idempotency records, and product-row locking for concurrent review aggregate updates. Proposed catalogue-field caps not numerically specified in the PRD remain awaiting owner confirmation. The public hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
 | Primary baseline | PRD v0.7; User Stories v0.4; Design Brief v0.4; Technical Architecture v0.7 |
@@ -626,6 +626,7 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_coupons_global_usage_limit_positive` | Null or positive | BR-034 |
 | `ck_coupons_per_customer_usage_limit_positive` | Null or positive | BR-034 |
 | `ck_coupons_eligibility_rule` | All customers or returning customer | BR-075 |
+| `ck_coupon_usages_state` | Reserved, consumed or released | BR-035 |
 | `ck_coupon_usages_finalization_consistency` | Reserved iff `finalized_at IS NULL`; consumed/released iff it is non-null | BR-035 |
 | `ck_shipping_options_code_format` | `code ~ '^[a-z0-9_-]{1,30}$'` | Shipping option schema |
 | `ck_shipping_options_fee_nonnegative` | `base_fee_minor >= 0` | BR-028 |
@@ -865,3 +866,4 @@ PostgreSQL 16, native `gen_random_uuid()`, explicit named CHECK constraints and 
 | 0.5 | 2026-10-20 | Aligned the schema design with Technical Architecture v0.6 and its proposed reference performance profile; no relational-model change is required by the deferred hosting-provider choice. Document remains a draft pending owner approval of proposed catalogue-field caps and final ERD review; no migration was created. |
 | 0.6 | 2026-10-20 | Completed the explicit supporting-index definition registry and added indexes for product image/specification ordering and shipping-option ordering. Reconciled the draft metadata with Architecture v0.7. No migration or application implementation exists. |
 | 0.7 | 2026-10-20 | Reconciled table descriptions with the named constraint/index registry so table-level text no longer implies unnamed CHECKs and referenced supporting indexes have explicit names. No Alembic migration or application code exists. |
+| 0.8 | 2026-10-20 | Completed the explicit named CHECK registry for coupon usage state, alongside the separate finalization-timestamp consistency check. No migration was created; this is a documentation design correction. |
