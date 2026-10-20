@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/DATABASE_SCHEMA_AND_ERD.md |
-| Version | 0.2 — updated draft for owner review |
-| Status | **Draft under owner review; not implemented.** Updated for the owner's PostgreSQL 16, native UUID generation, named-constraint, nightly-cleanup and review-locking specifications. The public hosting provider remains deliberately deferred. |
+| Version | 0.3 — updated draft for owner review |
+| Status | **Draft under owner review; not implemented.** Records PostgreSQL 16, native UUID generation, explicitly named CHECK constraints and partial indexes, nightly cleanup of expired sessions and idempotency records, and product-row locking for concurrent review aggregate updates. Proposed catalogue-field caps not numerically specified in the PRD remain awaiting owner confirmation. The public hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
 | Primary baseline | docs/planning/PRD.md v0.7 |
-| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.3 draft; public hosting provider deferred |
+| Architecture | docs/planning/TECHNICAL_ARCHITECTURE.md v0.4 draft; public hosting provider deferred |
 | Not yet created | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
 
 ## 1. Purpose and design rules
@@ -606,7 +606,7 @@ Use views/query helpers instead of duplicating mutable state unless measurement 
 | `ck_addresses_city_nonblank` | Trimmed city is not blank | BR-008 |
 | `ck_addresses_province_nonblank` | Trimmed province is not blank | BR-008 |
 | `ck_addresses_postal_code_format` | Four numeric digits | BR-008 |
-| `ck_addresses_country_code_format` | Two uppercase letters equal to configured delivery country | DEC-17 |
+| `ck_addresses_country_code_format` | Exactly two uppercase letters; equality to the configured delivery country is validated by the service because the configured value is environment configuration | DEC-17 |
 | `ck_cart_lines_quantity_range` | Quantity between 1 and 10 inclusive | BR-018 |
 | `ck_cart_lines_acknowledged_price_nonnegative` | Null or non-negative integer cents | BR-022 |
 | `ck_coupons_code_format` | Uppercase code matches `^[A-Z0-9_-]{3,20}$` | BR-031 |
@@ -826,3 +826,4 @@ PostgreSQL 16, native `gen_random_uuid()`, explicit named CHECK constraints and 
 |---|---|---|
 | 0.1 | 2026-10-20 | Initial proposed PostgreSQL schema and ERD based on approved PRD v0.7, User Stories v0.3 and Technical Architecture v0.2. No migration or application code implemented. |
 | 0.2 | 2026-10-20 | Set PostgreSQL 16 and native `gen_random_uuid()`; established request/database string-length parity; enumerated explicit names for CHECK constraints and partial indexes; defined nightly expired-session/idempotency cleanup and the `SELECT ... FOR UPDATE` review-aggregate protocol. Updated idempotency foreign-key behaviour so retention cleanup cannot be blocked by historical payment attempts. |
+| 0.3 | 2026-10-20 | Tightened the named CHECK registry (including discount ≤ subtotal, order-number format and phone format), corrected migration-rule numbering, recorded the proposed 02:00 UTC cleanup time in the data-retention policy, and aligned schema draft metadata to Architecture v0.4. The proposed catalogue-field caps remain explicitly flagged for owner review; no migration is implemented. |
