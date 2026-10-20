@@ -645,7 +645,7 @@ The table distinguishes owner-confirmed requirements, owner-approved technical l
 | ARCH-14 | Nightly retention cleanup | Owner-specified nightly deletion of expired `auth_sessions` and `idempotency_records`; owner-approved configurable default 02:00 UTC, never before expiry | Preserve live-token revocation and 24-hour replay guarantees |
 | ARCH-15 | Review aggregate concurrency | Owner-specified: `SELECT ... FOR UPDATE` on the parent product row before review create/hide mutations and aggregate recomputation | Serializes per-product aggregate updates |
 | ARCH-16 | Public hosting provider | Deliberately deferred until after architecture/schema model review | Provider does not alter relational model; hosting validation is a later deployment task |
-| ARCH-17 | Performance reference environment | Proposed: Linux x86_64, 4 vCPU, 8 GiB RAM, SSD-backed storage with 20 GiB free, Compose services colocated; same profile and workload for comparisons | Makes NFR-001–004 reproducible; owner sign-off remains pending |
+| ARCH-17 | Performance reference environment | Owner-approved: Linux x86_64, 4 vCPU, 8 GiB RAM, SSD-backed storage with 20 GiB free, Compose services colocated; same profile and workload for comparisons | Makes NFR-001–004 reproducible |
 
 ## 15. Owner review disposition
 
