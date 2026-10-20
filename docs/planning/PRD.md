@@ -11,7 +11,7 @@
 | Author role | Lead application engineer / technical architect |
 | Companion work | SDET strategy, test design and automation are produced separately and must trace to the IDs in this document |
 | Related planning documents | `USER_STORIES_AND_FLOWS.md` v0.4 is owner-approved and aligned with this PRD. `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.4 is owner-approved and aligned with this PRD. |
-| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.6 and `DATABASE_SCHEMA_AND_ERD.md` v0.5 are drafts under owner review; final sign-off is pending. Owner-specified PostgreSQL 16, `gen_random_uuid()`, named CHECK/partial indexes, nightly expiry cleanup and review aggregate locking are recorded in those drafts. A proposed benchmark profile is documented in Architecture §9.2 and awaits owner review. Proposed catalogue-field maximums not specified in the PRD await owner confirmation. Hosting provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.8 and `DATABASE_SCHEMA_AND_ERD.md` v0.8 are drafts under owner review; final sign-off is pending. Owner-specified PostgreSQL 16, `gen_random_uuid()`, named CHECK/partial indexes, nightly expiry cleanup and review aggregate locking are recorded in those drafts. A proposed benchmark profile is documented in Architecture §9.2 and awaits owner review. Proposed catalogue-field maximums not specified in the PRD await owner confirmation. The configurable 02:00 UTC cleanup run time, overall modular-monolith approach, and complete architecture/schema document sign-off also await owner review. Hosting provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
 
 ## Conventions
 
