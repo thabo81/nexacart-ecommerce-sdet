@@ -10,8 +10,8 @@
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Author role | Lead application engineer / technical architect |
 | Companion work | SDET strategy, test design and automation are produced separately and must trace to the IDs in this document |
-| Related planning documents | `USER_STORIES_AND_FLOWS.md` v0.2 approved on 2026-10-15; v0.3 is being aligned to this PRD. `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.2 is approved locally; its repository update is pending. |
-| Not yet created | `TECHNICAL_ARCHITECTURE.md`, `DATABASE_SCHEMA_AND_ERD.md`, `IMPLEMENTATION_PLAN_AND_BACKLOG.md` |
+| Related planning documents | `USER_STORIES_AND_FLOWS.md` v0.4 is owner-approved and aligned with this PRD. `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.4 is owner-approved and aligned with this PRD. |
+| Downstream planning status | On 2026-10-20, `TECHNICAL_ARCHITECTURE.md` v0.9 and `DATABASE_SCHEMA_AND_ERD.md` v0.9 were owner-approved as planning baselines, including the modular-monolith approach, catalogue-field caps, reference performance profile and configurable 02:00 UTC cleanup default. PostgreSQL 16, native `gen_random_uuid()`, named CHECK/partial-index registries, expiry-safe cleanup and review aggregate locking are recorded in those documents. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` v0.1 is drafted and awaits owner approval; public hosting provider/region selection remains deferred. No application code or migrations are authorised until the final planning gate is approved. |
 
 ## Conventions
 
