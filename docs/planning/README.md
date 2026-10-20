@@ -1,6 +1,6 @@
 # Planning Documents
 
-This directory contains the approved product and engineering decisions for NexaCart. These documents are the shared source of truth for Claude's implementation work and ChatGPT's SDET work.
+This directory contains the source-of-truth product decisions and engineering planning artifacts for NexaCart. The approval state of each artifact is recorded below. These documents are shared by implementation and SDET work.
 
 ## Source of truth
 
