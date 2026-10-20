@@ -4,7 +4,7 @@
 |---|---|
 | Document | docs/planning/TECHNICAL_ARCHITECTURE.md |
 | Version | 0.9 — owner-approved architecture baseline, pending backlog approval |
-| Status | **Draft under owner review; not yet approved as a complete document.** Owner-confirmed: HttpOnly JWT cookie transport with CSRF protection (AC-004), Argon2id, UUID IDs, PostgreSQL 16 with native `gen_random_uuid()`, explicit CHECK/partial-index names, nightly cleanup of expired sessions and idempotency records, row-level locking for review aggregates, GAP-02/GAP-11 defaults, and local plus public deployment. Hosting provider is deliberately deferred. Catalogue field limits not numerically specified in the PRD are proposed in the ERD and await owner review. |
+| Status | **Owner-approved for the planning baseline on 2026-10-20.** The owner approved the modular-monolith architecture, proposed catalogue field caps, reference performance profile, and configurable 02:00 UTC nightly cleanup default. Previously confirmed decisions remain in force. No application code or migrations have been authorised; implementation remains blocked until `IMPLEMENTATION_PLAN_AND_BACKLOG.md` is reviewed and approved. Hosting provider remains deliberately deferred. |
 | Date | 2026-10-20 |
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Primary baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
