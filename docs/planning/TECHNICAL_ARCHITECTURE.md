@@ -363,38 +363,52 @@ Registration always creates a customer role. There is no public admin creation/e
 
 The application shall refuse to start if test-support functions are enabled outside APP_ENV local or test. Test-support routes must return 404 outside those environments, even to an administrator. Production configuration must not contain the test clock override, controlled failure injection, database reset command credentials or test seed passwords. Do not assume that hiding routes from OpenAPI is sufficient protection.
 
-## 8. Background execution
+## 8. Background execution and nightly cleanup
 
 ### 8.1 Responsibilities
 
-Two delayed workflows require durable, restart-safe execution:
+The worker has three responsibilities, all backed by PostgreSQL state and safe to retry:
 
-1. Expire a pending order after its fixed reservation deadline, release stock and coupon usage exactly once, append history and unlock the cart while retaining its lines.
+1. Expire a pending order at its fixed reservation deadline, restoring stock and coupon usage exactly once, appending history and unlocking the cart while retaining lines.
 2. Complete a due simulated refund in R2 after the configured delay.
+3. Run nightly maintenance to remove expired authentication-session records and expired idempotency replay records.
 
-### 8.2 Proposed execution mechanism
+### 8.2 Execution model
 
-Use a separate worker process using the same backend image and service functions. It polls PostgreSQL for due work at a configurable short interval. For candidate orders/refunds it uses row locks and skip-locked claiming, or an equivalent database-backed claim pattern, then performs the state transition within a transaction. A crashed or restarted worker must be able to retry the work safely.
+Use a separate worker process using the same backend image and service functions. Poll due reservation/refund work at a configurable short interval. Claim/order/refund work using row locks and `FOR UPDATE SKIP LOCKED`, or an equivalent database-backed claim method, then perform the state transition within a transaction. A crashed/restarted worker must safely retry.
 
-Do not use an in-process scheduler as the only mechanism when the web service may run multiple workers or restart; that can cause duplicate execution or missed work. Do not add Celery, Redis or a broker to the initial design unless implementation evidence shows PostgreSQL polling is insufficient.
+The nightly maintenance job runs at **02:00 UTC by default**, configured via `MAINTENANCE_CLEANUP_UTC`; this is an operational default, not a product-rule deadline. It deletes only rows whose expiry timestamp is at or before the actual UTC time, in bounded batches. Cleanup SQL and transactions must be restart-safe and idempotent. If multiple worker instances are used, they must coordinate the scheduled run or safely divide work so concurrent runs cannot corrupt state.
+
+Do not use an in-process scheduler as the only mechanism when the web service may have multiple workers or restart. Do not add Celery, Redis or a broker to the initial design unless implementation evidence proves PostgreSQL polling insufficient.
 
 ### 8.3 Reservation expiry semantics
 
 The deadline is fixed at placement and is never extended by payment retries. Once now is at or beyond the deadline, expiry takes precedence over payment. A payment request may apply the expiry transition itself under BR-069 if it observes an elapsed reservation before the worker has done so. Both paths use the same transition service and transaction guarantees. Duplicate worker runs become no-ops after the order leaves pending state.
 
-Time-based behaviour remains testable through the local/test clock and a deterministic expiry-trigger command/interface. The public worker uses the actual UTC time and does not expose test clock endpoints.
+Time-based behaviour remains testable through the local/test clock and a deterministic expiry-trigger command/interface. The public worker uses the actual UTC clock and does not expose test clock endpoints.
 
-### 8.4 Operational behaviour
+### 8.4 Nightly retention cleanup
+
+At each scheduled run:
+- delete `auth_sessions` rows only where `expires_at <= now()`. Do not remove a revoked but unexpired session, because its revocation record is needed to reject the still-live JWT. Once the token has expired, authentication rejects it independently of the deleted session row;
+- delete `idempotency_records` rows only where `expires_at <= now()`. The record must survive at least the full 24-hour retention in BR-070. Do not delete valid/unexpired rows to reduce table size;
+- run in bounded batches, use supporting expiry indexes, log counts/duration/job result and request/correlation context, but never log session tokens, CSRF values or stored response secrets;
+- ensure the optional FK from a retained payment-attempt row to an idempotency record uses `ON DELETE SET NULL`, so cleanup cannot fail because historic attempt audit data remains;
+- commit each batch safely; an interruption must leave the remaining expired rows eligible for the next run.
+
+No cleanup task may delete orders, payment attempts, refunds, inventory movements, order history, audit events or coupon-usage history. The maintenance task is not an account-deletion mechanism.
+
+### 8.5 Operational behaviour
 
 The worker shall:
 - emit structured logs and request/correlation identifiers for each processed item;
-- log the resource ID and transition result but not secrets or unnecessary personal content;
+- log resource IDs, affected-row counts, cleanup duration and transition results, but not secrets or unnecessary personal content;
 - isolate a failed item so it does not permanently block later due work;
 - use bounded retries and report repeatedly failing work without silently dropping it;
 - rely on database state rather than process memory for claims and progress;
 - start only after database connectivity is available, and tolerate temporary database restarts.
 
-Polling interval, batch size and retry policy are configuration, not business-rule changes. They must not allow the reservation or refund timing to drift beyond the tolerances set in acceptance tests.
+Polling interval, batch size, retry policy and nightly run time are configuration. They must not change business semantics or allow reservation/refund timing to drift beyond acceptance-test tolerances.
 
 ## 9. Environments and configuration
 
@@ -423,7 +437,7 @@ The eventual .env.example and deployment runbook shall document the exact names.
 - Security: JWT signing secret, token TTL, password hash parameters, allowed frontend origins, cookie settings and registration/login rate limits.
 - Business timing: reservation TTL, payment attempt cap, simulated timeout delay, refund delay, and other existing configurable PRD timing rules.
 - Test-only controls: clock override, test-support enablement, deterministic failure injection and test seed passwords, accepted only in local/test.
-- Worker: polling interval, batch size, retry limits and worker-enabled command.
+- Worker: polling interval, batch size, retry limits, worker-enabled command and `MAINTENANCE_CLEANUP_UTC` (default `02:00`, UTC).
 - Asset/build configuration: local asset base path, frontend API base URL, and any non-secret public runtime configuration.
 
 Validate configuration at startup. Production-like startup must fail clearly if required secrets, origins or database settings are missing or invalid. Never provide real production-like defaults for credentials or signing secrets.
