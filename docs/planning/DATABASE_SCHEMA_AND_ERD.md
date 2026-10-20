@@ -514,7 +514,7 @@ Use `ix_notifications_customer_created` on (customer_id, created_at DESC). R3 no
 
 ### 3.8 Request and persisted-field string-length contract
 
-The API request models and database columns/constraints must share one length contract. Enforce the same minimum/maximum values in FastAPI validation and in the matching bounded column or named CHECK constraint; add a boundary test for each maximum. Where the PRD specifies a bound, that bound is fixed. **The PRD leaves several catalogue-field maximums unstated**, so the values marked *schema proposal* below are the proposed canonical limits for owner review. The project currently has no implemented request schemas; they will be written against this contract after approval.
+The API request models and database columns/constraints must share one length contract. Enforce the same minimum/maximum values in FastAPI validation and in the matching bounded column or named CHECK constraint; add a boundary test for each maximum. Where the PRD specifies a bound, that bound is fixed. **The owner approved the catalogue-field maximums** in this table where the PRD is silent; the marker *schema proposal* is retained for traceability to the original proposal and is not a pending decision. The project currently has no implemented request schemas, so request/database parity remains an implementation and CI acceptance criterion.
 
 | Request/input field | Canonical limit | Database representation | Basis |
 |---|---|---|---|
