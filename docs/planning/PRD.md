@@ -10,8 +10,8 @@
 | Repository | https://github.com/thabo81/nexacart-ecommerce-sdet |
 | Author role | Lead application engineer / technical architect |
 | Companion work | SDET strategy, test design and automation are produced separately and must trace to the IDs in this document |
-| Related planning documents | `USER_STORIES_AND_FLOWS.md` v0.3 is owner-approved and aligned with this PRD. `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.3 is owner-approved and aligned with this PRD. |
-| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.3 and `DATABASE_SCHEMA_AND_ERD.md` v0.2 are drafts under owner review; final sign-off is pending. Owner-specified PostgreSQL 16, `gen_random_uuid()`, named CHECK/partial indexes, nightly expiry cleanup and review aggregate locking are recorded in those drafts. Proposed catalogue-field maximums not specified in the PRD await owner confirmation. Hosting provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
+| Related planning documents | `USER_STORIES_AND_FLOWS.md` v0.4 is owner-approved and aligned with this PRD. `DESIGN_BRIEF_AND_WIREFRAMES.md` v0.4 is owner-approved and aligned with this PRD. |
+| Downstream planning status | `TECHNICAL_ARCHITECTURE.md` v0.5 and `DATABASE_SCHEMA_AND_ERD.md` v0.4 are drafts under owner review; final sign-off is pending. Owner-specified PostgreSQL 16, `gen_random_uuid()`, named CHECK/partial indexes, nightly expiry cleanup and review aggregate locking are recorded in those drafts. Proposed catalogue-field maximums not specified in the PRD await owner confirmation. Hosting provider selection is deferred. `IMPLEMENTATION_PLAN_AND_BACKLOG.md` has not yet been created. |
 
 ## Conventions
 
