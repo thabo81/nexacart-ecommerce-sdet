@@ -55,25 +55,45 @@ Planning baselines and the remaining approval gate are tracked in [docs/planning
 
 Start with [the master project brief](docs/planning/PROJECT_BRIEF.md).
 
-## Planned repository layout
+## Repository layout (FOUND-001)
 
 ```text
 docs/
   planning/       # Approved product and architecture documents
   testing/        # Test strategy, coverage, execution evidence and defects
-app/              # FastAPI backend (planned)
-frontend/         # React/TypeScript frontend (planned)
+app/              # FastAPI backend and worker (one codebase)
+  main.py         # API entry point: uvicorn app.main:create_app --factory
+  core/           # Typed configuration (security and observability arrive later)
+  api/v1/         # Versioned HTTP routers; no business rules
+  services/       # Application services: use cases and transaction boundaries
+  domain/         # Pure domain rules; no HTTP or database imports
+  persistence/    # SQLAlchemy base/session; models arrive with DATA-001
+  worker/         # Worker entry point: python -m app.worker
+migrations/       # Alembic environment; revisions arrive with DATA-001
+frontend/         # React + TypeScript (Vite) application
 tests/
-  api/            # REST API tests
+  unit/           # Backend unit/service tests
+  api/            # REST API tests (HTTPX)
   ui/             # Playwright browser tests
   integration/    # Cross-component workflow tests
   database/       # Persistence and SQL validation tests
-pages/            # Reusable Page Objects (as appropriate)
-.github/
-  workflows/      # CI pipelines
+  bdd/features/   # pytest-bdd scenarios for selected business flows
 ```
 
-The folders marked as planned will be added as implementation begins. This repository is not yet a runnable application.
+Docker Compose, CI workflows and test fixtures are added by FOUND-002, TEST-001 and TEST-002. Nothing here implements an e-commerce feature yet.
+
+## Local quality checks
+
+Python 3.12 and Node 22 are expected. Dependencies are exact-pinned; copy `.env.example` files before running anything that needs configuration.
+
+```bash
+python3.12 -m venv .venv && . .venv/bin/activate
+pip install -e ".[dev,test]"
+ruff check . && ruff format --check . && mypy && pytest
+
+cd frontend && npm ci
+npm run lint && npm run format:check && npm run typecheck && npm run build
+```
 
 ## Definition of progress
 
