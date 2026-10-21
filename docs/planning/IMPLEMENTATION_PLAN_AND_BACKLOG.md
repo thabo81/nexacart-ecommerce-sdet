@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Document | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
-| Version | 0.1 — initial owner-review draft |
-| Status | Draft awaiting owner approval. No application code or database migrations are authorised until this backlog and the planning approval gate are approved. |
+| Version | 0.1 — owner-approved planning baseline |
+| Status | Owner-approved planning baseline (2026-10-21). Implementation remains blocked until the owner explicitly assigns software-engineering and QA responsibilities between the AI assistants. |
 | Date | 2026-10-20 |
 | Product baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
 | Technical baseline | Technical Architecture v0.9; Database Schema and ERD v0.9 |
@@ -13,7 +13,7 @@
 
 This planning artifact translates approved product/design requirements and the owner-approved architecture/schema baselines into a build sequence. It does not promise calendar dates; work is dependency-driven and estimates can be added after tasks are decomposed.
 
-**Current gate:** the owner approved the modular-monolith architecture, database schema/ERD, proposed catalogue field caps, performance reference profile, and 02:00 UTC nightly cleanup default. This backlog itself is still awaiting owner approval. Do not create feature code, SQLAlchemy models, Alembic migrations, frontend implementation, or worker implementation until this document is approved and the planning gate is explicitly closed.
+**Current gate:** the owner approved the modular-monolith architecture, database schema/ERD, proposed catalogue field caps, performance reference profile, 02:00 UTC nightly cleanup default, and this implementation plan/backlog on 2026-10-21. The planning baseline is approved, but implementation is not yet authorised. Do not create feature code, SQLAlchemy models, Alembic migrations, frontend implementation, or worker implementation until the owner explicitly assigns one AI assistant to software engineering and the other to QA, then authorises the implementation gate to close.
 
 1. The PRD and its stable requirement IDs are authoritative. Backlog items and tests must trace to FR, BR, AC, US, SEC, NFR or TR identifiers where applicable.
 2. Deliver small, reviewable vertical slices. Each slice includes its API contract, service behaviour, persistence implications, UI behaviour, and tests before being marked complete.
@@ -28,7 +28,7 @@ This planning artifact translates approved product/design requirements and the o
 
 | Milestone | Scope | Exit gate |
 |---|---|---|
-| G0 — Planning approval | Review architecture, ERD, backlog, cross-document status and traceability | Owner explicitly approves the backlog and closes the planning gate before implementation |
+| G0 — Planning and responsibility gate | Review architecture, ERD, backlog, cross-document status and traceability; explicitly allocate AI roles | Owner approval of the backlog is recorded; implementation remains blocked until the owner explicitly assigns one AI assistant to software engineering and the other to QA and authorises the gate to close |
 | M0 — Engineering foundation | Repo structure, configuration, Docker Compose, migrations, API conventions, seed/test support and first CI checks | Clean checkout starts; readiness checks the database; migrations and seed repeat; CI gates and health smoke test pass |
 | M1 — R1 identity and catalog | Authentication, sessions, profile/addresses, catalog seed/assets, discovery and product detail | Applicable R1 stories and contracts verified across relevant layers |
 | M2 — R1 shopping | Cart, wishlist, shipping, coupon rules and authoritative totals | Shopping business rules and edge cases verified; UI is not the source of truth |
@@ -44,14 +44,15 @@ Framework maturity is cross-cutting. Each milestone expands fixtures, API/UI/dat
 ### G0 — Planning approval gate
 
 #### PLN-001 — Approve and baseline the implementation plan
-**Priority:** P0 · **Release:** Planning · **Status:** Awaiting owner approval
+**Priority:** P0 · **Release:** Planning · **Status:** Backlog owner-approved on 2026-10-21; implementation gate awaits explicit AI role allocation
 
 Acceptance criteria:
 - Review milestone order, dependencies, release gates, cross-layer verification and explicit non-goals.
 - Confirm that no feature-level product decision is silently invented by this plan; unresolved material ambiguity goes through change control.
 - Keep public hosting provider and region deferred until deployment planning.
 - Align PRD, stories, design, architecture, schema, backlog and SDET strategy references.
-- Record owner approval in the planning documents/PR before feature code or migrations are created.
+- Record owner approval in the planning documents/PR (approval received 2026-10-21).
+- Before any feature code or migrations are created, obtain the owner's explicit assignment of one AI assistant to software engineering and the other to QA, then obtain explicit authorisation to close the implementation gate.
 
 ### M0 — Engineering foundation
 
@@ -447,3 +448,4 @@ These groupings guide planning. Before a release is accepted, the implementation
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 2026-10-20 | Initial planning-only backlog draft based on owner-approved product/design/architecture/schema baselines. Defines dependency order, R1/R2/R3 gates and cross-layer SDET acceptance. No application code or migrations created. |
+| 0.1 status update | 2026-10-21 | Owner approved the plan/backlog and it is being published as a planning baseline. Implementation remains blocked pending explicit owner assignment of AI software-engineering and QA roles and authorisation to close the implementation gate. |
