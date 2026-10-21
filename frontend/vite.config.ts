@@ -3,5 +3,6 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
-  server: { host: true, port: 5173 },
+  // .app.github.dev lets the dev server accept GitHub Codespaces forwarded-port hostnames.
+  server: { host: true, port: 5173, allowedHosts: ['.app.github.dev'] },
 });
