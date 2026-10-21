@@ -4,7 +4,7 @@
 |---|---|
 | Document | docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md |
 | Version | 0.1 — owner-approved planning baseline |
-| Status | Owner-approved planning baseline (2026-10-21). Implementation remains blocked until the owner explicitly assigns software-engineering and QA responsibilities between the AI assistants. |
+| Status | Owner-approved planning baseline (2026-10-21). Role assignment recorded 2026-10-21: Claude owns software engineering/implementation; the owner and ChatGPT own independent QA. ChatGPT must not implement application features. |
 | Date | 2026-10-20 |
 | Product baseline | PRD v0.7; User Stories & Flows v0.4; Design Brief & Wireframes v0.4 |
 | Technical baseline | Technical Architecture v0.9; Database Schema and ERD v0.9 |
@@ -13,7 +13,7 @@
 
 This planning artifact translates approved product/design requirements and the owner-approved architecture/schema baselines into a build sequence. It does not promise calendar dates; work is dependency-driven and estimates can be added after tasks are decomposed.
 
-**Current gate:** the owner approved the modular-monolith architecture, database schema/ERD, proposed catalogue field caps, performance reference profile, 02:00 UTC nightly cleanup default, and this implementation plan/backlog on 2026-10-21. The planning baseline is approved, but implementation is not yet authorised. Do not create feature code, SQLAlchemy models, Alembic migrations, frontend implementation, or worker implementation until the owner explicitly assigns one AI assistant to software engineering and the other to QA, then authorises the implementation gate to close.
+**Current gate:** the owner approved the modular-monolith architecture, database schema/ERD, proposed catalogue field caps, performance reference profile, 02:00 UTC nightly cleanup default, and this implementation plan/backlog on 2026-10-21. On 2026-10-21, the owner assigned Claude to software engineering/implementation and the owner plus ChatGPT to QA. This resolves the role-allocation gate. Claude owns feature implementation; ChatGPT's project work is limited to independent QA planning, review, test analysis and validation support. Any scope changes or unresolved product decisions still require owner approval.
 
 1. The PRD and its stable requirement IDs are authoritative. Backlog items and tests must trace to FR, BR, AC, US, SEC, NFR or TR identifiers where applicable.
 2. Deliver small, reviewable vertical slices. Each slice includes its API contract, service behaviour, persistence implications, UI behaviour, and tests before being marked complete.
@@ -28,7 +28,7 @@ This planning artifact translates approved product/design requirements and the o
 
 | Milestone | Scope | Exit gate |
 |---|---|---|
-| G0 — Planning and responsibility gate | Review architecture, ERD, backlog, cross-document status and traceability; explicitly allocate AI roles | Owner approval of the backlog is recorded; implementation remains blocked until the owner explicitly assigns one AI assistant to software engineering and the other to QA and authorises the gate to close |
+| G0 — Planning and responsibility gate | Review architecture, ERD, backlog, cross-document status and traceability; explicitly allocate AI roles | **Complete 2026-10-21:** backlog approved; Claude assigned to software engineering/implementation; owner and ChatGPT assigned to QA. Subsequent work remains subject to the approved scope and change-control rules |
 | M0 — Engineering foundation | Repo structure, configuration, Docker Compose, migrations, API conventions, seed/test support and first CI checks | Clean checkout starts; readiness checks the database; migrations and seed repeat; CI gates and health smoke test pass |
 | M1 — R1 identity and catalog | Authentication, sessions, profile/addresses, catalog seed/assets, discovery and product detail | Applicable R1 stories and contracts verified across relevant layers |
 | M2 — R1 shopping | Cart, wishlist, shipping, coupon rules and authoritative totals | Shopping business rules and edge cases verified; UI is not the source of truth |
@@ -448,4 +448,5 @@ These groupings guide planning. Before a release is accepted, the implementation
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 2026-10-20 | Initial planning-only backlog draft based on owner-approved product/design/architecture/schema baselines. Defines dependency order, R1/R2/R3 gates and cross-layer SDET acceptance. No application code or migrations created. |
-| 0.1 status update | 2026-10-21 | Owner approved the plan/backlog and it is being published as a planning baseline. Implementation remains blocked pending explicit owner assignment of AI software-engineering and QA roles and authorisation to close the implementation gate. |
+| 0.1 status update | 2026-10-21 | Owner approved the plan/backlog and it was published as a planning baseline. |
+| 0.1 role assignment | 2026-10-21 | Claude assigned to software engineering/implementation; the owner and ChatGPT assigned to independent QA. This clears the role-allocation gate. ChatGPT will not take over feature implementation. |
