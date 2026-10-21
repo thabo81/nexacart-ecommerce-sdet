@@ -1,4 +1,4 @@
-6. [Implementation Plan & Backlog](docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — owner-approved v0.1, published on `main`Approved planning baselines are maintained in [docs/planning](docs/planning/README.md):- Implementation proceeds in owner-approved milestones. Do not treat planned functionality as implemented until it has been built and verified.# NexaCart — E-Commerce Platform & SDET Automation
+# NexaCart — E-Commerce Platform & SDET Automation
 
 NexaCart is a multi-category e-commerce application being planned alongside a professional SDET automation framework. The application will support product discovery, shopping carts, checkout with simulated payments, order management and inventory rules. The portfolio focus is the quality engineering around those workflows: UI automation, REST API testing, database validation, BDD and CI/CD.
 
@@ -32,7 +32,7 @@ NexaCart is a multi-category e-commerce application being planned alongside a pr
 - The backend is authoritative for prices, discounts, stock and order totals.
 - Product imagery must be generated, owned or used under appropriate licence terms. The project will not scrape retail websites.
 - Test cases must check real outcomes; assertions must not be weakened simply to obtain a green build.
-- The project is being planned first. Do not treat proposed functionality as implemented.
+- Implementation proceeds in owner-approved milestones. Do not treat planned functionality as implemented until it has been built and verified.
 
 ## How we will work
 
@@ -44,14 +44,14 @@ Both workstreams must use the approved documents in [docs/planning](docs/plannin
 
 ## Planning documents
 
-Planning baselines and the remaining approval gate are tracked in [docs/planning](docs/planning/README.md):
+Approved planning baselines are maintained in [docs/planning](docs/planning/README.md):
 
 1. [Product Requirements Document (PRD)](docs/planning/PRD.md) — approved v0.7
 2. [User Stories & Application Flows](docs/planning/USER_STORIES_AND_FLOWS.md) — approved v0.4
 3. [Design Brief & Wireframes](docs/planning/DESIGN_BRIEF_AND_WIREFRAMES.md) — approved v0.4; real-browser verification remains pending
 4. [Technical Architecture](docs/planning/TECHNICAL_ARCHITECTURE.md) — owner-approved planning baseline v0.9
 5. [Database Schema & ERD](docs/planning/DATABASE_SCHEMA_AND_ERD.md) — owner-approved planning baseline v0.9
-6. [Implementation Plan & Backlog — review draft](https://github.com/thabo81/nexacart-ecommerce-sdet/blob/docs/implementation-plan-backlog-review/docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — v0.1 awaiting owner approval; not yet published to main
+6. [Implementation Plan & Backlog](docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — owner-approved v0.1, published on `main`
 
 Start with [the master project brief](docs/planning/PROJECT_BRIEF.md).
 
