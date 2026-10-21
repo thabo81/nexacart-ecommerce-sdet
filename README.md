@@ -1,8 +1,8 @@
-# NexaCart — E-Commerce Platform & SDET Automation
+6. [Implementation Plan & Backlog](docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) — owner-approved v0.1, published on `main`Approved planning baselines are maintained in [docs/planning](docs/planning/README.md):- Implementation proceeds in owner-approved milestones. Do not treat planned functionality as implemented until it has been built and verified.# NexaCart — E-Commerce Platform & SDET Automation
 
 NexaCart is a multi-category e-commerce application being planned alongside a professional SDET automation framework. The application will support product discovery, shopping carts, checkout with simulated payments, order management and inventory rules. The portfolio focus is the quality engineering around those workflows: UI automation, REST API testing, database validation, BDD and CI/CD.
 
-> **Project status:** Planning approval gate. The PRD, user stories, design, technical architecture v0.9 and database schema/ERD v0.9 are owner-approved planning baselines. The implementation plan/backlog v0.1 is a review draft on a separate branch and is not yet published to main. No application feature code or Alembic migrations are authorised until that backlog is approved.
+> **Project status:** Planning is approved. FOUND-001 (application and test project structure) is submitted for QA review in PR #4. This milestone establishes the project scaffold only; it does not implement e-commerce features or database migrations. Further milestone work requires explicit owner approval.
 
 ## Project goals
 
