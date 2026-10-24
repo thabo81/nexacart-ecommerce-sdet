@@ -1,8 +1,8 @@
 # NexaCart — E-Commerce Platform & SDET Automation
 
-NexaCart is a multi-category e-commerce application being planned alongside a professional SDET automation framework. The application will support product discovery, shopping carts, checkout with simulated payments, order management and inventory rules. The portfolio focus is the quality engineering around those workflows: UI automation, REST API testing, database validation, BDD and CI/CD.
+NexaCart is a multi-category e-commerce application being built alongside a professional SDET automation framework. The application will support product discovery, shopping carts, checkout with simulated payments, order management and inventory rules. The portfolio focus is the quality engineering around those workflows: UI automation, REST API testing, database validation, BDD and CI/CD.
 
-> **Project status:** Implementation phase, milestone M0 (engineering foundation). The PRD, user stories, design, technical architecture v0.9, database schema/ERD v0.9 and [implementation plan & backlog v0.1](https://github.com/thabo81/nexacart-ecommerce-sdet/blob/main/docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) are owner-approved planning baselines. FOUND-001 (project structure) is merged. FOUND-002 (Docker Compose and readiness) is implemented on a feature branch and awaits owner/QA review. No e-commerce features, database models or migrations exist yet. Planned functionality is not implemented or verified until the planning documents say so.
+> **Project status:** Implementation phase, milestone M0 (engineering foundation). The PRD, user stories, design, technical architecture v0.9, database schema/ERD v0.9 and [implementation plan & backlog v0.1](https://github.com/thabo81/nexacart-ecommerce-sdet/blob/main/docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) are owner-approved planning baselines. FOUND-001 (project structure) is merged. FOUND-002 (Docker Compose and readiness) is under owner/QA review; development and test Compose profiles are included, with test-container runtime verification pending. No e-commerce features, database models or migrations exist yet. Planned functionality is not implemented or verified until the planning documents say so.
 
 ## Project goals
 
@@ -70,7 +70,7 @@ app/              # FastAPI backend and worker (one codebase)
   persistence/    # SQLAlchemy base/session; models arrive with DATA-001
   worker/         # Worker entry point: python -m app.worker
 docker/           # Backend Dockerfile (shared by API and worker)
-docker-compose.yml  # Local environment: frontend, API, worker, PostgreSQL 16
+docker-compose.yml  # Local dev/test profiles: frontend, API, worker, PostgreSQL 16
 migrations/       # Alembic environment; revisions arrive with DATA-001
 frontend/         # React + TypeScript (Vite) application
 tests/
@@ -86,14 +86,19 @@ CI workflows and shared test fixtures are added by TEST-001 and TEST-002. Nothin
 
 ## Run locally with Docker Compose (FOUND-002)
 
-**Prerequisites:** Docker Engine with Compose v2 (`docker compose`, not `docker-compose`), and free host ports 5173 and 8000 (change them in `.env` if needed).
+**Prerequisites:** Docker Engine with Compose v2 (`docker compose`, not `docker-compose`). Development uses host ports 5173 and 8000. The test profile additionally uses 5273, 8100 and 55432.
+
+### Development profile
+
+Copy the example configuration and edit the local password if needed:
 
 ```bash
-cp .env.example .env          # then set your own POSTGRES_PASSWORD (letters and digits only)
+cp .env.example .env
+# Set your own POSTGRES_PASSWORD in .env (letters/digits only unless URL-encoding is used).
 docker compose up --build -d --wait
 ```
 
-`--wait` returns once every service reports healthy. The API is only healthy when its readiness check can run `SELECT 1` against PostgreSQL.
+The example `.env` sets `COMPOSE_PROFILES=dev`, so the normal command starts only the four-service development stack. All services have health checks; the API is healthy only after it can run `SELECT 1` against PostgreSQL.
 
 | What | URL |
 | --- | --- |
@@ -101,45 +106,73 @@ docker compose up --build -d --wait
 | API OpenAPI docs | http://localhost:8000/api/v1/docs |
 | Liveness (process is up) | http://localhost:8000/health/live |
 | Readiness (database reachable) | http://localhost:8000/health/ready |
-| PostgreSQL | **not published to the host**; reachable only inside Compose (see below) |
+| PostgreSQL | **not published to the host**; reachable only inside Compose |
 
-Host ports are bound to `127.0.0.1`. The frontend is given a browser-reachable API URL (`VITE_API_BASE_URL=http://localhost:8000/api/v1`); in GitHub Codespaces, forward ports 5173 and 8000 and note that cross-origin access (CORS) is not configured until the API is consumed by the frontend.
+Host-published ports bind to `127.0.0.1`. The frontend is configured with a browser-reachable API URL (`VITE_API_BASE_URL=http://localhost:8000/api/v1`). In GitHub Codespaces, forward the frontend/API ports as needed; browser cross-origin access (CORS) is not configured until the API is consumed by the frontend.
 
-**Verify**
-
-```bash
-docker compose ps                               # db, api, worker, frontend should be "healthy"
-curl -i http://localhost:8000/health/live       # 200 {"status":"ok"}
-curl -i http://localhost:8000/health/ready      # 200 {"status":"ready"}; 503 NOT_READY if the database is down
-docker compose exec db psql -U nexacart -d nexacart -c "select version()"   # use your POSTGRES_USER/DB
-```
-
-**Logs, stop, restart**
+**Verify the development stack**
 
 ```bash
-docker compose logs -f api worker               # follow logs (add db / frontend as needed)
-docker compose down                             # stop and remove containers; database data is KEPT
-docker compose up -d --wait                     # start again; data persists in the named volume
-docker compose up --build -d --wait             # rebuild after changing code (no source bind mounts)
+docker compose ps
+curl -i http://localhost:8000/health/live       # expect 200 {"status":"ok"}
+curl -i http://localhost:8000/health/ready      # expect 200 {"status":"ready"}; 503 NOT_READY if DB is down
+docker compose exec db psql -U nexacart -d nexacart -c "select version()"
 ```
 
-**Reset the database (destructive)**
+### Test profile (isolated test database)
 
-> **Warning:** `docker compose down -v` deletes the `nexacart_postgres-data` volume and **all local database data**. There is no undo.
+The test profile runs a separate API, worker, frontend and PostgreSQL service. It sets `APP_ENV=test`; the test database is `nexacart_test` by default and uses tmpfs rather than a persistent volume. It has no development database volume and its data is disposable. Its database port is published only on loopback for host-side integration tests.
+
+```bash
+docker compose --profile test up --build -d --wait
+docker compose --profile test ps
+curl -i http://localhost:8100/health/live       # expect 200
+curl -i http://localhost:8100/health/ready      # expect 200 when db-test is reachable
+curl -i http://localhost:5273/                  # test frontend
+docker compose --profile test exec db-test psql -U nexacart -d nexacart_test -c "select version()"
+```
+
+Host-side PostgreSQL readiness integration test (replace credentials/ports to match your `.env`):
+
+```bash
+NEXACART_TEST_DATABASE_URL="postgresql+psycopg://nexacart:change-me-local-only@127.0.0.1:55432/nexacart_test" pytest -m integration
+```
+
+The `--profile test` command-line option explicitly selects the test profile even though `.env` sets `COMPOSE_PROFILES=dev`. If no profile is active, all application services are profiled and Compose selects no services; keep `COMPOSE_PROFILES=dev` in your local `.env` for the normal development command. Profile selection is documented in the [Docker Compose CLI reference](https://docs.docker.com/reference/cli/docker/compose/).
+
+### Logs, stop and reset
+
+```bash
+docker compose logs -f api worker             # development logs
+docker compose down                           # stop the active profile (dev by default); dev DB data is kept
+docker compose up -d --wait                   # resume development using the named volume
+docker compose --profile test logs -f api-test worker-test
+docker compose --profile test down            # stop the test stack
+docker compose --profile dev --profile test down  # stop both stacks if both are running
+```
+
+**Reset the development database (destructive)**
+
+> **Warning:** `docker compose down -v` deletes the active development stack's `postgres-data` volume and **all local development database data**. There is no undo.
 
 ```bash
 docker compose down -v
 ```
 
-**Measuring startup/readiness time (NFR-010: 120 s or less).** Build first so image builds are not counted, then time the start:
+The test database is ephemeral and is not stored in the development named volume.
+
+### Measuring startup/readiness time (NFR-010: 120 seconds or less)
+
+Build first so image builds are not counted, then measure elapsed time until all development services are healthy:
 
 ```bash
-docker compose build && docker compose down      # keeps the volume (warm start)
-time docker compose up -d --wait                 # elapsed time until all services are healthy
-curl -fsS http://localhost:8000/health/ready     # confirm readiness
+docker compose build
+docker compose down
+time docker compose up -d --wait
+curl -fsS http://localhost:8000/health/ready
 ```
 
-For a first-initialisation (cold database) measurement, run `docker compose down -v` first, which deletes local data. Record the host, Docker/Compose versions and the image digests (`docker image inspect --format '{{index .RepoDigests 0}}' postgres:16`). Base images are pinned to `python:3.12-slim-bookworm`, `node:22-bookworm-slim` and `postgres:16`; pin exact digests when recording benchmark runs (Technical Architecture §9.2).
+Record the host, Docker/Compose versions, build SHA and image versions/digests. For a cold-initialisation measurement of the development database, `docker compose down -v` deletes local data. The base-image tags are `python:3.12-slim-bookworm`, `node:22-bookworm-slim` and `postgres:16`; record their resolved digests with benchmark results as described in Technical Architecture §9.2.
 
 ## Local quality checks
 
