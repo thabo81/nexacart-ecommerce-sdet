@@ -94,6 +94,7 @@ Copy the example configuration and edit the local password if needed:
 
 ```bash
 cp .env.example .env
+# If .env already exists from before profile support, add/update COMPOSE_PROFILES=dev once (do not duplicate it).
 # Set your own POSTGRES_PASSWORD in .env (letters/digits only unless URL-encoding is used).
 docker compose up --build -d --wait
 ```
