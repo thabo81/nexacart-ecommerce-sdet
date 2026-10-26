@@ -1,7 +1,17 @@
 """Maps every failure to the standard error envelope (FR-108, TR-011, SEC-015).
 
 Never exposes stack traces, SQL, exception text or submitted values. Validation details carry
-field paths, messages and error types only; the offending input is deliberately omitted.
+field paths (with the input location, e.g. query.page_size), messages and error types only; the
+offending input is deliberately omitted.
+
+Status and code always agree because the status is derived from the code. Framework HTTP errors
+map as follows (anything not listed is normalised, never passed through with a mismatched code):
+
+    400 BAD_REQUEST        401 UNAUTHENTICATED    403 FORBIDDEN      404 NOT_FOUND
+    405 METHOD_NOT_ALLOWED 422 VALIDATION_ERROR   429 RATE_LIMITED
+    any other 4xx -> 400 BAD_REQUEST        any other 5xx (incl. 503) -> 500 INTERNAL_ERROR
+
+NOT_READY (503) is reserved for the readiness endpoint, which raises it explicitly.
 """
 
 import logging
@@ -23,12 +33,16 @@ from app.core.observability.request_context import (
 logger = logging.getLogger("nexacart.errors")
 
 _HTTP_ERRORS: dict[int, tuple[ErrorCode, str]] = {
+    400: (ErrorCode.BAD_REQUEST, "The request could not be processed."),
     401: (ErrorCode.UNAUTHENTICATED, "Authentication is required."),
     403: (ErrorCode.FORBIDDEN, "You are not allowed to perform this action."),
     404: (ErrorCode.NOT_FOUND, "The requested resource was not found."),
     405: (ErrorCode.METHOD_NOT_ALLOWED, "This method is not allowed for the resource."),
+    422: (ErrorCode.VALIDATION_ERROR, "The request is invalid."),
     429: (ErrorCode.RATE_LIMITED, "Too many requests. Please try again later."),
 }
+_FALLBACK_4XX = _HTTP_ERRORS[400]
+_FALLBACK_5XX = (ErrorCode.INTERNAL_ERROR, "An unexpected error occurred.")
 
 
 def error_response(
@@ -37,12 +51,11 @@ def error_response(
     message: str,
     *,
     details: Sequence[Mapping[str, Any]] = (),
-    status_code: int | None = None,
     headers: Mapping[str, str] | None = None,
 ) -> JSONResponse:
     request_id = request_id_from_scope(request.scope) or new_request_id()
     return JSONResponse(
-        status_code=status_code or ERROR_STATUS[code],
+        status_code=ERROR_STATUS[code],
         content={
             "error": {
                 "code": code.value,
@@ -77,22 +90,11 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
     # exc.detail is ignored: framework text is not part of the contract.
     if exc.status_code in _HTTP_ERRORS:
         code, message = _HTTP_ERRORS[exc.status_code]
-        status_code = None
     elif exc.status_code >= 500:
-        code, message, status_code = (
-            ErrorCode.INTERNAL_ERROR,
-            "An unexpected error occurred.",
-            exc.status_code,
-        )
+        code, message = _FALLBACK_5XX
     else:
-        code, message, status_code = (
-            ErrorCode.BAD_REQUEST,
-            "The request could not be processed.",
-            exc.status_code,
-        )
-    return error_response(
-        request, code, message, status_code=status_code, headers=dict(exc.headers or {})
-    )
+        code, message = _FALLBACK_4XX
+    return error_response(request, code, message, headers=dict(exc.headers or {}))
 
 
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
