@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     app_env: Literal["local", "test", "production"] = "local"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     database_url: SecretStr
+    build_sha: str = "unknown"  # recorded in structured logs
 
 
 @lru_cache

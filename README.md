@@ -175,6 +175,24 @@ curl -fsS http://localhost:8000/health/ready
 
 Record the host, Docker/Compose versions, build SHA and image versions/digests. For a cold-initialisation measurement of the development database, `docker compose down -v` deletes local data. The base-image tags are `python:3.12-slim-bookworm`, `node:22-bookworm-slim` and `postgres:16`; record their resolved digests with benchmark results as described in Technical Architecture §9.2.
 
+## API conventions and diagnostics (FOUND-003)
+
+- **Base path** `/api/v1`. Health endpoints stay unversioned (`/health/live`, `/health/ready`) as the PRD specifies (FR-103).
+- **Request ID.** Every response carries `X-Request-ID`. A client-supplied ID is echoed only if it is 8-64 characters of `A-Z a-z 0-9 . _ : -`; otherwise the API generates a UUID. The same ID appears in error bodies and in every log line for the request.
+- **Error envelope** (PRD Appendix A, AC-070). All errors, including unknown routes (404), wrong methods (405), validation (422), unexpected failures (500) and not-ready (503):
+
+  ```json
+  { "error": { "code": "NOT_FOUND", "message": "...", "details": [], "request_id": "..." } }
+  ```
+
+  Codes and HTTP statuses live in `app/core/errors.py` and are checked against PRD Appendix A by a test. Services raise `AppError(ErrorCode.X, "message")`; the status comes from the catalogue. Validation `details` list `{field, message, type}` (e.g. `query.page_size`) and never echo submitted values. Responses never contain stack traces, SQL or internal exception text.
+- **Pagination** (BR-016): `page` >= 1 (default 1), `page_size` 1-48 (default 12). Invalid values return 422; a page past the end returns 200 with empty `items` and correct `page`, `page_size`, `total_items`, `total_pages`. Use `PaginationDep` and `build_page` from `app/api/pagination.py`.
+- **Structured logs.** One JSON object per line on stdout: `timestamp`, `level`, `logger`, `message`, `request_id`, `route`, `version`, `build` (set `BUILD_SHA` to record the build), and for requests `method`, `status`, `duration_ms`. The route is the route template, never the raw URL or query string. Headers and bodies are never logged; sensitive-looking fields, known secret values, URL credentials and bearer tokens are redacted.
+- **Reading correlated logs:** `docker compose logs api worker --no-log-prefix | grep <request-id>`.
+- **OpenAPI** is served at `/api/v1/openapi.json` (docs at `/api/v1/docs` outside production). Contract tests in `tests/api/test_openapi_contract.py` check validity, the error-envelope schema, `X-Request-ID` on every response and that real error responses match the documented schema. They run with `pytest`; wiring them into CI is TEST-001.
+
+**Pending owner approval:** `BAD_REQUEST` (400), `METHOD_NOT_ALLOWED` (405) and `INTERNAL_ERROR` (500) are not in the PRD catalogue; they cover framework-level failures and are flagged `PROPOSED_CODES` in `app/core/errors.py`.
+
 ## Local quality checks
 
 Python 3.12 and Node 22 are expected. Dependencies are exact-pinned; copy `.env.example` files before running anything that needs configuration.

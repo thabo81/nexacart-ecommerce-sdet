@@ -16,6 +16,7 @@ from types import FrameType
 
 from app.core.config import get_settings
 from app.core.observability.health import database_is_reachable
+from app.core.observability.structured_logging import configure_logging
 from app.persistence.session import create_db_engine
 
 logger = logging.getLogger("nexacart.worker")
@@ -47,7 +48,7 @@ def main(
         return 0 if heartbeat_is_fresh(heartbeat_file) else 1
 
     settings = get_settings()
-    logging.basicConfig(level=settings.log_level)
+    configure_logging(settings)
     stop = stop or threading.Event()
 
     def request_stop(signum: int, _frame: FrameType | None) -> None:
