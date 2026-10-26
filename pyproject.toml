@@ -24,6 +24,8 @@ test = [
     "pytest-playwright==0.10.0",
     "pytest-bdd==9.0.0",
     "allure-pytest==2.16.2",
+    "openapi-spec-validator==0.9.0",
+    "jsonschema==4.26.0",
 ]
 
 [tool.setuptools.packages.find]
@@ -46,6 +48,8 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "S", "C4", "RUF"]
 "tests/**" = ["S101", "S105", "S106"]
 # Alembic revision boilerplate (unused op/sa imports in empty revisions, blank Revises line).
 "migrations/versions/*.py" = ["F401", "I001", "W291"]
+# Error-code names such as TOKEN_EXPIRED are identifiers, not credentials.
+"app/core/errors.py" = ["S105"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -55,13 +59,16 @@ python_version = "3.12"
 strict = true
 files = ["app", "migrations", "tests"]
 plugins = ["pydantic.mypy"]
+explicit_package_bases = true
+mypy_path = "."
 
 [[tool.mypy.overrides]]
-module = ["allure.*", "pytest_bdd.*"]
+module = ["allure.*", "pytest_bdd.*", "jsonschema.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "-ra --strict-markers --strict-config --import-mode=importlib"
 markers = [
     "unit: backend unit/service tests (no browser, no database)",
