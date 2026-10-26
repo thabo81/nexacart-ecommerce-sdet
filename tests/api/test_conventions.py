@@ -2,28 +2,17 @@
 
 import re
 import uuid
-from typing import Any
 
-import httpx
 import pytest
 from fastapi.testclient import TestClient
 
 from app.core.config import Settings
 from app.core.errors import ERROR_STATUS, ErrorCode
 from app.main import create_app
-from tests.api.conftest import TOTAL_ITEMS, Probe
+from tests.api.conftest import TOTAL_ITEMS, Probe, assert_envelope
 
 UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 PROBE = "/api/v1/_probe"
-
-
-def assert_envelope(response: httpx.Response, status: int, code: ErrorCode) -> dict[str, Any]:
-    assert response.status_code == status
-    error: dict[str, Any] = response.json()["error"]
-    assert set(error) == {"code", "message", "details", "request_id"}
-    assert error["code"] == code.value
-    assert error["request_id"] == response.headers["x-request-id"]
-    return error
 
 
 def test_every_response_has_a_generated_request_id(probe: Probe) -> None:

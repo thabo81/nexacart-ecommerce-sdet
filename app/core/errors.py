@@ -1,8 +1,10 @@
 """Error-code catalogue and the application error type (PRD Appendix A, TR-011).
 
-Codes and statuses mirror the approved PRD catalogue and are stable once approved. The three
-codes in PROPOSED_CODES are NOT in the PRD: they cover framework-level failures that the
-catalogue does not name and need owner approval before they count as approved contract.
+Codes and statuses mirror PRD Appendix A and are stable once approved. BAD_REQUEST (400),
+METHOD_NOT_ALLOWED (405) and INTERNAL_ERROR (500) were approved by the owner on 2026-10-25 for
+framework-level failures. The HTTP status is always derived from the code (ERROR_STATUS), so a
+response can never pair a code with a contradictory status. A parity test checks this module
+against Appendix A.
 """
 
 from collections.abc import Mapping, Sequence
@@ -56,15 +58,11 @@ class ErrorCode(StrEnum):
     RATE_LIMITED = "RATE_LIMITED"
     # 503
     NOT_READY = "NOT_READY"
-    # PROPOSED (not in the PRD catalogue; owner approval pending)
+    # Framework-level codes (owner-approved 2026-10-25)
     BAD_REQUEST = "BAD_REQUEST"
     METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED"
     INTERNAL_ERROR = "INTERNAL_ERROR"
 
-
-PROPOSED_CODES: frozenset[ErrorCode] = frozenset(
-    {ErrorCode.BAD_REQUEST, ErrorCode.METHOD_NOT_ALLOWED, ErrorCode.INTERNAL_ERROR}
-)
 
 _STATUS_BY_CODE: dict[int, tuple[ErrorCode, ...]] = {
     401: (ErrorCode.UNAUTHENTICATED, ErrorCode.TOKEN_EXPIRED, ErrorCode.INVALID_CREDENTIALS),
@@ -104,7 +102,6 @@ _STATUS_BY_CODE: dict[int, tuple[ErrorCode, ...]] = {
     ),
     429: (ErrorCode.RATE_LIMITED,),
     503: (ErrorCode.NOT_READY,),
-    # Proposed
     400: (ErrorCode.BAD_REQUEST,),
     405: (ErrorCode.METHOD_NOT_ALLOWED,),
     500: (ErrorCode.INTERNAL_ERROR,),

@@ -1,19 +1,25 @@
 """Pagination conventions (BR-016, FR-021, NFR-023).
 
-`page` >= 1 (default 1); `page_size` 1-48 (default 12). Out-of-range values are rejected with
-422 VALIDATION_ERROR by the shared handler. A page beyond the last returns an empty `items`
-list with correct metadata. Defaults mirror the PRD config values PAGE_SIZE_DEFAULT/MAX.
+`page` >= 1 (default 1). `page_size` >= 1, default PAGE_SIZE_DEFAULT (12) and at most
+PAGE_SIZE_MAX (48), both read from the application's settings. Settings validation guarantees
+1 <= default <= max <= 48, so configuration can lower the limit but never exceed the approved
+contract. Out-of-range values are rejected with 422 VALIDATION_ERROR (field paths
+`query.page` / `query.page_size`). A page beyond the last returns an empty `items` list with
+correct metadata. The published OpenAPI document shows the effective default and maximum.
 """
 
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Annotated
 
-from fastapi import Depends, Query
+from fastapi import Depends, Query, Request
 from pydantic import BaseModel
 
-PAGE_SIZE_DEFAULT = 12
-PAGE_SIZE_MAX = 48
+from app.core.config import Settings
+from app.core.errors import AppError, ErrorCode
+
+# Marks pagination parameters so OpenAPI post-processing can publish the effective settings.
+PAGINATION_MARKER = "x-pagination"
 
 
 @dataclass(frozen=True)
@@ -31,11 +37,37 @@ class Pagination:
 
 
 def pagination_params(
-    page: Annotated[int, Query(ge=1, description="1-based page number")] = 1,
+    request: Request,
+    page: Annotated[
+        int,
+        Query(
+            ge=1, description="1-based page number", json_schema_extra={PAGINATION_MARKER: "page"}
+        ),
+    ] = 1,
     page_size: Annotated[
-        int, Query(ge=1, le=PAGE_SIZE_MAX, description="Items per page (maximum 48)")
-    ] = PAGE_SIZE_DEFAULT,
+        int | None,
+        Query(
+            ge=1,
+            description="Items per page (default and maximum come from configuration)",
+            json_schema_extra={PAGINATION_MARKER: "page_size"},
+        ),
+    ] = None,
 ) -> Pagination:
+    settings: Settings = request.app.state.settings
+    if page_size is None:
+        page_size = settings.page_size_default
+    elif page_size > settings.page_size_max:
+        raise AppError(
+            ErrorCode.VALIDATION_ERROR,
+            "The request is invalid.",
+            details=[
+                {
+                    "field": "query.page_size",
+                    "message": f"Input should be less than or equal to {settings.page_size_max}",
+                    "type": "less_than_equal",
+                }
+            ],
+        )
     return Pagination(page=page, page_size=page_size)
 
 

@@ -1099,12 +1099,15 @@ Gaps found while auditing requirement coverage (CL-01 – CL-09 in v0.2, CL-10 �
 
 | HTTP | Codes |
 |---|---|
+| 400 | `BAD_REQUEST` (generic malformed request; framework-level, no business meaning) |
 | 401 | `UNAUTHENTICATED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS` |
 | 403 | `FORBIDDEN`, `REVIEW_NOT_ELIGIBLE` |
 | 404 | `NOT_FOUND` (also used for non-owned resources) |
+| 405 | `METHOD_NOT_ALLOWED` (framework-level) |
 | 409 | `EMAIL_ALREADY_REGISTERED`, `INSUFFICIENT_STOCK`, `PRICE_CHANGED`, `PRODUCT_UNAVAILABLE`, `CART_EMPTY`, `WISHLIST_DUPLICATE`, `REVIEW_DUPLICATE`, `ADDRESS_LIMIT_REACHED`, `ORDER_NOT_CANCELLABLE`, `INVALID_STATUS_TRANSITION`, `ORDER_ALREADY_PAID`, `PAYMENT_ATTEMPTS_EXHAUSTED`, `CATEGORY_NOT_EMPTY`, `ORDER_NOT_PAYABLE`, `CHECKOUT_ALREADY_PENDING`, `CART_LOCKED`, `DUPLICATE_RESOURCE` (CL-02), `ORDER_BELOW_MINIMUM` |
 | 422 | `VALIDATION_ERROR`, `INVALID_CURRENT_PASSWORD`, `COUPON_NOT_FOUND`, `COUPON_NOT_ACTIVE`, `COUPON_EXPIRED`, `COUPON_MIN_ORDER_NOT_MET`, `COUPON_USAGE_LIMIT_REACHED`, `COUPON_NOT_ELIGIBLE`, `IDEMPOTENCY_KEY_REQUIRED`, `IDEMPOTENCY_KEY_REUSED` |
 | 429 | `RATE_LIMITED` |
+| 500 | `INTERNAL_ERROR` (unexpected server error; generic, non-sensitive message) |
 | 503 | `NOT_READY` (readiness endpoint) |
 
 Exact status-code mapping may be refined in the architecture document; codes are stable once approved. The order-placement contract (which code for which precondition, and in which order) is BR-074. New in v0.2: `ORDER_NOT_PAYABLE`, `CHECKOUT_ALREADY_PENDING`, `CART_LOCKED`, `DUPLICATE_RESOURCE`. v0.3 clarifies usage without adding codes: `CHECKOUT_ALREADY_PENDING` is returned at BR-074 step 5 (after the idempotency and schema checks, before address, cart, stock, coupon and total checks); `ORDER_NOT_PAYABLE` is also returned when a payment finds the reservation deadline elapsed (expiry is applied first) or the order cancelled during a simulated delay, with no attempt recorded; `VALIDATION_ERROR` also covers invalid inventory adjustments (CL-11). New in v0.4: `COUPON_NOT_ELIGIBLE` (422, BR-075). New in v0.5: `ORDER_BELOW_MINIMUM` (409, BR-077).
@@ -1140,6 +1143,7 @@ Exact status-code mapping may be refined in the architecture document; codes are
 | 0.5 | 2026-10-13 | Owner answers on shipping and minimum order applied (DEC-29, approved): Standard R60 / Express R120; Standard free only for a first order (earliest non-cancelled) with a pre-discount subtotal from R250 up to under R1,000, so the earlier "free at R1,000" rule is withdrawn (BR-028, new BR-076, FR-049, FR-050); minimum order of R250 unless more than three small-goods units, small goods = Wearables and Audio (new BR-077, FR-116, `ORDER_BELOW_MINIMUM`, category designation in §5.2, fixtures, config keys); worked totals rebuilt (T-01 – T-17, customer column); AC-032, AC-036, AC-095, AC-098, AC-114 adjusted; new AC-117, AC-118. CL-14 and CL-15 resolved (`ONCE1` = 5%, cap R50.00, no minimum); new CL-16 (derived shipping consequences) pending. No existing ID renumbered or removed |
 | 0.6 | 2026-10-13 | Owner confirmed all five CL-16 points and three further statements; CL-16 closed (approved) and the PRD is the approved baseline with no open items. Documented explicitly: the small-goods exception waives only the minimum order and grants no free shipping (BR-077, BR-076, FR-116, T-14); `WELCOME10` customers are returning and pay R60.00 Standard (BR-075, BR-076, AC-117); first-order status excludes cancelled orders and the order being placed (BR-076, AC-117); both the minimum and the free-shipping band use the pre-coupon subtotal (BR-076, BR-077). AC-036, AC-117 and AC-118 reworded. No new IDs; no existing ID renumbered or removed; version label changed to 0.6 (approved baseline) |
 | 0.7 | 2026-10-20 | Owner-approved clarifications CL-17–CL-20: require login after password change; show reservation deadline and Pay Now route for pending orders; customer cancellation reasons are not required while administrator reasons remain required; display and announce “Your session is about to expire” five minutes before token expiry without extending the session. FR-005, FR-008, FR-072, FR-073, FR-112 and AC-009 amended; AC-119–AC-121 added; no existing identifier renumbered or removed. |
+| 0.7 (change record) | 2026-10-25 | Owner approved three framework-level error codes during FOUND-003 QA review and they are added to Appendix A: `BAD_REQUEST` (400), `METHOD_NOT_ALLOWED` (405), `INTERNAL_ERROR` (500). Validation `details[].field` paths include the input location (`query.`, `body.`, `path.`). No other requirement, rule, acceptance criterion or identifier changed; the document version stays 0.7 |
 
 ## Appendix D — Traceability audit and consistency review (v0.6)
 

@@ -127,3 +127,111 @@ def test_configured_database_password_never_appears_in_output(settings: Settings
     logging.getLogger("nexacart.test").error("cannot connect using %s", url)
     assert "placeholder" not in buffer.getvalue()
     assert url not in buffer.getvalue()
+
+
+SEEDED = [
+    ("password", "login failed password=seed-pw-1 for user", "seed-pw-1"),
+    ("token", "bad token=seed-tok-2 rejected", "seed-tok-2"),
+    ("access_token", "got access_token=seed-acc-3&x=1", "seed-acc-3"),
+    ("refresh_token", "refresh_token: seed-ref-4 expired", "seed-ref-4"),
+    ("client_secret", "client_secret=seed-cs-5", "seed-cs-5"),
+    ("bearer", "Authorization: Bearer seed-bearer-6", "seed-bearer-6"),
+    ("basic", "Authorization: Basic c2VlZC1iYXNpYy03Ong=", "c2VlZC1iYXNpYy03Ong="),
+    ("bare bearer", "rejected credential Bearer seed-bearer-26 from client", "seed-bearer-26"),
+    ("bare basic", "client sent Basic c2VlZC1iYXNpYy0yNzo= value", "c2VlZC1iYXNpYy0yNzo="),
+    ("cookie header", "Cookie: sid=seed-cookie-8; theme=dark", "seed-cookie-8"),
+    ("set-cookie", "Set-Cookie: session=seed-setck-9; HttpOnly", "seed-setck-9"),
+    (
+        "cookie secret not first",
+        "Cookie: theme=dark; sid=seed-cookie-24; lang=en",
+        "seed-cookie-24",
+    ),
+    (
+        "set-cookie secret not first",
+        "Set-Cookie: a=b; session=seed-setck-25; Path=/",
+        "seed-setck-25",
+    ),
+    ("csrf field", "csrf_token=seed-csrf-10", "seed-csrf-10"),
+    ("csrf header", "X-CSRF-Token: seed-xcsrf-11", "seed-xcsrf-11"),
+    ("query string", "failed GET /api/v1/x?token=seed-qs-12&page=2", "seed-qs-12"),
+    ("query string url", "https://h/cb?access_token=seed-url-13", "seed-url-13"),
+    ("database url", "connect postgresql+psycopg://u:seed-db-14@db:5432/x failed", "seed-db-14"),
+    ("json", '{"password": "seed-json-15", "refresh_token": "seed-json-16"}', "seed-json-15"),
+    ("json 2", '{"password": "seed-json-15", "refresh_token": "seed-json-16"}', "seed-json-16"),
+    ("python dict", "{'client_secret': 'seed-dict-17', 'user': 'bob'}", "seed-dict-17"),
+    ("jwt", "invalid eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.seed-jwt-18", "seed-jwt-18"),
+]
+
+
+@pytest.mark.parametrize(("name", "message", "secret"), SEEDED, ids=[c[0] for c in SEEDED])
+def test_seeded_secret_never_survives_in_a_message(name: str, message: str, secret: str) -> None:
+    assert secret not in _format(message)["message"], name
+
+
+@pytest.mark.parametrize(("name", "message", "secret"), SEEDED, ids=[c[0] for c in SEEDED])
+def test_seeded_secret_never_survives_in_exception_text_or_traceback(
+    name: str, message: str, secret: str
+) -> None:
+    formatter = JsonFormatter(app_version="v", build="b", secrets=[])
+    try:
+        try:
+            raise ValueError(message)
+        except ValueError as cause:
+            raise RuntimeError(f"wrapped: {message}") from cause
+    except RuntimeError:
+        import sys
+
+        record = logging.LogRecord("t", logging.ERROR, __file__, 1, "failed", None, sys.exc_info())
+    output = formatter.format(record)
+    assert secret not in output, name
+    assert "RuntimeError" in output
+    assert "ValueError" in output  # the chain and exception types remain diagnosable
+
+
+def test_exception_objects_in_extra_fields_are_scrubbed_before_serialisation() -> None:
+    line = _format(error=RuntimeError("failed password=seed-extra-19"), detail=ValueError("x"))
+    assert "seed-extra-19" not in json.dumps(line)
+    assert line["error"].startswith("RuntimeError: failed password=")
+    assert line["detail"] == "ValueError: x"
+
+
+def test_non_string_extra_values_are_scrubbed_after_conversion() -> None:
+    class Carrier:
+        def __repr__(self) -> str:
+            return "Carrier(password=seed-obj-20)"
+
+    assert "seed-obj-20" not in json.dumps(_format(obj=Carrier(), many=[Carrier()]))
+
+
+def test_known_secret_values_are_scrubbed_in_the_serialised_line_too() -> None:
+    secret = 'odd"secret\\value-21'
+    out = JsonFormatter(app_version="v", build="b", secrets=[secret]).format(
+        logging.LogRecord("t", logging.INFO, __file__, 1, f"x {secret} y", None, None)
+    )
+    assert "value-21" not in out
+    json.loads(out)  # still valid JSON after replacement
+
+
+def test_environment_secrets_are_scrubbed(
+    monkeypatch: pytest.MonkeyPatch, settings: Settings
+) -> None:
+    monkeypatch.setenv("CLIENT_SECRET", "seed-env-22")
+    monkeypatch.setenv("SOME_API_KEY", "seed-env-23")
+    monkeypatch.setenv("LOG_FORMAT_NAME", "not-sensitive-value")
+    buffer = io.StringIO()
+    configure_logging(settings, stream=buffer)
+    logging.getLogger("nexacart.test").error(
+        "saw seed-env-22 and seed-env-23 and not-sensitive-value"
+    )
+    out = buffer.getvalue()
+    assert "seed-env-22" not in out and "seed-env-23" not in out
+    assert "not-sensitive-value" in out
+
+
+def test_useful_non_sensitive_text_is_preserved() -> None:
+    for message in [
+        "request completed in 12ms for route /api/v1/items status 200",
+        "Order 42 created for user 7",
+        "database check failed: OperationalError",
+    ]:
+        assert _format(message)["message"] == message
