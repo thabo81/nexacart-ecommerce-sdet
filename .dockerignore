@@ -1,0 +1,25 @@
+# Build context for the backend image (repo root). Keep it minimal and secret-free.
+.git
+.github
+.venv
+venv
+.env
+.env.*
+!.env.example
+**/__pycache__
+**/*.pyc
+.mypy_cache
+.ruff_cache
+.pytest_cache
+*.egg-info
+htmlcov
+allure-results
+allure-report
+test-results
+playwright-report
+frontend
+docs
+tests
+migrations
+alembic.ini
+docker-compose*.yml
