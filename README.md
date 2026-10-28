@@ -69,7 +69,7 @@ app/              # FastAPI backend and worker (one codebase)
   domain/         # Pure domain rules; no HTTP or database imports
   persistence/    # SQLAlchemy base/session; models arrive with DATA-001
   worker/         # Worker entry point: python -m app.worker
-migrations/       # Alembic environment; revisions arrive with DATA-001
+migrations/       # Alembic environment and revisions (initial schema: DATA-001)
 frontend/         # React + TypeScript (Vite) application
 tests/
   unit/           # Backend unit/service tests
@@ -93,6 +93,20 @@ ruff check . && ruff format --check . && mypy && pytest
 
 cd frontend && npm ci
 npm run lint && npm run format:check && npm run typecheck && npm run build
+```
+
+## Database migrations (DATA-001)
+
+Alembic owns the schema; the application never creates tables at startup. Run migrations as an explicit step against PostgreSQL 16:
+
+```bash
+DATABASE_URL=postgresql+psycopg://user:pw@localhost:5432/nexacart alembic upgrade head
+```
+
+`alembic downgrade base` drops every table and all data; use it only on disposable databases. Database tests need an **empty** disposable PostgreSQL 16 database and are skipped when `TEST_DATABASE_URL` is unset:
+
+```bash
+TEST_DATABASE_URL=postgresql+psycopg://user:pw@localhost:5432/nexacart_test pytest tests/database
 ```
 
 ## Definition of progress
