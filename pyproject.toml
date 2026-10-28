@@ -44,11 +44,9 @@ extend-exclude = ["frontend", ".venv"]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "S", "C4", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
-# Assertions and synthetic credentials are expected in tests.
 "tests/**" = ["S101", "S105", "S106"]
-# Alembic revision boilerplate (unused op/sa imports in empty revisions, blank Revises line).
-"migrations/versions/*.py" = ["F401", "I001", "W291"]
-# Error-code names such as TOKEN_EXPIRED are identifiers, not credentials.
+"tests/database/**" = ["E501", "S608"]
+"migrations/versions/*.py" = ["F401", "I001", "W291", "E501"]
 "app/core/errors.py" = ["S105"]
 
 [tool.ruff.format]

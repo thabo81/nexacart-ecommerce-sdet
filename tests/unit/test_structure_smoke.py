@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from app.core.config import Settings
 from app.persistence.base import Base
 from app.persistence.session import create_db_engine, create_session_factory
+from app.worker.__main__ import main as worker_main
 
 
 def test_database_url_is_required(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -25,5 +26,7 @@ def test_engine_and_session_factory_are_lazy(settings: Settings) -> None:
     assert factory.kw["bind"] is engine
 
 
-def test_base_metadata_has_no_tables_before_data_001() -> None:
-    assert not Base.metadata.tables
+def test_base_metadata_contains_the_approved_schema_tables() -> None:
+    import app.persistence.models  # noqa: F401
+
+    assert len(Base.metadata.tables) == 25
