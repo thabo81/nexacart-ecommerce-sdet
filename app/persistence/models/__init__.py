@@ -7,7 +7,7 @@ from app.persistence.models.catalog import (
     ProductSpecification,
     ProductVariant,
 )
-from app.persistence.models.engagement import Notification, Review
+from app.persistence.models.engagement import Review
 from app.persistence.models.identity import AuthSession, LoginThrottleState, User
 from app.persistence.models.ledger import AuditEvent, IdempotencyRecord, InventoryMovement
 from app.persistence.models.orders import (
@@ -33,7 +33,6 @@ __all__ = [
     "IdempotencyRecord",
     "InventoryMovement",
     "LoginThrottleState",
-    "Notification",
     "Order",
     "OrderAddressSnapshot",
     "OrderItem",

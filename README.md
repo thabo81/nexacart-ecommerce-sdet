@@ -103,10 +103,10 @@ Alembic owns the schema; the application never creates tables at startup. Run mi
 DATABASE_URL=postgresql+psycopg://user:pw@localhost:5432/nexacart alembic upgrade head
 ```
 
-`alembic downgrade base` drops every table and all data; use it only on disposable databases. Database tests need an **empty** disposable PostgreSQL 16 database and are skipped when `TEST_DATABASE_URL` is unset:
+`alembic downgrade base` drops every table and all data; use it only on disposable databases. Database tests need an **empty, disposable PostgreSQL 16 test database** whose name contains a standalone `test` segment (for example `nexacart_test`). The fixture refuses to run unless `ALLOW_DESTRUCTIVE_TEST_DB=1` is set after you verify the target database is disposable. At teardown, the fixture downgrades the test database and removes the schema. The schema parity test creates a uniquely named temporary sibling database and removes only the database it successfully created; the role needs permission to create/drop databases. Tests skip when `TEST_DATABASE_URL` is unset:
 
 ```bash
-TEST_DATABASE_URL=postgresql+psycopg://user:pw@localhost:5432/nexacart_test pytest tests/database
+ALLOW_DESTRUCTIVE_TEST_DB=1 TEST_DATABASE_URL=postgresql+psycopg://user:pw@localhost:5432/nexacart_test pytest tests/database
 ```
 
 ## Definition of progress
