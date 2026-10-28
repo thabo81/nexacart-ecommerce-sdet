@@ -1,6 +1,6 @@
 """Create the initial PostgreSQL schema (DATA-001).
 
-Implements DATABASE_SCHEMA_AND_ERD.md v0.9: 26 tables, explicitly named primary/foreign/unique
+Implements the 25 non-R3 tables from DATABASE_SCHEMA_AND_ERD.md v0.9 with explicitly named primary/foreign/unique
 constraints, named CHECK constraints (created with ``op.create_check_constraint``), named partial
 and supporting indexes. Requires PostgreSQL 16 (native ``gen_random_uuid()``; no extension).
 
@@ -92,11 +92,6 @@ CHECK_CONSTRAINTS: list[tuple[str, str, str]] = [
         "auth_sessions",
         "ck_auth_sessions_csrf_token_hash_format",
         "csrf_token_hash ~ '^[0-9a-f]{64}$'",
-    ),
-    (
-        "notifications",
-        "ck_notifications_type",
-        "notification_type IN ('order_confirmed', 'payment_failed', 'order_status_changed', 'order_cancelled', 'refund_completed')",
     ),
     (
         "orders",
@@ -483,30 +478,6 @@ def upgrade() -> None:
     )
     op.create_index("ix_auth_sessions_expires_at", "auth_sessions", ["expires_at"], unique=False)
     op.create_index("ix_auth_sessions_user_id", "auth_sessions", ["user_id"], unique=False)
-    op.create_table(
-        "notifications",
-        sa.Column("id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
-        sa.Column("customer_id", sa.UUID(), nullable=False),
-        sa.Column("notification_type", sa.Text(), nullable=False),
-        sa.Column("payload", postgresql.JSONB(astext_type=Text()), nullable=False),
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
-        sa.Column("read_at", sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["customer_id"], ["users.id"], name=op.f("fk_notifications_customer_id_users")
-        ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_notifications")),
-    )
-    op.create_index(
-        "ix_notifications_customer_created",
-        "notifications",
-        ["customer_id", sa.literal_column("created_at DESC")],
-        unique=False,
-    )
     op.create_table(
         "orders",
         sa.Column("id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
@@ -1126,7 +1097,6 @@ def downgrade() -> None:
     op.drop_table("carts")
     op.drop_table("products")
     op.drop_table("orders")
-    op.drop_table("notifications")
     op.drop_table("auth_sessions")
     op.drop_table("audit_events")
     op.drop_table("addresses")

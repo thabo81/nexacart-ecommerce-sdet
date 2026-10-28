@@ -7,6 +7,8 @@ skipped, never silently passed against another engine.
 """
 
 import os
+import re
+import uuid
 from collections.abc import Iterator
 
 import pytest
@@ -29,6 +31,19 @@ def alembic_config(url: str) -> Config:
 def _require_url() -> str:
     if not TEST_DATABASE_URL:
         pytest.skip("TEST_DATABASE_URL is not set; PostgreSQL 16 database tests cannot run")
+
+    database_name = make_url(TEST_DATABASE_URL).database or ""
+    if not re.search(r"(^|[_-])test($|[_-])", database_name, flags=re.IGNORECASE):
+        pytest.fail(
+            "TEST_DATABASE_URL must name a dedicated test database whose name contains "
+            "a standalone 'test' segment (for example nexacart_test)."
+        )
+    if os.environ.get("ALLOW_DESTRUCTIVE_TEST_DB") != "1":
+        pytest.fail(
+            "The database fixture applies and downgrades a schema. Set "
+            "ALLOW_DESTRUCTIVE_TEST_DB=1 only after verifying TEST_DATABASE_URL "
+            "points to an empty, disposable PostgreSQL 16 test database."
+        )
     return TEST_DATABASE_URL
 
 
@@ -36,21 +51,29 @@ def _require_url() -> str:
 def migrated_engine() -> Iterator[Engine]:
     url = _require_url()
     engine = create_engine(url)
-    with engine.connect() as conn:
-        version = conn.execute(text("SHOW server_version_num")).scalar_one()
-        assert str(version).startswith("16"), f"PostgreSQL 16 required, got {version}"
-        leftovers = conn.execute(
-            text(
-                "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'"
-                " AND table_name <> 'alembic_version'"
-            )
-        ).scalar_one()
-        assert leftovers == 0, "TEST_DATABASE_URL must point at an empty database"
-    cfg = alembic_config(url)
-    command.upgrade(cfg, "head")
-    yield engine
-    command.downgrade(cfg, "base")
-    engine.dispose()
+    migrated = False
+    try:
+        with engine.connect() as conn:
+            version = conn.execute(text("SHOW server_version_num")).scalar_one()
+            assert str(version).startswith("16"), f"PostgreSQL 16 required, got {version}"
+            leftovers = conn.execute(
+                text(
+                    "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'"
+                    " AND table_name <> 'alembic_version'"
+                )
+            ).scalar_one()
+            assert leftovers == 0, "TEST_DATABASE_URL must point at an empty database"
+
+        command.upgrade(alembic_config(url), "head")
+        migrated = True
+        yield engine
+    finally:
+        try:
+            if migrated:
+                # Destructive by design; _require_url requires explicit owner acknowledgement.
+                command.downgrade(alembic_config(url), "base")
+        finally:
+            engine.dispose()
 
 
 @pytest.fixture
@@ -63,5 +86,13 @@ def conn(migrated_engine: Engine) -> Iterator[Connection]:
 
 
 def sibling_database_url(url: str, suffix: str) -> str:
+    """Create a unique sibling database URL; never reuse a predictable database name."""
     parsed = make_url(url)
-    return parsed.set(database=f"{parsed.database}_{suffix}").render_as_string(hide_password=False)
+    if not parsed.database:
+        raise ValueError("TEST_DATABASE_URL must include an explicit database name")
+    safe_suffix = re.sub(r"[^a-z0-9_]+", "_", suffix.lower()).strip("_")
+    if not safe_suffix:
+        raise ValueError("A non-empty, identifier-safe database suffix is required")
+    unique_suffix = f"_{safe_suffix}_{uuid.uuid4().hex[:12]}"
+    database_name = f"{parsed.database[: 63 - len(unique_suffix)]}{unique_suffix}"
+    return parsed.set(database=database_name).render_as_string(hide_password=False)

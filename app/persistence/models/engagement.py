@@ -1,8 +1,7 @@
-"""Reviews and R3 notifications (ERD §3.7)."""
+"""Review persistence (ERD §3.7); optional R3 notifications remain separately scoped."""
 
 import uuid
 from datetime import datetime
-from typing import Any
 
 from sqlalchemy import (
     CheckConstraint,
@@ -10,15 +9,13 @@ from sqlalchemy import (
     Index,
     SmallInteger,
     String,
-    Text,
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.persistence.base import Base
-from app.persistence.models._common import bool_col, created_at, in_list, optional_ts, uuid_pk
+from app.persistence.models._common import bool_col, created_at, optional_ts, uuid_pk
 
 NOTIFICATION_TYPES = (
     "order_confirmed",
@@ -55,20 +52,3 @@ class Review(Base):
     hidden_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     hidden_at: Mapped[datetime | None] = optional_ts()
     created_at: Mapped[datetime] = created_at()
-
-
-class Notification(Base):
-    __tablename__ = "notifications"
-    __table_args__ = (
-        CheckConstraint(
-            in_list("notification_type", NOTIFICATION_TYPES), name="ck_notifications_type"
-        ),
-        Index("ix_notifications_customer_created", "customer_id", text("created_at DESC")),
-    )
-
-    id: Mapped[uuid.UUID] = uuid_pk()
-    customer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    notification_type: Mapped[str] = mapped_column(Text)
-    payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
-    created_at: Mapped[datetime] = created_at()
-    read_at: Mapped[datetime | None] = optional_ts()
