@@ -5,12 +5,13 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine
 
+import app.persistence.models  # noqa: F401  (registers every model on Base.metadata)
 from app.core.config import get_settings
 from app.persistence.base import Base
 
 config = context.config
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata
 

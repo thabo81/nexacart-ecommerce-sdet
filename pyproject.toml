@@ -44,8 +44,10 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "S", "C4", "RUF"]
 [tool.ruff.lint.per-file-ignores]
 # Assertions and synthetic credentials are expected in tests.
 "tests/**" = ["S101", "S105", "S106"]
+# Long SQL string literals in database assertions are clearer unwrapped.
+"tests/database/**" = ["E501", "S608"]
 # Alembic revision boilerplate (unused op/sa imports in empty revisions, blank Revises line).
-"migrations/versions/*.py" = ["F401", "I001", "W291"]
+"migrations/versions/*.py" = ["F401", "I001", "W291", "E501"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -26,8 +26,10 @@ def test_engine_and_session_factory_are_lazy(settings: Settings) -> None:
     assert factory.kw["bind"] is engine
 
 
-def test_base_metadata_has_no_tables_before_data_001() -> None:
-    assert not Base.metadata.tables
+def test_base_metadata_contains_the_approved_schema_tables() -> None:
+    import app.persistence.models  # noqa: F401
+
+    assert len(Base.metadata.tables) == 25
 
 
 def test_worker_entry_point_runs_and_exits(
