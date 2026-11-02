@@ -28,3 +28,14 @@ def settings() -> Iterator[Settings]:
         database_url="postgresql+psycopg://test:placeholder@localhost:5432/test",
     )
     get_settings.cache_clear()
+
+
+@pytest.fixture
+def unreachable_settings() -> Iterator[Settings]:
+    """Settings pointing at a closed local port: connection is refused immediately."""
+    get_settings.cache_clear()
+    yield Settings(
+        app_env="test",
+        database_url="postgresql+psycopg://test:placeholder@127.0.0.1:1/test",
+    )
+    get_settings.cache_clear()

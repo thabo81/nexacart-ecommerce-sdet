@@ -1,0 +1,162 @@
+# NexaCart local environment. .env.example selects dev for plain "docker compose up".
+# Use --profile test to select the isolated test stack.
+name: nexacart
+
+# Shared fragments keep dev/test services aligned while allowing separate settings and ports.
+x-postgres-env: &postgres-env-common
+  POSTGRES_USER: ${POSTGRES_USER:?copy .env.example to .env}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env}
+
+x-backend-env: &backend-env-common
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+x-postgres-service: &postgres-service
+  image: postgres:16
+  healthcheck: &postgres-healthcheck
+    test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+    interval: 5s
+    timeout: 5s
+    retries: 12
+    start_period: 10s
+
+x-api-service: &api-service
+  build:
+    context: .
+    dockerfile: docker/backend.Dockerfile
+  healthcheck: &api-healthcheck
+    test:
+      - CMD
+      - python
+      - -c
+      - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"
+    interval: 5s
+    timeout: 5s
+    retries: 12
+    start_period: 10s
+  restart: on-failure
+
+x-worker-service: &worker-service
+  build:
+    context: .
+    dockerfile: docker/backend.Dockerfile
+  command: ["python", "-m", "app.worker"]
+  healthcheck: &worker-healthcheck
+    test: ["CMD", "python", "-m", "app.worker", "--healthcheck"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 15s
+  stop_grace_period: 15s
+  restart: on-failure
+
+x-frontend-service: &frontend-service
+  build:
+    context: ./frontend
+  healthcheck: &frontend-healthcheck
+    test:
+      - CMD
+      - node
+      - -e
+      - "fetch('http://127.0.0.1:5173/').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+    interval: 5s
+    timeout: 5s
+    retries: 12
+    start_period: 10s
+
+services:
+  # Development stack: persistent local PostgreSQL; database port is not published.
+  db:
+    <<: *postgres-service
+    profiles: ["dev"]
+    environment:
+      <<: *postgres-env-common
+      POSTGRES_DB: ${POSTGRES_DB:?copy .env.example to .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  api:
+    <<: *api-service
+    profiles: ["dev"]
+    environment:
+      <<: *backend-env-common
+      APP_ENV: local
+      DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:?copy .env.example to .env}:${POSTGRES_PASSWORD:?copy .env.example to .env}@db:5432/${POSTGRES_DB:?copy .env.example to .env}"
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    <<: *worker-service
+    profiles: ["dev"]
+    environment:
+      <<: *backend-env-common
+      APP_ENV: local
+      DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:?copy .env.example to .env}:${POSTGRES_PASSWORD:?copy .env.example to .env}@db:5432/${POSTGRES_DB:?copy .env.example to .env}"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    <<: *frontend-service
+    profiles: ["dev"]
+    environment:
+      # Browser-side config must use a host-reachable API URL, not http://api:8000.
+      VITE_API_BASE_URL: "http://localhost:${API_PORT:-8000}/api/v1"
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Test stack: independent database on tmpfs, deliberately available to host-side tests.
+  db-test:
+    <<: *postgres-service
+    profiles: ["test"]
+    environment:
+      <<: *postgres-env-common
+      POSTGRES_DB: ${POSTGRES_TEST_DB:-nexacart_test}
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${TEST_DB_PORT:-55432}:5432"
+
+  api-test:
+    <<: *api-service
+    profiles: ["test"]
+    environment:
+      <<: *backend-env-common
+      APP_ENV: test
+      DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:?copy .env.example to .env}:${POSTGRES_PASSWORD:?copy .env.example to .env}@db-test:5432/${POSTGRES_TEST_DB:-nexacart_test}"
+    ports:
+      - "127.0.0.1:${TEST_API_PORT:-8100}:8000"
+    depends_on:
+      db-test:
+        condition: service_healthy
+
+  worker-test:
+    <<: *worker-service
+    profiles: ["test"]
+    environment:
+      <<: *backend-env-common
+      APP_ENV: test
+      DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:?copy .env.example to .env}:${POSTGRES_PASSWORD:?copy .env.example to .env}@db-test:5432/${POSTGRES_TEST_DB:-nexacart_test}"
+    depends_on:
+      db-test:
+        condition: service_healthy
+
+  frontend-test:
+    <<: *frontend-service
+    profiles: ["test"]
+    environment:
+      # Use the test API's host-mapped port for browser-side requests.
+      VITE_API_BASE_URL: "http://localhost:${TEST_API_PORT:-8100}/api/v1"
+    ports:
+      - "127.0.0.1:${TEST_FRONTEND_PORT:-5273}:5173"
+    depends_on:
+      api-test:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
