@@ -1,6 +1,7 @@
 """Shared pytest configuration. Fixtures for HTTPX, Playwright, SQL, users and clock: TEST-002."""
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
+from typing import Any
 
 import pytest
 
@@ -17,6 +18,22 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
             area = parts[parts.index("tests") + 1]
             if area in AREAS:
                 item.add_marker(getattr(pytest.mark, area))
+
+
+PLACEHOLDER_DB_URL = "postgresql+psycopg://test:placeholder@localhost:5432/test"
+
+
+@pytest.fixture
+def settings_factory() -> Iterator[Callable[..., Settings]]:
+    """Build Settings with overrides, e.g. settings_factory(page_size_max=20)."""
+    get_settings.cache_clear()
+
+    def make(**overrides: Any) -> Settings:
+        values: dict[str, Any] = {"app_env": "test", "database_url": PLACEHOLDER_DB_URL}
+        return Settings(**{**values, **overrides})
+
+    yield make
+    get_settings.cache_clear()
 
 
 @pytest.fixture

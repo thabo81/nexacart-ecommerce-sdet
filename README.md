@@ -175,6 +175,35 @@ curl -fsS http://localhost:8000/health/ready
 
 Record the host, Docker/Compose versions, build SHA and image versions/digests. For a cold-initialisation measurement of the development database, `docker compose down -v` deletes local data. The base-image tags are `python:3.12-slim-bookworm`, `node:22-bookworm-slim` and `postgres:16`; record their resolved digests with benchmark results as described in Technical Architecture §9.2.
 
+## API conventions and diagnostics (FOUND-003)
+
+- **Base path** `/api/v1`. Health endpoints stay unversioned (`/health/live`, `/health/ready`) as the PRD specifies (FR-103).
+- **Request ID.** Every response carries `X-Request-ID`. A client-supplied ID is echoed only if it is 8-64 characters of `A-Z a-z 0-9 . _ : -`; anything else (including CR/LF, spaces, control characters) is replaced by a generated UUID. The same ID appears in error bodies and in every log line for the request.
+- **Error envelope** (PRD Appendix A, AC-070). All errors use one shape:
+
+  ```json
+  { "error": { "code": "NOT_FOUND", "message": "...", "details": [], "request_id": "..." } }
+  ```
+
+  The HTTP status is always derived from the code (`app/core/errors.py`), so a code can never be paired with a contradictory status; a test compares the catalogue with PRD Appendix A. Services raise `AppError(ErrorCode.X, "message")` and keep their specific business codes. Responses never contain stack traces, SQL, exception text or submitted values.
+
+  | Situation | Status | Code |
+  | --- | --- | --- |
+  | Known application error | per catalogue | its own code (e.g. `INSUFFICIENT_STOCK` 409) |
+  | Unknown route / resource | 404 | `NOT_FOUND` |
+  | Unsupported method | 405 | `METHOD_NOT_ALLOWED` |
+  | Validation failure | 422 | `VALIDATION_ERROR` |
+  | Framework 400, and any other framework 4xx | 400 | `BAD_REQUEST` |
+  | Unexpected exception; framework 5xx, **including 503** | 500 | `INTERNAL_ERROR` |
+  | Readiness failure (readiness endpoint only) | 503 | `NOT_READY` |
+
+  `BAD_REQUEST`, `METHOD_NOT_ALLOWED` and `INTERNAL_ERROR` were approved by the owner on 2026-10-25 and recorded in PRD Appendix A and Appendix C. Validation `details` are `{field, message, type}` with the input location in the path (`query.page_size`, `body.quantity`, `path.item_id`) and never echo submitted values.
+- **Pagination** (BR-016): `page` >= 1 (default 1); `page_size` >= 1, default `PAGE_SIZE_DEFAULT` (12), at most `PAGE_SIZE_MAX` (48). Both are configurable, but settings validation requires `1 <= PAGE_SIZE_DEFAULT <= PAGE_SIZE_MAX <= 48`: configuration may lower the limit, never raise it above the approved contract, and invalid values stop startup with a clear error. Invalid requests return 422 `VALIDATION_ERROR`; a page past the end returns 200 with empty `items` and correct `page`, `page_size`, `total_items`, `total_pages`. Use `PaginationDep` and `build_page` from `app/api/pagination.py`; the published OpenAPI shows the effective default and maximum.
+- **Structured logs.** One JSON object per line on stdout: `timestamp`, `level`, `logger`, `message`, `request_id`, `route`, `version`, `build` (set `BUILD_SHA`), and for requests `method`, `status`, `duration_ms`. The route is the route template, never the raw URL or query string. Headers and bodies are never logged.
+- **Redaction.** Applied to messages, extra fields, exception text and tracebacks alike: known secret values (secret settings, the database password, sensitive-named environment variables) wherever they appear; URL credentials; JWTs; `Authorization`/`Cookie`/`Set-Cookie` header lines; `Bearer`/`Basic` credentials; and `key=value` / `"key": "value"` pairs whose key contains password, secret, token (so `access_token`, `refresh_token`), cookie, csrf, api key, credential or jwt, including query-string tokens. Exception type and chain are kept for diagnosis. **Limits:** this is practical coverage of recognised patterns. It cannot find an arbitrary unknown secret inside free text, and benign text such as `token: expired` is redacted too. Do not put secrets in log messages or exception text.
+- **Reading correlated logs:** `docker compose logs api worker --no-log-prefix | grep <request-id>`.
+- **OpenAPI** is served at `/api/v1/openapi.json` (docs at `/api/v1/docs` outside production). Every response declares `X-Request-ID`; every operation has a `default` response referencing the shared `StandardError` envelope for statuses it does not document explicitly; explicit operation responses (success, 404, 409, 503, ...) are preserved. Operation-level contract tests (`tests/api/test_openapi_contract.py`) validate real bodies and headers against the published document. They run with `pytest`; wiring them into CI is TEST-001.
+
 ## Local quality checks
 
 Python 3.12 and Node 22 are expected. Dependencies are exact-pinned; copy `.env.example` files before running anything that needs configuration.
