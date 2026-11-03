@@ -18,7 +18,8 @@ NexaCart is a multi-category e-commerce application being built alongside a prof
 | --- | --- |
 | Frontend | React + TypeScript |
 | Backend | Python + FastAPI |
-| Database / ORM | PostgreSQL + SQLAlchemy |\n| Migrations | Alembic |
+| Database / ORM | PostgreSQL + SQLAlchemy |
+| Migrations | Alembic |
 | UI automation | Playwright for Python + Pytest |
 | API testing | HTTPX + Pytest |
 | BDD | pytest-bdd / Gherkin for selected business flows |
