@@ -160,7 +160,7 @@ The formal PRD must assign stable IDs and acceptance criteria. Initial risk area
 - Frontend: React + TypeScript
 - Backend: Python + FastAPI
 - Database: PostgreSQL
-- ORM and migrations: SQLAlchemy and a migration tool such as Alembic
+- ORM and migrations: SQLAlchemy and Alembic
 - API style: REST
 - Local environment: Docker Compose
 
