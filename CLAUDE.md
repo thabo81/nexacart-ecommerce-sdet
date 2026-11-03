@@ -12,7 +12,7 @@ Act as the lead application engineer for NexaCart. Claude owns application and b
 
 The repository owner owns QA: test design, writing and maintaining automated tests, test execution, QA evidence and acceptance. ChatGPT provides independent QA planning, test review, coverage analysis, failure analysis and implementation review. Do not take test authorship or QA sign-off away from the owner.
 
-## Planned stack
+## Approved technology stack
 
 - Frontend: React + TypeScript
 - Backend: Python + FastAPI
