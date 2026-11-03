@@ -104,7 +104,7 @@ Do not add email verification or OTP unless explicitly approved as a new require
 - Shipping options and explicit fee/free-shipping rules
 - Server-side calculation of all totals
 
-Exact coupon and shipping rules require PRD decisions and must not be invented as fixed requirements without approval.
+Exact coupon and shipping rules are defined in the owner-approved PRD and its referenced business rules. Implement those approved rules; any proposed change requires explicit owner review.
 
 ### Checkout and payments
 - Review cart and address
