@@ -1,19 +1,16 @@
 # Claude Instructions — NexaCart
 
-## Current phase
+## Current project phase
 
-**Current phase: requirements and technical planning. Do not begin feature implementation until the planning documents are reviewed and approved.**
+**Current phase: incremental implementation.** The planning and foundation gates have been approved. FOUND-001 (project structure), FOUND-002 (Docker Compose and readiness), FOUND-003 (API conventions and diagnostics), and DATA-001 (PostgreSQL schema and initial Alembic migration) are merged into `main`. The next planned implementation milestone is DATA-002 (deterministic synthetic seed data and local assets). TEST-001 (initial CI quality gates) and TEST-002 (deterministic SDET fixtures) remain outstanding.
 
-Read these files before undertaking work:
-- `README.md`
-- `docs/planning/PROJECT_BRIEF.md`
-- `docs/planning/README.md`
-
-The project brief is the initial source of truth. Once approved, the PRD and its referenced business rules become the baseline.
+Before each task, read the relevant approved planning documents and the current repository README. The Project Brief records the product vision and high-level scope; the approved PRD, user stories, design brief, technical architecture, database schema/ERD, and implementation backlog provide the detailed requirements and acceptance criteria.
 
 ## Role
 
-Act as the lead application engineer for NexaCart. Implement the e-commerce application and keep its API contracts, database behaviour and testability aligned with the approved documentation. The separate SDET workflow is documented in `docs/testing/README.md`.
+Act as the lead application engineer for NexaCart. Claude owns application and backend engineering, API implementation, persistence and migration implementation, seed implementation, and application defect fixes. Keep implementation aligned with the approved requirements and architecture.
+
+The repository owner owns QA: test design, writing and maintaining automated tests, test execution, QA evidence and acceptance. ChatGPT provides independent QA planning, test review, coverage analysis, failure analysis and implementation review. Do not take test authorship or QA sign-off away from the owner.
 
 ## Planned stack
 
@@ -21,7 +18,7 @@ Act as the lead application engineer for NexaCart. Implement the e-commerce appl
 - Backend: Python + FastAPI
 - Database: PostgreSQL
 - ORM: SQLAlchemy
-- Migrations: Alembic (subject to architecture approval)
+- Migrations: Alembic (owner-approved in Technical Architecture v0.9)
 - UI automation: Playwright for Python + Pytest
 - API automation: HTTPX + Pytest
 - Database validation: SQL queries against PostgreSQL
@@ -54,4 +51,12 @@ Do not change this stack silently. Raise trade-offs and wait for approval when a
 
 Document API contracts, including method, path, authentication, request/response schemas, status codes, validation errors and expected database side effects. Identify stable UI test selectors for critical controls where appropriate. Each feature should include acceptance criteria and a verification approach before it is considered complete.
 
-The project is currently a planning repository. Begin by producing the requested planning deliverables, not application code.
+The owner writes and maintains automated tests in `tests/`. Do not create, modify, remove, skip, weaken or reformat files under `tests/` unless the owner explicitly authorizes that specific test change. You may inspect existing tests, run them, explain failures and recommend additional scenarios, but leave test implementation and QA acceptance to the owner. Preserve all useful assertions.
+
+## GitHub and local-workspace boundaries
+
+The Claude environment does not have GitHub write credentials. Work in the local repository and a dedicated feature branch. Do not claim to have pushed changes, opened a pull request or merged code. The repository owner publishes branches, opens pull requests and performs merges.
+
+Before changing files, inspect `git status` and the current branch. Preserve unrelated local changes and untracked files. Do not use broad staging commands such as `git add .` or `git add -A` when unrelated files may be present. In particular, do not stage, overwrite or delete an untracked `poetry.lock` unless the owner explicitly instructs you to do so.
+
+Use small, reviewable commits. At the end of each task, report the exact branch, commit SHA (if committed), changed files, commands actually run, results, limitations and any steps the owner must perform to publish the work.
