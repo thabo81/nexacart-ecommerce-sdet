@@ -686,9 +686,11 @@ def test_idempotency_scope_key_retention_and_purge_keeps_payment_attempt(
             request_fingerprint="b" * 64,
             response_status=200,
             response_body={},
+            created_at=NOW,
             expires_at=NOW + timedelta(days=2),
         ),
     )
+
     seed.idem(user, scope="place_order", key_value="same-key-1")  # same key, different scope
     seed.idem(seed.user(), scope=f"pay_order:{order}", key_value="same-key-1")  # other customer
     expect_violation(
@@ -715,6 +717,7 @@ def test_idempotency_scope_key_retention_and_purge_keeps_payment_attempt(
             request_fingerprint="XYZ",
             response_status=200,
             response_body={},
+            created_at=NOW,
             expires_at=NOW + timedelta(days=2),
         ),
     )

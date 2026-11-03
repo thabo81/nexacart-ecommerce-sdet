@@ -27,4 +27,3 @@ def test_base_metadata_contains_the_approved_schema_tables() -> None:
     import app.persistence.models  # noqa: F401
 
     assert len(Base.metadata.tables) == 25
-
