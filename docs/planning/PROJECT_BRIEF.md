@@ -154,7 +154,7 @@ The formal PRD must assign stable IDs and acceptance criteria. Initial risk area
 - Administrative endpoints require the correct role.
 - Persistent records must remain consistent when transactions fail or roll back.
 
-## 6. Proposed technology stack
+## 6. Approved technology stack
 
 ### Application
 - Frontend: React + TypeScript
