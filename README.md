@@ -2,7 +2,7 @@
 
 NexaCart is a multi-category e-commerce application being built alongside a professional SDET automation framework. The application will support product discovery, shopping carts, checkout with simulated payments, order management and inventory rules. The portfolio focus is the quality engineering around those workflows: UI automation, REST API testing, database validation, BDD and CI/CD.
 
-> **Project status:** Implementation phase, milestone M0 (engineering foundation). The PRD, user stories, design, technical architecture v0.9, database schema/ERD v0.9 and [implementation plan & backlog v0.1](https://github.com/thabo81/nexacart-ecommerce-sdet/blob/main/docs/planning/IMPLEMENTATION_PLAN_AND_BACKLOG.md) are owner-approved planning baselines. FOUND-001 (project structure) is merged. FOUND-002 (Docker Compose and readiness) is under owner/QA review; development and test Compose profiles are included, with test-container runtime verification pending. No e-commerce features, database models or migrations exist yet. Planned functionality is not implemented or verified until the planning documents say so.
+> **Project status (2026-11-03):** Active, incremental implementation. FOUND-001 (project structure, PR #4), FOUND-002 (Docker Compose/readiness, PR #5), FOUND-003 (API conventions/diagnostics, PR #6) and DATA-001 (PostgreSQL 16 schema/models and initial Alembic migration for 25 non-R3 tables, PR #7) are merged into `main`. DATA-002 (deterministic synthetic seed data and local assets) is next. TEST-001 (initial CI quality gates) and TEST-002 (deterministic SDET fixtures) remain outstanding. Engineering, container and database foundations exist, but the core customer-facing ecommerce workflows have not yet been implemented or QA-accepted. Planned functionality is not implemented or verified until its implementation and acceptance evidence exists.
 
 ## Project goals
 
@@ -14,11 +14,12 @@ NexaCart is a multi-category e-commerce application being built alongside a prof
 
 ## Technology stack
 
-| Area | Planned technology |
+| Area | Owner-approved technology |
 | --- | --- |
 | Frontend | React + TypeScript |
 | Backend | Python + FastAPI |
 | Database / ORM | PostgreSQL + SQLAlchemy |
+| Migrations | Alembic |
 | UI automation | Playwright for Python + Pytest |
 | API testing | HTTPX + Pytest |
 | BDD | pytest-bdd / Gherkin for selected business flows |
@@ -36,9 +37,11 @@ NexaCart is a multi-category e-commerce application being built alongside a prof
 
 ## How we will work
 
-- **Claude:** application implementation, API contracts, database migrations and application defect fixes.
-- **ChatGPT:** SDET strategy, test design, Playwright/Pytest automation, API tests, SQL validation, failure analysis and test framework review.
-- **Project owner:** reviews requirements, approves design decisions, runs commands and confirms changes.
+- **Claude:** application/backend implementation, API contracts, persistence and migrations, seed implementation and application defect fixes. Claude's environment has no GitHub write credentials; it works locally and does not claim to publish branches or PRs.
+- **Project owner:** owns QA, test design, writing and maintaining automated tests, test execution, evidence, requirement decisions and acceptance; publishes branches, opens PRs and merges approved work.
+- **ChatGPT:** independent QA planning, test review, coverage analysis, failure analysis and implementation review; not feature implementation or QA sign-off.
+
+Claude must not create, modify, weaken or remove files under `tests/` unless the owner explicitly authorizes that specific test change.
 
 Both workstreams must use the approved documents in [docs/planning](docs/planning/README.md) as their source of truth.
 
@@ -67,11 +70,10 @@ app/              # FastAPI backend and worker (one codebase)
   api/            # HTTP layer: health.py (/health/live, /health/ready); v1/ versioned routers
   services/       # Application services: use cases and transaction boundaries
   domain/         # Pure domain rules; no HTTP or database imports
-  persistence/    # SQLAlchemy base/session; models arrive with DATA-001
+  persistence/    # SQLAlchemy base/session and DATA-001 models
   worker/         # Worker entry point: python -m app.worker
 docker/           # Backend Dockerfile (shared by API and worker)
 docker-compose.yml  # Local dev/test profiles: frontend, API, worker, PostgreSQL 16
-migrations/       # Alembic environment; revisions arrive with DATA-001
 migrations/       # Alembic environment and revisions (initial schema: DATA-001)
 frontend/         # React + TypeScript (Vite) application
 tests/
@@ -83,7 +85,7 @@ tests/
   bdd/features/   # pytest-bdd scenarios for selected business flows
 ```
 
-CI workflows and shared test fixtures are added by TEST-001 and TEST-002. Nothing here implements an e-commerce feature yet.
+GitHub Actions quality gates and reusable SDET fixtures are planned under TEST-001 and TEST-002. The current repository contains the engineering and database foundations; customer-facing ecommerce workflows remain future implementation work and must be verified against their approved acceptance criteria.
 
 ## Run locally with Docker Compose (FOUND-002)
 

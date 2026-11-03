@@ -4,7 +4,7 @@
 **Project type:** Full-stack multi-category e-commerce application plus SDET automation framework  
 **Repository:** https://github.com/thabo81/nexacart-ecommerce-sdet
 
-This document is the initial source of truth for product-planning work. The formal PRD and other planning documents will refine it. If a requirement is ambiguous, record the question and propose a default; do not silently invent a high-impact business rule.
+This document is the master product brief and records the original product vision, scope and high-level expectations. The formal PRD and other approved planning documents refine its requirements. This brief remains labelled a draft planning baseline; implementation status is maintained separately in §11 and in the repository README. If a requirement is ambiguous, record the question and propose a default; do not silently invent a high-impact business rule.
 
 ## 1. Product vision
 
@@ -104,7 +104,7 @@ Do not add email verification or OTP unless explicitly approved as a new require
 - Shipping options and explicit fee/free-shipping rules
 - Server-side calculation of all totals
 
-Exact coupon and shipping rules require PRD decisions and must not be invented as fixed requirements without approval.
+Exact coupon and shipping rules are defined in the owner-approved PRD and its referenced business rules. Implement those approved rules; any proposed change requires explicit owner review.
 
 ### Checkout and payments
 - Review cart and address
@@ -154,13 +154,13 @@ The formal PRD must assign stable IDs and acceptance criteria. Initial risk area
 - Administrative endpoints require the correct role.
 - Persistent records must remain consistent when transactions fail or roll back.
 
-## 6. Proposed technology stack
+## 6. Approved technology stack
 
 ### Application
 - Frontend: React + TypeScript
 - Backend: Python + FastAPI
 - Database: PostgreSQL
-- ORM and migrations: SQLAlchemy and a migration tool such as Alembic
+- ORM and migrations: SQLAlchemy and Alembic
 - API style: REST
 - Local environment: Docker Compose
 
@@ -174,7 +174,7 @@ The formal PRD must assign stable IDs and acceptance criteria. Initial risk area
 - Diagnostics: Playwright traces, screenshots, browser logs, request/response evidence
 - Test data: reusable fixtures and factories with safe setup/cleanup
 
-Application code and tests may share one repository, but responsibilities and directories must be separated. The stack is proposed and should be confirmed in the architecture document before implementation.
+Application code and tests may share one repository, but responsibilities and directories must be separated. The owner-approved Technical Architecture v0.9 is the authoritative technical baseline for the selected stack and system boundaries.
 
 ## 7. SDET coverage expectations
 
@@ -231,4 +231,30 @@ Work in small, reviewable increments. Define acceptance criteria and tests befor
 - `DATABASE_SCHEMA_AND_ERD.md` — entities, columns, keys, constraints, relationships and ERD
 - `IMPLEMENTATION_PLAN_AND_BACKLOG.md` — prioritized work items, dependencies and phased delivery
 
-Create and approve these documents before significant feature implementation. Maintain cross-document traceability and record unresolved decisions rather than silently choosing high-impact defaults.
+These documents establish the product and engineering planning baseline for implementation. Maintain cross-document traceability and record unresolved decisions rather than silently choosing high-impact defaults. Changes to approved requirements or architecture require explicit owner review.
+
+## 11. Implementation status and delivery coordination
+
+**Status date:** 2026-11-03
+
+The Project Brief remains the product-planning baseline described above. The following status records engineering delivery; it does not change or supersede the approved product requirements.
+
+| Milestone | Scope | Status |
+|---|---|---|
+| FOUND-001 | Repository structure and application foundation | Complete — merged into `main` (PR #4) |
+| FOUND-002 | Docker Compose services and readiness checks | Complete — merged into `main` (PR #5) |
+| FOUND-003 | API conventions, request IDs, error handling and diagnostics | Complete — merged into `main` (PR #6) |
+| DATA-001 | PostgreSQL 16 schema, SQLAlchemy models and initial Alembic migration for 25 non-R3 tables | Complete — merged into `main` (PR #7) |
+| DATA-002 | Deterministic synthetic seed data and local assets | Next planned implementation milestone |
+| TEST-001 | Initial GitHub Actions quality gates and readiness smoke test | Outstanding |
+| TEST-002 | Deterministic SDET fixtures | Outstanding |
+
+The merged milestones establish engineering and persistence foundations. They do **not** mean that the core customer-facing e-commerce workflows have been implemented or accepted. Catalogue browsing, authentication, cart, wishlist, coupons, checkout, orders and related business workflows remain subject to their individual backlog items, implementation and QA acceptance. R2 work and optional R3 notifications remain governed by their approved release scope.
+
+**Responsibility assignment**
+
+- **Claude:** application and backend engineering, API and persistence implementation, migrations, seed implementation and application defect fixes.
+- **Repository owner:** QA ownership, test design, writing and maintaining automated tests, test execution, evidence and acceptance.
+- **ChatGPT:** independent QA planning, test review, coverage analysis, failure analysis and implementation review; not the owner of feature implementation or QA sign-off.
+
+Claude works locally because its environment has no GitHub write credentials. The repository owner publishes branches, opens pull requests and merges approved changes.
