@@ -244,6 +244,10 @@ ALLOW_DESTRUCTIVE_TEST_DB=1 TEST_DATABASE_URL=postgresql+psycopg://user:pw@local
 ```
 
 
+## Seed data (DATA-002)
+
+`python -m app.seed {seed|reset --confirm|verify|assets|fixtures}` loads a deterministic synthetic baseline (local/test only; fails closed unless `APP_ENV` is `local` or `test`). Seed passwords come from `SEED_PASSWORD_*` variables, never from source. See [docs/seed/SEED_DATA.md](docs/seed/SEED_DATA.md) for commands, accounts, fixtures, reset boundary and limitations, and [docs/seed/ASSET_PROVENANCE.md](docs/seed/ASSET_PROVENANCE.md) for asset provenance.
+
 ## Definition of progress
 
 Every feature should have agreed requirements, acceptance criteria, appropriate automated coverage and recorded execution results. A feature is complete only when its intended behaviour is implemented and verified.
