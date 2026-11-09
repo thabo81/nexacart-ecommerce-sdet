@@ -17,7 +17,14 @@ from app.seed.plan import build_plan
 from app.seed.reset import clear_scope
 from app.seed.settings import SeedSettings
 from app.seed.validate import validate_dataset
-from app.seed.verify import baseline_report, dumps, invariant_failures, snapshot
+from app.seed.verify import (
+    baseline_report,
+    dumps,
+    invariant_failures,
+    seed_baseline_failures,
+    seed_baseline_report,
+    snapshot,
+)
 
 
 def _engine(settings: SeedSettings) -> tuple[Engine, str]:
@@ -31,15 +38,20 @@ def _static_checks() -> None:
         raise SeedGuardError("Dataset self-check failed: " + "; ".join(errors))
 
 
+def _database_failures(conn: object) -> list[str]:
+    """Combine expected-record completeness checks with relational/data invariants."""
+    return seed_baseline_failures(seed_baseline_report(conn)) + invariant_failures(conn)
+
+
 def cmd_seed(settings: SeedSettings) -> int:
     engine, database = _engine(settings)
     _static_checks()
     started = time.perf_counter()
     with engine.begin() as conn:
         inserted = apply_plan(conn, build_plan(), settings)
-        failures = invariant_failures(conn)
+        failures = _database_failures(conn)
         if failures:
-            raise SeedGuardError("Invariant check failed, rolled back: " + "; ".join(failures))
+            raise SeedGuardError("Verification failed, rolled back: " + "; ".join(failures))
     print(
         f"seed ok (env={settings.app_env}, database={database}, "
         f"{time.perf_counter() - started:.2f}s)"
@@ -61,10 +73,10 @@ def cmd_reset(settings: SeedSettings, confirmed: bool) -> int:
     with engine.begin() as conn:
         deleted = clear_scope(conn, plan)
         inserted = apply_plan(conn, plan, settings)
-        failures = invariant_failures(conn)
+        failures = _database_failures(conn)
         if failures:
             raise SeedGuardError(
-                "Invariant check failed after reset, rolled back: " + "; ".join(failures)
+                "Verification failed after reset, rolled back: " + "; ".join(failures)
             )
     elapsed = time.perf_counter() - started
     print(
@@ -79,14 +91,19 @@ def cmd_reset(settings: SeedSettings, confirmed: bool) -> int:
 def cmd_verify(settings: SeedSettings, with_snapshot: bool) -> int:
     engine, _ = _engine(settings)
     with engine.connect() as conn:
+        seed_report = seed_baseline_report(conn)
+        seed_failures = seed_baseline_failures(seed_report)
+        relational_failures = invariant_failures(conn)
         out: dict[str, object] = {
             "report": baseline_report(conn),
-            "invariant_failures": invariant_failures(conn),
+            "seed_baseline": seed_report,
+            "seed_baseline_failures": seed_failures,
+            "invariant_failures": relational_failures,
         }
         if with_snapshot:
             out["snapshot"] = snapshot(conn)
     print(dumps(out))
-    return 1 if out["invariant_failures"] else 0
+    return 1 if seed_failures or relational_failures else 0
 
 
 def cmd_assets(check: bool) -> int:
@@ -130,7 +147,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     asset.add_argument(
         "--check", action="store_true", help="verify files are present and up to date"
     )
-    sub.add_parser("fixtures", help="print the fixture catalogue as a markdown table")
+    sub.add_parser("fixtures", help="print the fixture catalogue as a Markdown table")
     args = parser.parse_args(argv)
     try:
         if args.command == "assets":
