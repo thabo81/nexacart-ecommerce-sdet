@@ -5,7 +5,7 @@ import sys
 import time
 from collections.abc import Sequence
 
-from sqlalchemy import Engine
+from sqlalchemy import Connection, Engine
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import Settings
@@ -38,7 +38,7 @@ def _static_checks() -> None:
         raise SeedGuardError("Dataset self-check failed: " + "; ".join(errors))
 
 
-def _database_failures(conn: object) -> list[str]:
+def _database_failures(conn: Connection) -> list[str]:
     """Combine expected-record completeness checks with relational/data invariants."""
     return seed_baseline_failures(seed_baseline_report(conn)) + invariant_failures(conn)
 
