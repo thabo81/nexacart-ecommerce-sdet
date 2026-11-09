@@ -235,7 +235,7 @@ These documents establish the product and engineering planning baseline for impl
 
 ## 11. Implementation status and delivery coordination
 
-**Status date:** 2026-11-03
+**Status date:** 2026-11-09
 
 The Project Brief remains the product-planning baseline described above. The following status records engineering delivery; it does not change or supersede the approved product requirements.
 
@@ -245,9 +245,10 @@ The Project Brief remains the product-planning baseline described above. The fol
 | FOUND-002 | Docker Compose services and readiness checks | Complete — merged into `main` (PR #5) |
 | FOUND-003 | API conventions, request IDs, error handling and diagnostics | Complete — merged into `main` (PR #6) |
 | DATA-001 | PostgreSQL 16 schema, SQLAlchemy models and initial Alembic migration for 25 non-R3 tables | Complete — merged into `main` (PR #7) |
-| DATA-002 | Deterministic synthetic seed data and local assets | Next planned implementation milestone |
-| TEST-001 | Initial GitHub Actions quality gates and readiness smoke test | Outstanding |
+| DATA-002 | Deterministic synthetic seed data and local assets | Merged into `main` (PR #9); two negative-path QA follow-ups remain open |
+| TEST-001 | Initial GitHub Actions quality gates and readiness smoke test | In progress — implemented on a feature branch; not yet shown to pass on GitHub |
 | TEST-002 | Deterministic SDET fixtures | Outstanding |
+| CAT-001 | Catalog data and local asset presentation | Next planned customer-facing item after the remaining M0 foundation work (TEST-001, TEST-002) |
 
 The merged milestones establish engineering and persistence foundations. They do **not** mean that the core customer-facing e-commerce workflows have been implemented or accepted. Catalogue browsing, authentication, cart, wishlist, coupons, checkout, orders and related business workflows remain subject to their individual backlog items, implementation and QA acceptance. R2 work and optional R3 notifications remain governed by their approved release scope.
 
