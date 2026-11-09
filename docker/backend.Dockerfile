@@ -15,6 +15,10 @@ COPY pyproject.toml README.md ./
 COPY app ./app
 RUN pip install .
 
+# Alembic is an explicit operational step shared by local and test containers.
+COPY alembic.ini ./
+COPY migrations ./migrations
+
 RUN useradd --system --no-create-home --uid 10001 nexacart
 USER nexacart
 
