@@ -15,6 +15,9 @@ venv/
 .venv/
 ENV/
 
+# CI/test output written by local runs of the CI steps
+reports/
+
 # Secrets and local environment
 .env
 .env.*
