@@ -20,6 +20,4 @@ playwright-report
 frontend
 docs
 tests
-migrations
-alembic.ini
 docker-compose*.yml

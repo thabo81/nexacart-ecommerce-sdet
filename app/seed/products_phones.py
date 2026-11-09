@@ -1,0 +1,197 @@
+"""Smartphones. Tiers: budget < R4,000; mid R4,000-R15,000; premium above."""
+
+from app.seed.constants import rand
+from app.seed.model import ProductSpec, V
+
+S = "PHN"
+
+
+def _spec(
+    screen: str, battery: str, camera: str, os_: str, net: str
+) -> tuple[tuple[str, str], ...]:
+    return (
+        ("Screen size", screen),
+        ("Battery", battery),
+        ("Camera", camera),
+        ("OS", os_),
+        ("Network", net),
+    )
+
+
+def products() -> list[ProductSpec]:
+    return [
+        ProductSpec(
+            S + "-001",
+            "apple-iphones",
+            "apple-iphone-15-pro-max",
+            "Apple iPhone 15 Pro Max",
+            "Apple",
+            "Flagship smartphone with titanium frame and pro camera system.",
+            _spec("6.7 in", "4422 mAh", "48 MP", "iOS", "5G"),
+            (
+                V(rand(27999), 8, storage="256GB", colour="Natural"),
+                V(rand(31999), 6, storage="512GB", colour="Natural"),
+                V(rand(35999), 4, storage="1TB", colour="Black"),
+            ),
+            featured=True,
+        ),
+        ProductSpec(
+            S + "-002",
+            "apple-iphones",
+            "apple-iphone-15",
+            "Apple iPhone 15",
+            "Apple",
+            "Dynamic Island display and a 48 MP main camera.",
+            _spec("6.1 in", "3349 mAh", "48 MP", "iOS", "5G"),
+            (
+                V(rand(14999), 14, storage="128GB", colour="Blue"),
+                V(rand(14999), 12, storage="128GB", colour="Pink"),
+                V(rand(14999), 10, storage="128GB", colour="Black"),
+            ),
+        ),
+        ProductSpec(
+            S + "-003",
+            "apple-iphones",
+            "apple-iphone-13",
+            "Apple iPhone 13",
+            "Apple",
+            "Previous-generation iPhone with dual-camera system.",
+            _spec("6.1 in", "3240 mAh", "12 MP", "iOS", "5G"),
+            (V(rand(10999), 11, colour="Midnight"), V(rand(10999), 9, colour="Starlight")),
+        ),
+        ProductSpec(
+            S + "-004",
+            "samsung-galaxy-phones",
+            "samsung-galaxy-s24-ultra",
+            "Samsung Galaxy S24 Ultra",
+            "Samsung",
+            "Flagship Galaxy with integrated stylus and 200 MP camera.",
+            _spec("6.8 in", "5000 mAh", "200 MP", "Android", "5G"),
+            (
+                V(rand(26999), 9, storage="256GB"),
+                V(rand(30999), 6, storage="512GB"),
+                V(rand(34999), 3, storage="1TB"),
+            ),
+            featured=True,
+        ),
+        ProductSpec(
+            S + "-005",
+            "samsung-galaxy-phones",
+            "samsung-galaxy-a55-5g",
+            "Samsung Galaxy A55 5G",
+            "Samsung",
+            "Mid-range Galaxy with AMOLED display and metal frame.",
+            _spec("6.6 in", "5000 mAh", "50 MP", "Android", "5G"),
+            (V(rand(8999), 20, storage="128GB"), V(rand(10499), 15, storage="256GB")),
+        ),
+        ProductSpec(
+            S + "-006",
+            "samsung-galaxy-phones",
+            "samsung-galaxy-a15",
+            "Samsung Galaxy A15",
+            "Samsung",
+            "Affordable Galaxy with large battery.",
+            _spec("6.5 in", "5000 mAh", "50 MP", "Android", "4G"),
+            (V(rand(3499), 40, colour="Blue Black"), V(rand(3499), 30, colour="Light Blue")),
+        ),
+        ProductSpec(
+            S + "-007",
+            "xiaomi-phones",
+            "xiaomi-14-ultra",
+            "Xiaomi 14 Ultra",
+            "Xiaomi",
+            "Photography-focused flagship with 1-inch sensor.",
+            _spec("6.73 in", "5000 mAh", "50 MP", "Android", "5G"),
+            (V(rand(19999), 5),),
+        ),
+        ProductSpec(
+            S + "-008",
+            "xiaomi-phones",
+            "xiaomi-redmi-note-13-pro",
+            "Xiaomi Redmi Note 13 Pro",
+            "Xiaomi",
+            "Value-packed mid-range phone with 200 MP camera.",
+            _spec("6.67 in", "5100 mAh", "200 MP", "Android", "4G"),
+            (
+                V(rand(6499), 22, storage="128GB", colour="Midnight Black"),
+                V(rand(7499), 16, storage="256GB", colour="Aurora Purple"),
+            ),
+        ),
+        ProductSpec(
+            S + "-009",
+            "xiaomi-phones",
+            "xiaomi-redmi-13c",
+            "Xiaomi Redmi 13C",
+            "Xiaomi",
+            "Budget phone for essentials.",
+            _spec("6.74 in", "5000 mAh", "50 MP", "Android", "4G"),
+            (V(rand(2199), 45, colour="Navy Blue"), V(rand(2199), 38, colour="Glacier White")),
+        ),
+        ProductSpec(
+            S + "-010",
+            "google-pixel-phones",
+            "google-pixel-9-pro",
+            "Google Pixel 9 Pro",
+            "Google",
+            "Flagship Pixel with advanced computational photography.",
+            _spec("6.3 in", "4700 mAh", "50 MP", "Android", "5G"),
+            (V(rand(21999), 7, storage="128GB"), V(rand(24999), 5, storage="256GB")),
+        ),
+        ProductSpec(
+            S + "-011",
+            "google-pixel-phones",
+            "google-pixel-8a",
+            "Google Pixel 8a",
+            "Google",
+            "Compact Pixel with seven years of updates.",
+            _spec("6.1 in", "4492 mAh", "64 MP", "Android", "5G"),
+            (V(rand(9999), 13, storage="128GB"), V(rand(11499), 9, storage="256GB")),
+        ),
+        ProductSpec(
+            S + "-012",
+            "google-pixel-phones",
+            "google-pixel-7a",
+            "Google Pixel 7a",
+            "Google",
+            "Previous-generation compact Pixel.",
+            _spec("6.1 in", "4385 mAh", "64 MP", "Android", "5G"),
+            (V(rand(7499), 12),),
+        ),
+        ProductSpec(
+            S + "-013",
+            "entry-level-phones",
+            "fx-out-of-stock-nova-lite-5",
+            "Nova Lite 5 Entry Smartphone",
+            "Nova",
+            "Fixture product where every variant is out of stock.",
+            _spec("6.5 in", "5000 mAh", "13 MP", "Android", "4G"),
+            (V(rand(1799), 0, storage="64GB"), V(rand(1999), 0, storage="128GB")),
+            fixture="out-of-stock",
+        ),
+        ProductSpec(
+            S + "-014",
+            "entry-level-phones",
+            "zenith-a1-smartphone",
+            "Zenith A1 Smartphone",
+            "Zenith",
+            "Simple entry-level smartphone.",
+            _spec("6.1 in", "4000 mAh", "8 MP", "Android", "4G"),
+            (V(rand(1299), 50),),
+        ),
+        ProductSpec(
+            S + "-015",
+            "entry-level-phones",
+            "hello-basic-4g-feature-phone",
+            "Hello Basic 4G Feature Phone",
+            "Hello",
+            "Durable keypad phone with long standby.",
+            (
+                ("Screen size", "2.4 in"),
+                ("Battery", "1800 mAh"),
+                ("Camera", "2 MP"),
+                ("OS", "Feature OS"),
+                ("Network", "4G"),
+            ),
+            (V(rand(899), 70, colour="Black"), V(rand(899), 44, colour="Red")),
+        ),
+    ]
