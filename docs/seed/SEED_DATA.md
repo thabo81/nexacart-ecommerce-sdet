@@ -10,7 +10,7 @@ All commands run from the repository root as `python -m app.seed <command>` (ins
 |---|---|
 | `seed` | Insert any missing seed rows in one transaction. Idempotent; never updates or deletes existing rows. |
 | `reset --confirm` | Remove seed-owned and `qa_`-prefixed test data inside the boundary below, then re-seed. Separate from `seed`; requires `--confirm`. |
-| `verify [--snapshot]` | Read-only baseline report and invariant checks; `--snapshot` adds per-table row counts and SHA-256 digests for before/after comparison. |
+| `verify [--snapshot]` | Read-only baseline report; checks that every planned seed-owned row exists by deterministic primary key and validates data invariants. Returns non-zero for missing/duplicate planned rows or invariant failures. `--snapshot` adds per-table row counts and SHA-256 digests for before/after comparison. |
 | `assets [--check]` | Regenerate (or verify) the local SVG assets and provenance manifest. |
 | `fixtures` | Print the fixture catalogue as a Markdown table. |
 
