@@ -1,10 +1,10 @@
-"""Read-only baseline report and invariant checks (counts, ledger = stock, rating aggregates)."""
+"""Read-only seed completeness and invariant checks (ledger = stock, rating aggregates)."""
 
 import hashlib
 import json
 from typing import Any
 
-from sqlalchemy import Connection, text
+from sqlalchemy import Connection, select, text, tuple_
 
 from app.persistence.models.catalog import Product
 from app.seed.catalogue import BANDS
@@ -95,6 +95,76 @@ def baseline_report(conn: Connection) -> dict[str, Any]:
         "JOIN categories c ON c.id = s.parent_id GROUP BY c.slug, tier ORDER BY c.slug, tier"
     )
     return report
+
+
+def seed_baseline_report(conn: Connection) -> dict[str, dict[str, Any]]:
+    """Check presence of every planned seed row by its deterministic primary key.
+
+    Counts are scoped to the seed plan, not whole tables, so unrelated local/test records do not
+    cause false failures. The check deliberately covers every table populated by the seed plan.
+    """
+    from app.seed.plan import build_plan
+
+    report: dict[str, dict[str, Any]] = {}
+    for model, rows in build_plan().tables:
+        if not rows:
+            continue
+
+        primary_key_columns = list(model.__mapper__.primary_key)
+        key_names = [column.key for column in primary_key_columns]
+        primary_key_attributes = [getattr(model, name) for name in key_names]
+        expected_keys = {tuple(row[name] for name in key_names) for row in rows}
+
+        if len(primary_key_attributes) == 1:
+            values = [key[0] for key in expected_keys]
+            present_values = conn.execute(
+                select(primary_key_attributes[0]).where(primary_key_attributes[0].in_(values))
+            ).scalars()
+            present_keys = {(value,) for value in present_values}
+        else:
+            present_rows = conn.execute(
+                select(*primary_key_attributes).where(
+                    tuple_(*primary_key_attributes).in_(list(expected_keys))
+                )
+            )
+            present_keys = {tuple(row) for row in present_rows}
+
+        missing_keys = expected_keys - present_keys
+
+        def display_key(key: tuple[Any, ...]) -> str | list[str]:
+            if len(key) == 1:
+                return str(key[0])
+            return [str(value) for value in key]
+
+        report[model.__tablename__] = {
+            "expected": len(rows),
+            "unique_expected": len(expected_keys),
+            "present": len(present_keys),
+            "missing": len(missing_keys),
+            "duplicate_expected": len(rows) - len(expected_keys),
+            "missing_keys": [
+                display_key(key)
+                for key in sorted(missing_keys, key=lambda values: tuple(str(v) for v in values))[
+                    :10
+                ]
+            ],
+        }
+    return report
+
+
+def seed_baseline_failures(report: dict[str, dict[str, Any]]) -> list[str]:
+    """Return failures when planned seed rows are duplicated or absent from the database."""
+    failures: list[str] = []
+    for table, counts in report.items():
+        duplicates = int(counts["duplicate_expected"])
+        missing = int(counts["missing"])
+        if duplicates:
+            failures.append(f"{table}: seed plan contains {duplicates} duplicate primary key(s)")
+        if missing:
+            failures.append(
+                f"{table}: {missing} of {counts['unique_expected']} expected seed row(s) are missing"
+            )
+    return failures
 
 
 def invariant_failures(conn: Connection) -> list[str]:
