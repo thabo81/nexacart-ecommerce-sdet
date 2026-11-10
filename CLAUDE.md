@@ -2,7 +2,7 @@
 
 ## Current project phase
 
-**Current phase: incremental implementation.** The planning and foundation gates have been approved. FOUND-001 (project structure), FOUND-002 (Docker Compose and readiness), FOUND-003 (API conventions and diagnostics), and DATA-001 (PostgreSQL schema and initial Alembic migration) are merged into `main`. The next planned implementation milestone is DATA-002 (deterministic synthetic seed data and local assets). TEST-001 (initial CI quality gates) and TEST-002 (deterministic SDET fixtures) remain outstanding.
+**Current phase: incremental implementation.** The planning and foundation gates have been approved. FOUND-001 (project structure), FOUND-002 (Docker Compose and readiness), FOUND-003 (API conventions and diagnostics), DATA-001 (PostgreSQL schema and initial Alembic migration) and DATA-002 (deterministic synthetic seed data and local assets, PR #9) are merged into `main`; two DATA-002 negative-path QA follow-ups remain open and are tracked separately by the owner. TEST-001 (initial CI quality gates and readiness smoke test, PR #10) is merged into `main`; the owner verified on GitHub that its workflow run passed and reviewed the job evidence. TEST-002 (deterministic SDET fixtures) remains outstanding and is the remaining M0 foundation item. CAT-001 (catalog data and local asset presentation) is the next planned customer-facing implementation item after TEST-002.
 
 Before each task, read the relevant approved planning documents and the current repository README. The Project Brief records the product vision and high-level scope; the approved PRD, user stories, design brief, technical architecture, database schema/ERD, and implementation backlog provide the detailed requirements and acceptance criteria.
 

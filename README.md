@@ -2,7 +2,7 @@
 
 NexaCart is a multi-category e-commerce application being built alongside a professional SDET automation framework. The application will support product discovery, shopping carts, checkout with simulated payments, order management and inventory rules. The portfolio focus is the quality engineering around those workflows: UI automation, REST API testing, database validation, BDD and CI/CD.
 
-> **Project status (2026-11-03):** Active, incremental implementation. FOUND-001 (project structure, PR #4), FOUND-002 (Docker Compose/readiness, PR #5), FOUND-003 (API conventions/diagnostics, PR #6) and DATA-001 (PostgreSQL 16 schema/models and initial Alembic migration for 25 non-R3 tables, PR #7) are merged into `main`. DATA-002 (deterministic synthetic seed data and local assets) is next. TEST-001 (initial CI quality gates) and TEST-002 (deterministic SDET fixtures) remain outstanding. Engineering, container and database foundations exist, but the core customer-facing ecommerce workflows have not yet been implemented or QA-accepted. Planned functionality is not implemented or verified until its implementation and acceptance evidence exists.
+> **Project status (2026-11-09):** Active, incremental implementation. FOUND-001 (project structure, PR #4), FOUND-002 (Docker Compose/readiness, PR #5), FOUND-003 (API conventions/diagnostics, PR #6) DATA-001 (PostgreSQL 16 schema/models and initial Alembic migration for 25 non-R3 tables, PR #7) and DATA-002 (deterministic synthetic seed data and local assets, PR #9) are merged into `main`; two DATA-002 negative-path QA follow-ups remain open. TEST-001 (initial CI quality gates and readiness smoke test, PR #10) is merged into `main` after the owner verified its GitHub Actions run; TEST-002 (deterministic SDET fixtures) remains outstanding. CAT-001 (catalog data and local asset presentation) is the next planned customer-facing item after TEST-002. Engineering, container and database foundations exist, but the core customer-facing ecommerce workflows have not yet been implemented or QA-accepted. Planned functionality is not implemented or verified until its implementation and acceptance evidence exists.
 
 ## Project goals
 
@@ -85,7 +85,7 @@ tests/
   bdd/features/   # pytest-bdd scenarios for selected business flows
 ```
 
-GitHub Actions quality gates and reusable SDET fixtures are planned under TEST-001 and TEST-002. The current repository contains the engineering and database foundations; customer-facing ecommerce workflows remain future implementation work and must be verified against their approved acceptance criteria.
+GitHub Actions quality gates were added under TEST-001 (see [Continuous integration](#continuous-integration-test-001)); reusable SDET fixtures are planned under TEST-002. The current repository contains the engineering and database foundations; customer-facing ecommerce workflows remain future implementation work and must be verified against their approved acceptance criteria.
 
 ## Run locally with Docker Compose (FOUND-002)
 
@@ -205,7 +205,7 @@ Record the host, Docker/Compose versions, build SHA and image versions/digests. 
 - **Structured logs.** One JSON object per line on stdout: `timestamp`, `level`, `logger`, `message`, `request_id`, `route`, `version`, `build` (set `BUILD_SHA`), and for requests `method`, `status`, `duration_ms`. The route is the route template, never the raw URL or query string. Headers and bodies are never logged.
 - **Redaction.** Applied to messages, extra fields, exception text and tracebacks alike: known secret values (secret settings, the database password, sensitive-named environment variables) wherever they appear; URL credentials; JWTs; `Authorization`/`Cookie`/`Set-Cookie` header lines; `Bearer`/`Basic` credentials; and `key=value` / `"key": "value"` pairs whose key contains password, secret, token (so `access_token`, `refresh_token`), cookie, csrf, api key, credential or jwt, including query-string tokens. Exception type and chain are kept for diagnosis. **Limits:** this is practical coverage of recognised patterns. It cannot find an arbitrary unknown secret inside free text, and benign text such as `token: expired` is redacted too. Do not put secrets in log messages or exception text.
 - **Reading correlated logs:** `docker compose logs api worker --no-log-prefix | grep <request-id>`.
-- **OpenAPI** is served at `/api/v1/openapi.json` (docs at `/api/v1/docs` outside production). Every response declares `X-Request-ID`; every operation has a `default` response referencing the shared `StandardError` envelope for statuses it does not document explicitly; explicit operation responses (success, 404, 409, 503, ...) are preserved. Operation-level contract tests (`tests/api/test_openapi_contract.py`) validate real bodies and headers against the published document. They run with `pytest`; wiring them into CI is TEST-001.
+- **OpenAPI** is served at `/api/v1/openapi.json` (docs at `/api/v1/docs` outside production). Every response declares `X-Request-ID`; every operation has a `default` response referencing the shared `StandardError` envelope for statuses it does not document explicitly; explicit operation responses (success, 404, 409, 503, ...) are preserved. Operation-level contract tests (`tests/api/test_openapi_contract.py`) validate real bodies and headers against the published document. They run with `pytest`; TEST-001 adds the CI workflow that runs them.
 
 ## Local quality checks
 
@@ -247,6 +247,33 @@ ALLOW_DESTRUCTIVE_TEST_DB=1 TEST_DATABASE_URL=postgresql+psycopg://user:pw@local
 ## Seed data (DATA-002)
 
 `python -m app.seed {seed|reset --confirm|verify|assets|fixtures}` loads a deterministic synthetic baseline (local/test only; fails closed unless `APP_ENV` is `local` or `test`). Seed passwords come from `SEED_PASSWORD_*` variables, never from source. See [docs/seed/SEED_DATA.md](docs/seed/SEED_DATA.md) for commands, accounts, fixtures, reset boundary and limitations, and [docs/seed/ASSET_PROVENANCE.md](docs/seed/ASSET_PROVENANCE.md) for asset provenance.
+
+## Continuous integration (TEST-001)
+
+`.github/workflows/ci.yml` runs on pull requests targeting `main` and on pushes to `main`, with a read-only `contents` token and no repository secrets. Third-party actions are pinned to full commit SHAs. Jobs run in parallel; require **`CI gate`** in branch protection, because it fails unless every job below succeeded.
+
+| Job | What it checks |
+|---|---|
+| `python-quality` | `ruff check .`, `ruff format --check .`, `mypy` (strict) |
+| `backend-tests` | `pytest -m "unit or api"` (no database); a JUnit check fails the job if any test was skipped |
+| `frontend` | `npm ci`, `npm run lint`, `format:check`, `typecheck`, `build` (Node from `frontend/.nvmrc`) |
+| `postgres-verify` | Disposable PostgreSQL 16 from the Compose `db-test` service; `pytest -m "database or integration"` on an empty `nexacart_ci_test` database (skips fail the job); explicit `alembic upgrade head`; `python -m app.seed seed` + `verify`, then a second seed that must leave `verify` output byte-identical; `python -m app.seed assets --check`; a readiness smoke test that starts the real API and requires `/health/ready` to be 200 against PostgreSQL and **503 `NOT_READY`** against an unreachable one |
+
+Database and seed passwords are generated per run, masked, and redacted from the failure artifact (`postgres-verify-diagnostics`, kept 7 days). `scripts/ci/` holds the two small helpers (`readiness_smoke.py`, `assert_junit_executed.py`); they are CI tooling, not tests. Whether a given run passed is recorded on GitHub, not in this file.
+
+Reproduce the PostgreSQL job locally (requires Docker; uses a random throwaway password and never your `.env`):
+
+```bash
+export POSTGRES_USER=nexacart_ci POSTGRES_PASSWORD="$(openssl rand -hex 24)" POSTGRES_DB=nexacart POSTGRES_TEST_DB=nexacart_test
+docker compose --profile test up -d --wait db-test
+docker compose --profile test exec -T db-test psql -U "$POSTGRES_USER" -d "$POSTGRES_TEST_DB" -c 'CREATE DATABASE nexacart_ci_test'
+export APP_ENV=test DATABASE_URL="postgresql+psycopg://$POSTGRES_USER:$POSTGRES_PASSWORD@127.0.0.1:55432/$POSTGRES_TEST_DB"
+alembic upgrade head
+SEED_PASSWORD_ADMIN="$(openssl rand -hex 16)" SEED_PASSWORD_CUSTOMER="$(openssl rand -hex 16)" \
+  SEED_PASSWORD_HISTORY="$(openssl rand -hex 16)" SEED_PASSWORD_REVIEWER="$(openssl rand -hex 16)" python -m app.seed seed
+python -m app.seed verify
+docker compose --profile test down -v
+```
 
 ## Definition of progress
 
