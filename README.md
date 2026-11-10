@@ -2,7 +2,7 @@
 
 NexaCart is a multi-category e-commerce application being built alongside a professional SDET automation framework. The application will support product discovery, shopping carts, checkout with simulated payments, order management and inventory rules. The portfolio focus is the quality engineering around those workflows: UI automation, REST API testing, database validation, BDD and CI/CD.
 
-> **Project status (2026-11-09):** Active, incremental implementation. FOUND-001 (project structure, PR #4), FOUND-002 (Docker Compose/readiness, PR #5), FOUND-003 (API conventions/diagnostics, PR #6) DATA-001 (PostgreSQL 16 schema/models and initial Alembic migration for 25 non-R3 tables, PR #7) and DATA-002 (deterministic synthetic seed data and local assets, PR #9) are merged into `main`; two DATA-002 negative-path QA follow-ups remain open. TEST-001 (initial CI quality gates) is being implemented and has not yet been shown to pass on GitHub; TEST-002 (deterministic SDET fixtures) remains outstanding. CAT-001 (catalog data and local asset presentation) is the next planned customer-facing item after the remaining M0 foundation work. Engineering, container and database foundations exist, but the core customer-facing ecommerce workflows have not yet been implemented or QA-accepted. Planned functionality is not implemented or verified until its implementation and acceptance evidence exists.
+> **Project status (2026-11-09):** Active, incremental implementation. FOUND-001 (project structure, PR #4), FOUND-002 (Docker Compose/readiness, PR #5), FOUND-003 (API conventions/diagnostics, PR #6) DATA-001 (PostgreSQL 16 schema/models and initial Alembic migration for 25 non-R3 tables, PR #7) and DATA-002 (deterministic synthetic seed data and local assets, PR #9) are merged into `main`; two DATA-002 negative-path QA follow-ups remain open. TEST-001 (initial CI quality gates and readiness smoke test, PR #10) is merged into `main` after the owner verified its GitHub Actions run; TEST-002 (deterministic SDET fixtures) remains outstanding. CAT-001 (catalog data and local asset presentation) is the next planned customer-facing item after TEST-002. Engineering, container and database foundations exist, but the core customer-facing ecommerce workflows have not yet been implemented or QA-accepted. Planned functionality is not implemented or verified until its implementation and acceptance evidence exists.
 
 ## Project goals
 
@@ -85,7 +85,7 @@ tests/
   bdd/features/   # pytest-bdd scenarios for selected business flows
 ```
 
-GitHub Actions quality gates are being implemented under TEST-001 (see [Continuous integration](#continuous-integration-test-001)); reusable SDET fixtures are planned under TEST-002. The current repository contains the engineering and database foundations; customer-facing ecommerce workflows remain future implementation work and must be verified against their approved acceptance criteria.
+GitHub Actions quality gates were added under TEST-001 (see [Continuous integration](#continuous-integration-test-001)); reusable SDET fixtures are planned under TEST-002. The current repository contains the engineering and database foundations; customer-facing ecommerce workflows remain future implementation work and must be verified against their approved acceptance criteria.
 
 ## Run locally with Docker Compose (FOUND-002)
 
