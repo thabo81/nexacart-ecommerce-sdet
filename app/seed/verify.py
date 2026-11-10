@@ -162,7 +162,8 @@ def seed_baseline_failures(report: dict[str, dict[str, Any]]) -> list[str]:
             failures.append(f"{table}: seed plan contains {duplicates} duplicate primary key(s)")
         if missing:
             failures.append(
-                f"{table}: {missing} of {counts['unique_expected']} expected seed row(s) are missing"
+                f"{table}: {missing} of {counts['unique_expected']} "
+                "expected seed row(s) are missing"
             )
     return failures
 
