@@ -96,3 +96,53 @@ def sibling_database_url(url: str, suffix: str) -> str:
     unique_suffix = f"_{safe_suffix}_{uuid.uuid4().hex[:12]}"
     database_name = f"{parsed.database[: 63 - len(unique_suffix)]}{unique_suffix}"
     return parsed.set(database=database_name).render_as_string(hide_password=False)
+
+
+@pytest.fixture
+def db_session(migrated_engine: Engine) -> Iterator["Session"]:
+    """Yield a Session isolated by an outer transaction owned by this fixture.
+
+    The Session is bound to the same connection as the outer transaction.
+    Session commits release only their savepoint; fixture teardown rolls back
+    the outer transaction and independently verifies registered User emails
+    through a newly acquired PostgreSQL connection.
+    """
+    from sqlalchemy import func, select
+    from sqlalchemy.orm import Session
+
+    from app.persistence.models.identity import User
+
+    rollback_emails: list[str] = []
+
+    with migrated_engine.connect() as connection:
+        outer_transaction = connection.begin()
+        session = Session(
+            bind=connection,
+            join_transaction_mode="create_savepoint",
+            expire_on_commit=False,
+        )
+        session.info["rollback_verification_emails"] = rollback_emails
+
+        try:
+            yield session
+        finally:
+            try:
+                session.close()
+            finally:
+                try:
+                    if outer_transaction.is_active:
+                        outer_transaction.rollback()
+                finally:
+                    if rollback_emails:
+                        with migrated_engine.connect() as verification_connection:
+                            for email in rollback_emails:
+                                remaining = verification_connection.scalar(
+                                    select(func.count())
+                                    .select_from(User)
+                                    .where(User.email == email)
+                                )
+                                if remaining != 0:
+                                    pytest.fail(
+                                        "Database transaction rollback verification failed: "
+                                        f"email={email!r}, remaining_records={remaining!r}"
+                                    )
