@@ -14,10 +14,12 @@ from collections.abc import Iterator
 import pytest
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import Connection, Engine, create_engine, text
+from sqlalchemy import Connection, Engine, create_engine, func, select, text
+from sqlalchemy.orm import Session
 from sqlalchemy.engine import make_url
 
 from app.core.config import get_settings
+from app.persistence.models.identity import User
 
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 
@@ -99,7 +101,7 @@ def sibling_database_url(url: str, suffix: str) -> str:
 
 
 @pytest.fixture
-def db_session(migrated_engine: Engine) -> Iterator["Session"]:
+def db_session(migrated_engine: Engine) -> Iterator[Session]:
     """Yield a Session isolated by an outer transaction owned by this fixture.
 
     The Session is bound to the same connection as the outer transaction.
@@ -107,11 +109,6 @@ def db_session(migrated_engine: Engine) -> Iterator["Session"]:
     the outer transaction and independently verifies registered User emails
     through a newly acquired PostgreSQL connection.
     """
-    from sqlalchemy import func, select
-    from sqlalchemy.orm import Session
-
-    from app.persistence.models.identity import User
-
     rollback_emails: list[str] = []
 
     with migrated_engine.connect() as connection:
